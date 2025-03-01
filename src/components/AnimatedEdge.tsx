@@ -9,6 +9,11 @@ export interface AnimatedEdgeData {
   label?: string;
 }
 
+// Define a type that correctly specifies the data property
+type AnimatedEdgeProps = Omit<EdgeProps, 'data'> & {
+  data?: AnimatedEdgeData;
+};
+
 // The AnimatedEdge component renders a custom edge with animated elements
 const AnimatedEdge = ({
   id,
@@ -19,10 +24,11 @@ const AnimatedEdge = ({
   sourcePosition,
   targetPosition,
   style = {},
-  data = {},
+  data = {} as AnimatedEdgeData,
   markerEnd,
-}: EdgeProps) => {
-  const edgeData = data as AnimatedEdgeData;
+}: AnimatedEdgeProps) => {
+  // Default color if not provided
+  const color = data?.color || '#64748b';
   
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
@@ -33,9 +39,6 @@ const AnimatedEdge = ({
     targetPosition,
   });
 
-  // Default color if not provided
-  const color = edgeData?.color || '#64748b';
-  
   return (
     <>
       {/* Base edge */}
@@ -72,7 +75,7 @@ const AnimatedEdge = ({
       ))}
       
       {/* Optional document icons for document-type edges */}
-      {edgeData?.type === 'document' && (
+      {data?.type === 'document' && (
         [...Array(2)].map((_, i) => (
           <foreignObject
             key={`${id}-doc-${i}`}
@@ -99,7 +102,7 @@ const AnimatedEdge = ({
       )}
       
       {/* Edge label */}
-      {edgeData?.label && (
+      {data?.label && (
         <EdgeLabelRenderer>
           <div
             style={{
@@ -115,7 +118,7 @@ const AnimatedEdge = ({
             }}
             className="nodrag nopan"
           >
-            {edgeData.label}
+            {data.label}
           </div>
         </EdgeLabelRenderer>
       )}

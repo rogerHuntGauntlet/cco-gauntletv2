@@ -5,7 +5,7 @@ import { CogIcon } from '@heroicons/react/24/outline';
 // Custom CCO node types
 export type NodeType = 'cco' | 'data' | 'analytics' | 'ai' | 'integration';
 
-// Node data interface
+// Node data interface - this is for the data property of the node
 export interface CCONodeData {
   label: string;
   type: NodeType;
@@ -52,8 +52,13 @@ const nodeStyles: Record<NodeType, {
   }
 };
 
-// The component receives NodeProps where generic type is our custom data shape
-const CCONode = ({ data, selected }: NodeProps<CCONodeData>) => {
+// Let's define a more specific NodeProps type that matches React Flow's expectations
+type CCONodeProps = Omit<NodeProps, 'data'> & {
+  data: CCONodeData;
+};
+
+// The component receives NodeProps where the data property contains our custom CCONodeData
+const CCONode = ({ data, selected }: CCONodeProps) => {
   const { type, label, icon, subtitle } = data;
   const styles = nodeStyles[type];
   

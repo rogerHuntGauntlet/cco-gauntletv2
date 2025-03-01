@@ -1,6 +1,7 @@
 import '../styles/globals.css';
 import type { AppProps } from 'next/app';
 import { AuthProvider } from '../contexts/AuthContext';
+import { AIProvider } from '../contexts/AIContext';
 import { useEffect } from 'react';
 
 export default function App({ Component, pageProps }: AppProps) {
@@ -27,7 +28,9 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <AuthProvider>
-      <Component {...pageProps} />
+      <AIProvider>
+        <Component {...pageProps} />
+      </AIProvider>
     </AuthProvider>
   );
 } 

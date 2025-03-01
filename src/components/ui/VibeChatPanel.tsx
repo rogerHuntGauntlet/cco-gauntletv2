@@ -1,12 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { XMarkIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline';
-
-interface Message {
-  id: string;
-  sender: 'user' | 'vibe';
-  text: string;
-  timestamp: Date;
-}
+import { XMarkIcon, PaperAirplaneIcon, TrashIcon, BoltIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
+import { useAI } from '../../contexts/AIContext';
+import { format } from 'date-fns';
 
 interface VibeChatPanelProps {
   isOpen: boolean;
@@ -14,27 +9,52 @@ interface VibeChatPanelProps {
 }
 
 export default function VibeChatPanel({ isOpen, onClose }: VibeChatPanelProps) {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      sender: 'vibe',
-      text: 'Hi there! I\'m your VIBE assistant. How can I enhance your flow state today?',
-      timestamp: new Date()
-    }
-  ]);
   const [inputValue, setInputValue] = useState('');
-  const [panelWidth, setPanelWidth] = useState(384); // Default width of 96 in rem (384px)
+  const [panelWidth, setPanelWidth] = useState(384); // Default width of 384px
   const [isResizing, setIsResizing] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [showModelInfo, setShowModelInfo] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const resizeRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom when messages change
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+  const { 
+    messages, 
+    isLoading, 
+    sendMessage, 
+    clearMessages, 
+    context,
+    hasEnoughInfoForGeneration,
+    generateResource,
+    currentModel
+  } = useAI();
+
+  // Format model name for display
+  const formatModelName = (modelId: string): string => {
+    if (!modelId || modelId === 'default') return 'Default AI';
+    if (modelId === 'unknown') return 'Unknown Model';
+    
+    // Format OpenAI model names
+    if (modelId.includes('gpt-3.5-turbo')) return 'GPT-3.5 Turbo';
+    if (modelId.includes('gpt-4')) {
+      if (modelId.includes('turbo')) return 'GPT-4 Turbo';
+      if (modelId.includes('vision')) return 'GPT-4 Vision';
+      if (modelId.includes('32k')) return 'GPT-4 32K';
+      return 'GPT-4';
     }
-  }, [messages]);
+    
+    // Legacy format for compatibility with Bedrock models if they're still referenced
+    if (modelId.includes('claude-v2')) return 'Claude 2';
+    if (modelId.includes('claude-instant')) return 'Claude Instant';
+    if (modelId.includes('titan')) return 'Amazon Titan';
+    if (modelId.includes('cohere')) return 'Cohere Command';
+    if (modelId.includes('llama')) return 'Llama 2';
+    
+    // Extract just the model name without the full path/ARN
+    const parts = modelId.split('/');
+    const lastPart = parts[parts.length - 1];
+    
+    return lastPart || modelId;
+  };
 
   // Focus input when panel opens
   useEffect(() => {
@@ -44,6 +64,11 @@ export default function VibeChatPanel({ isOpen, onClose }: VibeChatPanelProps) {
       }, 100);
     }
   }, [isOpen]);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   // Handle resizing
   useEffect(() => {
@@ -79,43 +104,16 @@ export default function VibeChatPanel({ isOpen, onClose }: VibeChatPanelProps) {
     setIsResizing(true);
   };
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!inputValue.trim()) return;
-    
-    // Add user message
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      sender: 'user',
-      text: inputValue,
-      timestamp: new Date()
-    };
-    
-    setMessages(prev => [...prev, userMessage]);
-    setInputValue('');
-    
-    // Simulate VIBE assistant response after a short delay
-    setTimeout(() => {
-      const vibeResponses = [
-        "I understand. Let me help you optimize your workflow for that task.",
-        "Great question! Here's a technique that might help you get into flow state faster.",
-        "I've analyzed your recent patterns. Would you like some suggestions to improve focus?",
-        "That's an interesting challenge. Let me suggest a few approaches that might work better.",
-        "I'm detecting some resistance in your workflow. Let's try to identify what's blocking you."
-      ];
-      
-      const randomResponse = vibeResponses[Math.floor(Math.random() * vibeResponses.length)];
-      
-      const vibeMessage: Message = {
-        id: Date.now().toString(),
-        sender: 'vibe',
-        text: randomResponse,
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, vibeMessage]);
-    }, 1000);
+    if (inputValue.trim() && !isLoading) {
+      sendMessage(inputValue);
+      setInputValue('');
+    }
+  };
+
+  const toggleModelInfo = () => {
+    setShowModelInfo(!showModelInfo);
   };
 
   if (!isOpen) return null;
@@ -145,44 +143,110 @@ export default function VibeChatPanel({ isOpen, onClose }: VibeChatPanelProps) {
               <path d="M12 12l4.3 4.3" />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold text-cco-neutral-900">VIBE Assistant</h3>
+          <div>
+            <h3 className="text-lg font-semibold text-cco-neutral-900">VIBE Assistant</h3>
+            {currentModel !== 'default' && (
+              <div className="flex items-center">
+                <button 
+                  onClick={toggleModelInfo}
+                  className="text-xs text-cco-neutral-500 hover:text-cco-primary-600 flex items-center"
+                >
+                  <span>{formatModelName(currentModel)}</span>
+                  <InformationCircleIcon className="w-3 h-3 ml-1" />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
-        <button 
-          onClick={onClose}
-          className="p-1 rounded-md text-cco-neutral-700 hover:bg-cco-neutral-100"
-        >
-          <XMarkIcon className="w-6 h-6" />
-        </button>
+        <div className="flex items-center space-x-1">
+          <button 
+            onClick={clearMessages}
+            className="p-1 rounded-md text-cco-neutral-700 hover:bg-cco-neutral-100"
+            title="Clear conversation"
+          >
+            <TrashIcon className="w-5 h-5" />
+          </button>
+          <button 
+            onClick={onClose}
+            className="p-1 rounded-md text-cco-neutral-700 hover:bg-cco-neutral-100"
+          >
+            <XMarkIcon className="w-6 h-6" />
+          </button>
+        </div>
       </div>
+
+      {/* Model Info Tooltip - shows when model info is clicked */}
+      {showModelInfo && (
+        <div className="bg-cco-neutral-800 text-white p-3 text-xs rounded shadow-lg mx-4 mt-2">
+          <p className="font-semibold mb-1">Active AI Model: {formatModelName(currentModel)}</p>
+          <p>Model ID: {currentModel}</p>
+          <p className="mt-2 text-cco-neutral-300">
+            The AI model is provided by OpenAI. You can change the default model in your environment settings.
+          </p>
+        </div>
+      )}
       
-      {/* Chat messages */}
+      {/* Chat messages area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-cco-neutral-50">
-        {messages.map((message) => (
+        {messages.map(message => (
           <div 
-            key={message.id} 
-            className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+            key={message.id}
+            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div 
-              className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                message.sender === 'user' 
-                  ? 'bg-cco-primary-500 text-white' 
+              className={`max-w-[85%] rounded-lg px-4 py-2 ${
+                message.role === 'user' 
+                  ? 'bg-cco-primary-100 text-cco-neutral-900' 
                   : 'bg-white border border-cco-neutral-200 text-cco-neutral-900'
               }`}
             >
-              <p>{message.text}</p>
-              <p className={`text-xs mt-1 ${
-                message.sender === 'user' ? 'text-cco-primary-200' : 'text-cco-neutral-500'
-              }`}>
-                {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              <p className="whitespace-pre-line">{message.content}</p>
+              <p className="text-xs mt-1 text-cco-neutral-500">
+                {format(message.timestamp, 'h:mm a')}
               </p>
             </div>
           </div>
         ))}
+        
+        {/* Loading indicator */}
+        {isLoading && (
+          <div className="flex justify-start">
+            <div className="bg-white border border-cco-neutral-200 rounded-lg px-4 py-2">
+              <div className="flex space-x-2">
+                <div className="h-2 w-2 bg-cco-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="h-2 w-2 bg-cco-primary-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                <div className="h-2 w-2 bg-cco-primary-500 rounded-full animate-bounce" style={{ animationDelay: '600ms' }}></div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Auto-scroll anchor */}
         <div ref={messagesEndRef} />
       </div>
       
+      {/* Context info bar - shows when enough info is collected */}
+      {hasEnoughInfoForGeneration && (
+        <div className="bg-cco-primary-50 p-2 border-t border-cco-primary-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <BoltIcon className="w-5 h-5 text-cco-primary-600 mr-2" />
+              <span className="text-sm text-cco-primary-800">
+                Ready to create a new {context.intentType}
+              </span>
+            </div>
+            <button
+              onClick={generateResource}
+              className="px-3 py-1 bg-cco-primary-600 text-white rounded-md text-sm hover:bg-cco-primary-700"
+            >
+              Generate
+            </button>
+          </div>
+        </div>
+      )}
+      
       {/* Input area */}
-      <form onSubmit={handleSendMessage} className="border-t border-cco-neutral-200 p-4">
+      <form onSubmit={handleSubmit} className="border-t border-cco-neutral-200 p-4">
         <div className="flex items-center space-x-2">
           <input
             ref={inputRef}
@@ -191,12 +255,13 @@ export default function VibeChatPanel({ isOpen, onClose }: VibeChatPanelProps) {
             onChange={(e) => setInputValue(e.target.value)}
             placeholder="Message VIBE assistant..."
             className="flex-1 px-4 py-2 rounded-md border border-cco-neutral-300 focus:outline-none focus:ring-2 focus:ring-cco-primary-500 focus:border-transparent"
+            disabled={isLoading}
           />
           <button
             type="submit"
-            disabled={!inputValue.trim()}
+            disabled={!inputValue.trim() || isLoading}
             className={`p-2 rounded-md ${
-              inputValue.trim() 
+              inputValue.trim() && !isLoading
                 ? 'bg-cco-primary-500 text-white hover:bg-cco-primary-600' 
                 : 'bg-cco-neutral-200 text-cco-neutral-500'
             }`}
