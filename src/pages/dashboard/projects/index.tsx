@@ -23,6 +23,7 @@ import { Card } from '../../../components/ui/Card';
 import { useRouter } from 'next/router';
 import { useAuth } from '../../../contexts/AuthContext';
 import { getProjectsByUserId, createProject } from '../../../lib/firebase';
+import { CreateProjectForm, ProjectFormData } from '../../../components/projects/CreateProjectForm';
 
 // Define project types
 interface Project {
@@ -64,7 +65,7 @@ interface AIServiceModalState {
 }
 
 const ProjectsPage: React.FC = () => {
-  const { user } = useAuth();
+  const { currentUser } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -91,11 +92,14 @@ const ProjectsPage: React.FC = () => {
   // Fetch projects from Firestore
   useEffect(() => {
     async function fetchProjects() {
-      if (!user) return;
+      if (!currentUser) {
+        setLoading(false);
+        return;
+      }
 
       try {
         setLoading(true);
-        const fetchedProjects = await getProjectsByUserId(user.uid);
+        const fetchedProjects = await getProjectsByUserId(currentUser.uid);
         setProjects(fetchedProjects);
         setError(null);
       } catch (err) {
@@ -107,7 +111,7 @@ const ProjectsPage: React.FC = () => {
     }
 
     fetchProjects();
-  }, [user]);
+  }, [currentUser]);
   
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -130,31 +134,37 @@ const ProjectsPage: React.FC = () => {
   
   // Compute all available tags for filtering
   const allTags = Array.from(
-    new Set(projects.flatMap(project => project.tags))
+    new Set((projects && Array.isArray(projects)) 
+      ? projects.flatMap(project => project.tags) 
+      : [])
   );
   
   // Filter projects based on search query and filters
-  const filteredProjects = projects.filter(project => {
-    // Search query filter
-    const matchesSearch = 
-      project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      project.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (project.clientName && project.clientName.toLowerCase().includes(searchQuery.toLowerCase()));
-    
-    // Status filter
-    const matchesStatus = filters.status.length === 0 || 
-      filters.status.includes(project.status);
-    
-    // Priority filter
-    const matchesPriority = filters.priority.length === 0 || 
-      filters.priority.includes(project.priority);
-    
-    // Tags filter
-    const matchesTags = filters.tags.length === 0 || 
-      project.tags.some(tag => filters.tags.includes(tag));
-    
-    return matchesSearch && matchesStatus && matchesPriority && matchesTags;
-  });
+  const filteredProjects = (projects && Array.isArray(projects))
+    ? projects.filter(project => {
+      if (!project) return false;
+      
+      // Search query filter
+      const matchesSearch = 
+        (project.name && project.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (project.description && project.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (project.clientName && project.clientName.toLowerCase().includes(searchQuery.toLowerCase()));
+      
+      // Status filter
+      const matchesStatus = filters.status.length === 0 || 
+        (project.status && filters.status.includes(project.status));
+      
+      // Priority filter
+      const matchesPriority = filters.priority.length === 0 || 
+        (project.priority && filters.priority.includes(project.priority));
+      
+      // Tags filter
+      const matchesTags = filters.tags.length === 0 || 
+        (project.tags && Array.isArray(project.tags) && project.tags.some(tag => filters.tags.includes(tag)));
+      
+      return matchesSearch && matchesStatus && matchesPriority && matchesTags;
+    })
+    : [];
   
   // Group projects by status
   const projectsByStatus = {
@@ -164,30 +174,48 @@ const ProjectsPage: React.FC = () => {
     completed: filteredProjects.filter(p => p.status === 'completed')
   };
 
-  const handleCreateProject = async () => {
-    if (!user) return;
+  const handleCreateProject = () => {
+    setShowCreateModal(true);
+  };
+
+  const handleCancelCreateProject = () => {
+    setShowCreateModal(false);
+  };
+
+  const handleSubmitProject = async (projectData: ProjectFormData) => {
+    if (!currentUser) return;
     
     try {
-      // In a real application, this would show a modal with a form
+      // Create a new project in Firestore with form data
       const newProject = await createProject({
-        name: "New Project",
-        description: "Project description",
-        status: "planning",
-        startDate: new Date().toISOString(),
+        name: projectData.name,
+        description: projectData.description,
+        status: projectData.status,
+        startDate: projectData.startDate,
+        dueDate: projectData.dueDate,
         progress: 0,
         teamMembers: [{
-          id: user.uid,
-          name: user.displayName || "User",
+          id: currentUser.uid,
+          name: currentUser.displayName || "User",
           role: "Project Manager",
-          avatar: user.photoURL || ""
+          avatar: currentUser.photoURL || ""
         }],
-        tags: [],
-        priority: "medium",
-        userId: user.uid
+        tags: projectData.tags,
+        clientName: projectData.clientName,
+        priority: projectData.priority,
+        userId: currentUser.uid
       });
       
       // Add the new project to the list
-      setProjects(prevProjects => [newProject, ...prevProjects]);
+      setProjects(prevProjects => {
+        if (!prevProjects || !Array.isArray(prevProjects)) {
+          return [newProject];
+        }
+        return [newProject, ...prevProjects];
+      });
+      
+      // Close the modal
+      setShowCreateModal(false);
       
       // Navigate to the new project
       router.push(`/dashboard/projects/${newProject.id}`);
@@ -393,7 +421,7 @@ Please analyze the project details and offer insights and recommendations.`;
             onClick={() => {
               setLoading(true);
               setError(null);
-              getProjectsByUserId(user?.uid || '')
+              getProjectsByUserId(currentUser?.uid || '')
                 .then(projects => {
                   setProjects(projects);
                   setLoading(false);
@@ -408,6 +436,16 @@ Please analyze the project details and offer insights and recommendations.`;
             Try Again
           </Button>
         </div>
+      );
+    }
+
+    // Show create project form when showCreateModal is true
+    if (showCreateModal) {
+      return (
+        <CreateProjectForm 
+          onSubmit={handleSubmitProject}
+          onCancel={handleCancelCreateProject}
+        />
       );
     }
 

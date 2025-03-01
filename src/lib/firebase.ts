@@ -127,6 +127,11 @@ export const createUserSettings = async (userId: string, settings: Partial<UserS
     const defaultSettings: UserSettings = {
       id: userId,
       userId: userId,
+      profile: {
+        name: '',
+        email: '',
+        avatar: '',
+      },
       emailNotifications: {
         meetings: true,
         documents: true,
@@ -146,6 +151,12 @@ export const createUserSettings = async (userId: string, settings: Partial<UserS
       privacy: {
         shareUsageData: true,
         allowCookies: true,
+      },
+      documentPreferences: {
+        defaultFormat: 'doc',
+        showMarkdown: true,
+        autoSaveInterval: 5,
+        defaultTags: [],
       },
       integration: {
         connectedServices: [],
