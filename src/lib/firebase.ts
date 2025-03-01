@@ -35,7 +35,16 @@ export const signIn = async (email: string, password: string) => {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     return { user: userCredential.user, error: null };
   } catch (error: any) {
-    return { user: null, error: error.message };
+    console.error("Firebase auth error:", error);
+    
+    // Extract the error code from Firebase error format
+    let errorCode = error.code || error.message || "unknown-error";
+    
+    // Log the specific error details for debugging
+    console.log("Error code:", errorCode);
+    console.log("Error message:", error.message);
+    
+    return { user: null, error: errorCode };
   }
 };
 

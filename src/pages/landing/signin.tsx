@@ -73,34 +73,37 @@ const SignInPage: FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (validateForm()) {
-      setIsSubmitting(true);
+    // Validate form before submission
+    if (!validateForm()) return;
+    
+    setIsSubmitting(true);
+    setErrors((prev) => ({ ...prev, general: '' }));
+    
+    try {
+      const { user, error } = await signIn(formData.email, formData.password);
       
-      try {
-        // Use Firebase signIn function
-        const { user, error } = await signIn(formData.email, formData.password);
+      if (user) {
+        // Redirect to dashboard on successful sign-in
+        router.push('/dashboard');
+      } else if (error) {
+        console.error("Sign-in error:", error);
         
-        if (error) {
-          // Handle authentication error
-          setErrors(prev => ({ 
-            ...prev, 
-            general: error === 'Firebase: Error (auth/user-not-found).' 
-              ? 'User not found. Please check your email or create an account.'
-              : error === 'Firebase: Error (auth/wrong-password).'
-              ? 'Invalid password. Please try again.'
-              : 'Authentication failed. Please try again.'
-          }));
-          setIsSubmitting(false);
-        } else if (user) {
-          // Successful login
-          // Redirect to dashboard instead of onboarding
-          router.push('/dashboard');
+        // Handle specific Firebase error codes
+        if (error.includes("auth/user-not-found") || error.includes("auth/wrong-password")) {
+          setErrors((prev) => ({ ...prev, general: 'Invalid email or password' }));
+        } else if (error.includes("auth/too-many-requests")) {
+          setErrors((prev) => ({ ...prev, general: 'Too many failed login attempts. Please try again later or reset your password' }));
+        } else if (error.includes("auth/invalid-api-key") || error.includes("auth/app-deleted")) {
+          setErrors((prev) => ({ ...prev, general: 'Authentication service is unavailable. Please contact support.' }));
+        } else {
+          setErrors((prev) => ({ ...prev, general: `Sign-in failed: ${error}` }));
         }
-      } catch (err) {
-        console.error('Login error:', err);
-        setErrors(prev => ({ ...prev, general: 'An unexpected error occurred. Please try again.' }));
-        setIsSubmitting(false);
       }
+    } catch (err) {
+      console.error("Sign-in exception:", err);
+      setErrors((prev) => ({ ...prev, general: 'An unexpected error occurred during sign-in' }));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
