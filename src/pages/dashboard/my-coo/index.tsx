@@ -391,7 +391,7 @@ interface DragItem {
   template: IntegrationTemplate;
 }
 
-// Add new component for draggable template card
+// Modify the DraggableTemplateCard component to show only logos
 const DraggableTemplateCard: React.FC<DraggableTemplateCardProps> = ({ template, onSelect }) => {
   const [{ isDragging }, drag] = useDrag<DragItem, void, { isDragging: boolean }>(() => ({
     type: 'template',
@@ -402,79 +402,25 @@ const DraggableTemplateCard: React.FC<DraggableTemplateCardProps> = ({ template,
   }));
 
   return (
-    <motion.div
+    <div
       ref={drag}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className={`group cursor-pointer bg-white border border-cco-neutral-200 rounded-xl p-6 hover:shadow-md transition-all ${
+      className={`group cursor-pointer bg-white border border-cco-neutral-200 rounded-full p-3 hover:shadow-md transition-all ${
         isDragging ? 'opacity-50' : ''
       }`}
       style={{
         boxShadow: isDragging ? '0 20px 25px -5px rgb(0 0 0 / 0.1)' : undefined
       }}
       onClick={onSelect}
+      title={template.name}
     >
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-3">
-          <motion.div 
-            className="flex items-center justify-center w-12 h-12 rounded-full bg-cco-primary-100 text-cco-primary-600"
-            whileHover={{ rotate: 360 }}
-            transition={{ duration: 0.5 }}
-          >
-            {template.icon}
-          </motion.div>
-          <div>
-            <h3 className="text-lg font-semibold text-cco-neutral-900 group-hover:text-cco-primary-600 transition-colors">
-              {template.name}
-            </h3>
-            <span className="text-xs font-medium text-cco-neutral-500">
-              {template.category}
-            </span>
-          </div>
-        </div>
-      </div>
-      
-      <p className="text-sm text-cco-neutral-600 mb-4">
-        {template.description}
-      </p>
-      
-      <div className="flex items-center justify-between text-xs">
-        <span className="px-2 py-1 rounded-full bg-cco-neutral-100 text-cco-neutral-700">
-          {template.complexity}
-        </span>
-        <span className="text-cco-neutral-500">
-          ⏱️ {template.estimatedTime}
-        </span>
-      </div>
-
-      {/* Node Preview */}
-      <div className="mt-4 pt-4 border-t border-cco-neutral-100">
-        <div className="flex items-center space-x-2">
-          {template.nodes.map((node, index) => (
-            <React.Fragment key={node.id}>
-              <motion.div 
-                className="px-2 py-1 rounded bg-cco-neutral-50 text-xs text-cco-neutral-700"
-                whileHover={{ scale: 1.1 }}
-              >
-                {node.data.label}
-              </motion.div>
-              {index < template.nodes.length - 1 && (
-                <motion.div 
-                  className="w-4 h-4 text-cco-neutral-400"
-                  animate={{ x: [0, 5, 0] }}
-                  transition={{ repeat: Infinity, duration: 1.5 }}
-                >
-                  <ChevronRightIcon />
-                </motion.div>
-              )}
-            </React.Fragment>
-          ))}
-        </div>
-      </div>
-    </motion.div>
+      <motion.div 
+        className="flex items-center justify-center w-10 h-10 rounded-full bg-cco-primary-50 text-cco-primary-600"
+        whileHover={{ rotate: 360 }}
+        transition={{ duration: 0.5 }}
+      >
+        {template.icon}
+      </motion.div>
+    </div>
   );
 };
 
@@ -654,6 +600,652 @@ const FileSyncView: React.FC<{ provider: 'google-drive' | 'dropbox' }> = ({ prov
   );
 };
 
+// Add new types for the workspace
+type Position = { x: number; y: number };
+
+type ConnectionType = 'data' | 'control' | 'parameter';
+
+type Connection = {
+  id: string;
+  sourceNodeId: string;
+  sourcePortId: string;
+  targetNodeId: string;
+  targetPortId: string;
+  type: ConnectionType;
+  points?: Position[];
+};
+
+type Port = {
+  id: string;
+  type: 'input' | 'output';
+  label: string;
+  dataType: string;
+};
+
+type WorkspaceNode = {
+  id: string;
+  type: string;
+  position: Position;
+  data: {
+    label: string;
+    icon: string;
+    color?: string;
+    description?: string;
+    ports: Port[];
+    [key: string]: any;
+  };
+  width?: number;
+  height?: number;
+  selected?: boolean;
+  dragging?: boolean;
+};
+
+type Workspace = {
+  nodes: WorkspaceNode[];
+  connections: Connection[];
+  scale: number;
+  offset: Position;
+};
+
+// Add new component for modern workspace
+const ModernWorkspace: React.FC<{ 
+  initialWorkflow?: IntegrationWorkflow, 
+  onSave?: (workflow: IntegrationWorkflow) => void 
+}> = ({ initialWorkflow }) => {
+  const [workspace, setWorkspace] = useState<Workspace>({
+    nodes: initialWorkflow?.nodes.map(node => ({
+      id: node.id,
+      type: node.data.type,
+      position: node.position,
+      data: {
+        ...node.data,
+        ports: [
+          { id: `${node.id}-in-1`, type: 'input', label: 'Input', dataType: 'any' },
+          { id: `${node.id}-out-1`, type: 'output', label: 'Output', dataType: 'any' }
+        ]
+      }
+    })) || [],
+    connections: initialWorkflow?.edges.map((edge, index) => ({
+      id: `connection-${index}`,
+      sourceNodeId: edge.source,
+      sourcePortId: `${edge.source}-out-1`,
+      targetNodeId: edge.target,
+      targetPortId: `${edge.target}-in-1`,
+      type: 'data'
+    })) || [],
+    scale: 1,
+    offset: { x: 0, y: 0 }
+  });
+  
+  const [selectedNodeIds, setSelectedNodeIds] = useState<string[]>([]);
+  const [draggedNode, setDraggedNode] = useState<string | null>(null);
+  const [dragOffset, setDragOffset] = useState<Position>({ x: 0, y: 0 });
+  const [connectionInProgress, setConnectionInProgress] = useState<{ nodeId: string, portId: string, position: Position } | null>(null);
+  const [mousePosition, setMousePosition] = useState<Position>({ x: 0, y: 0 });
+  const [nodePalette, setNodePalette] = useState<boolean>(false);
+  const [showContextMenu, setShowContextMenu] = useState<{ position: Position, nodeId?: string } | null>(null);
+  
+  // Container ref for pointer positions
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  
+  // Handle mouse move events
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / workspace.scale - workspace.offset.x;
+        const y = (e.clientY - rect.top) / workspace.scale - workspace.offset.y;
+        setMousePosition({ x, y });
+        
+        if (draggedNode) {
+          setWorkspace(prev => ({
+            ...prev,
+            nodes: prev.nodes.map(node => 
+              node.id === draggedNode 
+                ? { 
+                    ...node, 
+                    position: { 
+                      x: x - dragOffset.x, 
+                      y: y - dragOffset.y 
+                    },
+                    dragging: true
+                  } 
+                : node
+            )
+          }));
+        }
+      }
+    };
+    
+    const handleMouseUp = () => {
+      if (draggedNode) {
+        setWorkspace(prev => ({
+          ...prev,
+          nodes: prev.nodes.map(node => 
+            node.id === draggedNode 
+              ? { ...node, dragging: false } 
+              : node
+          )
+        }));
+        setDraggedNode(null);
+      }
+      
+      if (connectionInProgress) {
+        // Find if there's any port under the mouse to connect to
+        setConnectionInProgress(null);
+      }
+    };
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [draggedNode, dragOffset, workspace.scale, workspace.offset, connectionInProgress]);
+  
+  // Add a new node
+  const addNode = (nodeType: string, position: Position) => {
+    const newNode: WorkspaceNode = {
+      id: `node-${Math.random().toString(36).substring(2, 9)}`,
+      type: nodeType,
+      position,
+      data: {
+        label: nodeType.charAt(0).toUpperCase() + nodeType.slice(1),
+        icon: nodeType === 'source' ? 'database' : nodeType === 'transform' ? 'code' : 'cloud',
+        ports: [
+          { id: `node-${Math.random().toString(36).substring(2, 9)}-in-1`, type: 'input', label: 'Input', dataType: 'any' },
+          { id: `node-${Math.random().toString(36).substring(2, 9)}-out-1`, type: 'output', label: 'Output', dataType: 'any' }
+        ]
+      }
+    };
+    
+    setWorkspace(prev => ({
+      ...prev,
+      nodes: [...prev.nodes, newNode]
+    }));
+    
+    return newNode.id;
+  };
+  
+  // Start dragging a node
+  const startDraggingNode = (nodeId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    const node = workspace.nodes.find(n => n.id === nodeId);
+    if (!node) return;
+    
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / workspace.scale - workspace.offset.x;
+      const y = (e.clientY - rect.top) / workspace.scale - workspace.offset.y;
+      
+      setDragOffset({
+        x: x - node.position.x,
+        y: y - node.position.y
+      });
+      
+      setDraggedNode(nodeId);
+      
+      if (!selectedNodeIds.includes(nodeId)) {
+        setSelectedNodeIds([nodeId]);
+      }
+    }
+  };
+  
+  // Select a node
+  const selectNode = (nodeId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (e.shiftKey) {
+      setSelectedNodeIds(prev => 
+        prev.includes(nodeId) 
+          ? prev.filter(id => id !== nodeId) 
+          : [...prev, nodeId]
+      );
+    } else {
+      setSelectedNodeIds([nodeId]);
+    }
+    
+    // Update workspace with selected state
+    setWorkspace(prev => ({
+      ...prev,
+      nodes: prev.nodes.map(node => ({
+        ...node,
+        selected: e.shiftKey 
+          ? node.id === nodeId 
+            ? !node.selected 
+            : node.selected 
+          : node.id === nodeId
+      }))
+    }));
+  };
+  
+  // Start creating a connection
+  const startConnection = (nodeId: string, portId: string, portType: 'input' | 'output', e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const position = {
+        x: (e.clientX - rect.left) / workspace.scale - workspace.offset.x,
+        y: (e.clientY - rect.top) / workspace.scale - workspace.offset.y
+      };
+      
+      setConnectionInProgress({
+        nodeId,
+        portId,
+        position
+      });
+    }
+  };
+  
+  // Handle clicking on the workspace
+  const handleWorkspaceClick = (e: React.MouseEvent) => {
+    if (e.button === 0) { // Left click
+      // Deselect all if clicking on empty space
+      setSelectedNodeIds([]);
+      setWorkspace(prev => ({
+        ...prev,
+        nodes: prev.nodes.map(node => ({
+          ...node,
+          selected: false
+        }))
+      }));
+      setShowContextMenu(null);
+    } else if (e.button === 2) { // Right click
+      // Show context menu
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const position = {
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top
+        };
+        setShowContextMenu({ position });
+      }
+      e.preventDefault();
+    }
+  };
+  
+  // Calculate connection path
+  const getConnectionPath = (connection: Connection) => {
+    const sourceNode = workspace.nodes.find(n => n.id === connection.sourceNodeId);
+    const targetNode = workspace.nodes.find(n => n.id === connection.targetNodeId);
+    
+    if (!sourceNode || !targetNode) return '';
+    
+    // Simple straight line path
+    const sourceX = sourceNode.position.x + 150; // Assuming node width is 150
+    const sourceY = sourceNode.position.y + 30; // Approximate port position
+    const targetX = targetNode.position.x;
+    const targetY = targetNode.position.y + 30;
+    
+    // Create a bezier curve
+    const dx = Math.abs(targetX - sourceX);
+    const controlPointOffset = Math.min(dx * 0.5, 150);
+    
+    return `M ${sourceX} ${sourceY} C ${sourceX + controlPointOffset} ${sourceY}, ${targetX - controlPointOffset} ${targetY}, ${targetX} ${targetY}`;
+  };
+  
+  // Handle keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Delete selected nodes
+      if (e.key === 'Delete' && selectedNodeIds.length > 0) {
+        setWorkspace(prev => ({
+          ...prev,
+          nodes: prev.nodes.filter(node => !selectedNodeIds.includes(node.id)),
+          connections: prev.connections.filter(
+            conn => !selectedNodeIds.includes(conn.sourceNodeId) && !selectedNodeIds.includes(conn.targetNodeId)
+          )
+        }));
+        setSelectedNodeIds([]);
+      }
+      
+      // Copy/paste nodes
+      if (e.key === 'c' && e.ctrlKey && selectedNodeIds.length > 0) {
+        // Implement copy
+      }
+      
+      if (e.key === 'v' && e.ctrlKey) {
+        // Implement paste
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [selectedNodeIds]);
+  
+  // Zoom functionality
+  const handleWheel = (e: React.WheelEvent) => {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      const scaleFactor = e.deltaY > 0 ? 0.9 : 1.1;
+      const newScale = Math.min(Math.max(workspace.scale * scaleFactor, 0.1), 3);
+      
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / workspace.scale;
+        const y = (e.clientY - rect.top) / workspace.scale;
+        
+        const newOffset = {
+          x: workspace.offset.x - (x - workspace.offset.x) * (scaleFactor - 1),
+          y: workspace.offset.y - (y - workspace.offset.y) * (scaleFactor - 1)
+        };
+        
+        setWorkspace(prev => ({
+          ...prev,
+          scale: newScale,
+          offset: newOffset
+        }));
+      }
+    }
+  };
+
+  return (
+    <div className="w-full h-[calc(100vh-180px)] overflow-hidden relative">
+      {/* Node Palette */}
+      <div className="absolute left-4 top-4 z-10 bg-white rounded-lg shadow-lg p-2 flex flex-col gap-2">
+        <button 
+          className="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors"
+          onClick={() => addNode('source', { x: 100, y: 100 })}
+          title="Add source node"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="2" y="5" width="20" height="14" rx="2" />
+            <line x1="2" y1="10" x2="22" y2="10" />
+          </svg>
+        </button>
+        <button 
+          className="w-10 h-10 bg-green-500 text-white rounded-full flex items-center justify-center hover:bg-green-600 transition-colors"
+          onClick={() => addNode('transform', { x: 300, y: 100 })}
+          title="Add transform node"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polyline points="16 3 21 3 21 8" />
+            <line x1="4" y1="20" x2="21" y2="3" />
+            <polyline points="21 16 21 21 16 21" />
+            <line x1="15" y1="15" x2="21" y2="21" />
+            <line x1="4" y1="4" x2="9" y2="9" />
+          </svg>
+        </button>
+        <button 
+          className="w-10 h-10 bg-purple-500 text-white rounded-full flex items-center justify-center hover:bg-purple-600 transition-colors"
+          onClick={() => addNode('destination', { x: 500, y: 100 })}
+          title="Add destination node"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+            <path d="M2 17l10 5 10-5" />
+            <path d="M2 12l10 5 10-5" />
+          </svg>
+        </button>
+      </div>
+      
+      {/* Workspace controls */}
+      <div className="absolute right-4 top-4 z-10 bg-white rounded-lg shadow-lg p-2 flex gap-2">
+        <button 
+          className="w-8 h-8 bg-gray-100 text-gray-700 rounded flex items-center justify-center hover:bg-gray-200 transition-colors"
+          onClick={() => setWorkspace(prev => ({ ...prev, scale: prev.scale * 1.1 }))}
+          title="Zoom in"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            <line x1="11" y1="8" x2="11" y2="14" />
+            <line x1="8" y1="11" x2="14" y2="11" />
+          </svg>
+        </button>
+        <button 
+          className="w-8 h-8 bg-gray-100 text-gray-700 rounded flex items-center justify-center hover:bg-gray-200 transition-colors"
+          onClick={() => setWorkspace(prev => ({ ...prev, scale: prev.scale * 0.9 }))}
+          title="Zoom out"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            <line x1="8" y1="11" x2="14" y2="11" />
+          </svg>
+        </button>
+        <button 
+          className="w-8 h-8 bg-gray-100 text-gray-700 rounded flex items-center justify-center hover:bg-gray-200 transition-colors"
+          onClick={() => setWorkspace(prev => ({ ...prev, offset: { x: 0, y: 0 }, scale: 1 }))}
+          title="Reset view"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M3 12h18" />
+            <path d="M12 3v18" />
+          </svg>
+        </button>
+      </div>
+      
+      {/* Main workspace */}
+      <div 
+        ref={containerRef}
+        className="w-full h-full bg-neutral-50 overflow-hidden relative cursor-grab"
+        onClick={handleWorkspaceClick}
+        onContextMenu={e => e.preventDefault()}
+        onWheel={handleWheel}
+      >
+        {/* Grid background */}
+        <div 
+          className="absolute inset-0 bg-grid-pattern"
+          style={{
+            backgroundSize: `${20 * workspace.scale}px ${20 * workspace.scale}px`,
+            backgroundPosition: `${workspace.offset.x * workspace.scale}px ${workspace.offset.y * workspace.scale}px`,
+            backgroundImage: `
+              linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px)
+            `
+          }}
+        />
+        
+        {/* Transformation container for pan and zoom */}
+        <div 
+          className="absolute inset-0 transform transition-transform duration-100"
+          style={{
+            transform: `scale(${workspace.scale}) translate(${workspace.offset.x}px, ${workspace.offset.y}px)`
+          }}
+        >
+          {/* Connections */}
+          <svg className="absolute inset-0 pointer-events-none overflow-visible">
+            {workspace.connections.map(connection => (
+              <path
+                key={connection.id}
+                d={getConnectionPath(connection)}
+                stroke="#6366f1"
+                strokeWidth={2 / workspace.scale}
+                fill="none"
+                strokeDasharray={connection.type === 'control' ? '5,5' : 'none'}
+              />
+            ))}
+            
+            {/* Connection in progress */}
+            {connectionInProgress && (
+              <path
+                d={`M ${connectionInProgress.position.x} ${connectionInProgress.position.y} L ${mousePosition.x} ${mousePosition.y}`}
+                stroke="#6366f1"
+                strokeWidth={2 / workspace.scale}
+                fill="none"
+                strokeDasharray="5,5"
+              />
+            )}
+          </svg>
+          
+          {/* Nodes */}
+          {workspace.nodes.map(node => (
+            <div
+              key={node.id}
+              className={`absolute bg-white rounded-lg shadow-lg overflow-hidden ${
+                node.selected ? 'ring-2 ring-indigo-500' : ''
+              } ${
+                node.dragging ? 'opacity-80' : ''
+              }`}
+              style={{
+                transform: `translate(${node.position.x}px, ${node.position.y}px)`,
+                width: 200,
+                height: 'auto',
+                zIndex: node.dragging ? 100 : 1
+              }}
+              onMouseDown={e => startDraggingNode(node.id, e)}
+              onClick={e => selectNode(node.id, e)}
+            >
+              {/* Node header */}
+              <div 
+                className={`p-3 text-white font-medium flex items-center justify-between cursor-move
+                  ${node.type === 'source' ? 'bg-blue-500' :
+                    node.type === 'transform' ? 'bg-green-500' :
+                    'bg-purple-500'}`}
+              >
+                <span className="flex items-center">
+                  {node.type === 'source' ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="2" y="5" width="20" height="14" rx="2" />
+                      <line x1="2" y1="10" x2="22" y2="10" />
+                    </svg>
+                  ) : node.type === 'transform' ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="16 3 21 3 21 8" />
+                      <line x1="4" y1="20" x2="21" y2="3" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                      <path d="M2 17l10 5 10-5" />
+                    </svg>
+                  )}
+                  {node.data.label}
+                </span>
+                <button className="p-1 rounded hover:bg-white/20 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="1" />
+                    <circle cx="12" cy="5" r="1" />
+                    <circle cx="12" cy="19" r="1" />
+                  </svg>
+                </button>
+              </div>
+              
+              {/* Node content */}
+              <div className="p-3 bg-white">
+                <div className="mb-2 text-xs text-gray-500">{node.type.toUpperCase()}</div>
+                
+                {/* Input ports */}
+                <div className="space-y-2 my-4">
+                  {node.data.ports.filter(port => port.type === 'input').map(port => (
+                    <div 
+                      key={port.id}
+                      className="relative flex items-center ml-4"
+                    >
+                      <div 
+                        className="absolute -left-4 w-3 h-3 bg-blue-500 rounded-full cursor-crosshair"
+                        onMouseDown={e => startConnection(node.id, port.id, 'input', e)}
+                      />
+                      <span className="text-xs">{port.label}</span>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Output ports */}
+                <div className="space-y-2 mt-4">
+                  {node.data.ports.filter(port => port.type === 'output').map(port => (
+                    <div 
+                      key={port.id}
+                      className="relative flex items-center justify-end mr-4"
+                    >
+                      <span className="text-xs">{port.label}</span>
+                      <div 
+                        className="absolute -right-4 w-3 h-3 bg-purple-500 rounded-full cursor-crosshair"
+                        onMouseDown={e => startConnection(node.id, port.id, 'output', e)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      {/* Context menu */}
+      {showContextMenu && (
+        <div 
+          className="absolute z-20 bg-white rounded-lg shadow-xl p-2 min-w-40"
+          style={{
+            left: showContextMenu.position.x,
+            top: showContextMenu.position.y
+          }}
+        >
+          <div className="py-1">
+            <button 
+              className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 rounded flex items-center"
+              onClick={() => {
+                addNode('source', { 
+                  x: (showContextMenu.position.x / workspace.scale) - workspace.offset.x, 
+                  y: (showContextMenu.position.y / workspace.scale) - workspace.offset.y 
+                });
+                setShowContextMenu(null);
+              }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-2 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="2" y="5" width="20" height="14" rx="2" />
+                <line x1="2" y1="10" x2="22" y2="10" />
+              </svg>
+              Add Source
+            </button>
+            <button 
+              className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 rounded flex items-center"
+              onClick={() => {
+                addNode('transform', { 
+                  x: (showContextMenu.position.x / workspace.scale) - workspace.offset.x, 
+                  y: (showContextMenu.position.y / workspace.scale) - workspace.offset.y 
+                });
+                setShowContextMenu(null);
+              }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-2 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="16 3 21 3 21 8" />
+                <line x1="4" y1="20" x2="21" y2="3" />
+              </svg>
+              Add Transform
+            </button>
+            <button 
+              className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 rounded flex items-center"
+              onClick={() => {
+                addNode('destination', { 
+                  x: (showContextMenu.position.x / workspace.scale) - workspace.offset.x, 
+                  y: (showContextMenu.position.y / workspace.scale) - workspace.offset.y 
+                });
+                setShowContextMenu(null);
+              }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-2 text-purple-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                <path d="M2 17l10 5 10-5" />
+              </svg>
+              Add Destination
+            </button>
+          </div>
+          <div className="border-t border-gray-200 my-1"></div>
+          <div className="py-1">
+            <button 
+              className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 rounded"
+              onClick={() => setShowContextMenu(null)}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+      
+      {/* Mini-map (Optional) */}
+      <div className="absolute bottom-4 right-4 w-48 h-32 bg-white/80 border border-gray-200 rounded shadow-lg overflow-hidden">
+        {/* Mini-map content */}
+      </div>
+    </div>
+  );
+};
+
 export default function MyCOOPage() {
   const [selectedWorkflow, setSelectedWorkflow] = useState<IntegrationWorkflow | null>(null);
   const [mode, setMode] = useState<'list' | 'edit'>('list');
@@ -698,7 +1290,7 @@ export default function MyCOOPage() {
       <DashboardLayout>
         <DndProvider backend={HTML5Backend}>
           <motion.div 
-            className="space-y-6 relative"
+            className="space-y-4 relative"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -723,42 +1315,29 @@ export default function MyCOOPage() {
                     <span className="text-cco-neutral-600">Exit Editor</span>
                     <kbd className="px-2 py-1 bg-cco-neutral-100 rounded text-xs">esc</kbd>
                   </div>
+                  <div className="flex justify-between">
+                    <span className="text-cco-neutral-600">Delete Selected</span>
+                    <kbd className="px-2 py-1 bg-cco-neutral-100 rounded text-xs">delete</kbd>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-cco-neutral-600">Multi-select</span>
+                    <kbd className="px-2 py-1 bg-cco-neutral-100 rounded text-xs">shift + click</kbd>
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* Main Content */}
+            {/* Thinner Header with Less Language */}
             <motion.div 
-              className="bg-white rounded-xl p-6 shadow"
+              className="bg-white rounded-xl p-4 shadow"
               initial={{ y: -20 }}
               animate={{ y: 0 }}
             >
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between">
                 <div>
-                  <h1 className="text-2xl font-bold text-cco-neutral-900">
-                    {!selectedTemplate ? (
-                      "Add Files to Chief Cognitive Officer"
-                    ) : (
-                      selectedTemplate.name
-                    )}
+                  <h1 className="text-xl font-bold text-cco-neutral-900">
+                    {!selectedTemplate ? "Connect Data Sources" : selectedTemplate.name}
                   </h1>
-                  <div className="mt-2 space-y-2">
-                    {!selectedTemplate ? (
-                      <>
-                        <p className="text-cco-neutral-700">
-                          Connect your third-party data providers to enhance your CCO's cognitive capabilities.
-                        </p>
-                        <p className="text-sm text-cco-neutral-600">
-                          Your data will be securely processed and integrated into your second brain, providing valuable insights during meetings, 
-                          enriching project context, and helping you make more informed decisions. Choose from our pre-built templates or create a custom connection.
-                        </p>
-                      </>
-                    ) : (
-                      <p className="text-cco-neutral-600">
-                        {selectedTemplate.description}
-                      </p>
-                    )}
-                  </div>
                 </div>
                 <div className="flex items-center space-x-3">
                   {selectedTemplate && (
@@ -768,7 +1347,7 @@ export default function MyCOOPage() {
                       whileTap={{ scale: 0.95 }}
                       className="px-4 py-2 bg-cco-neutral-100 text-cco-neutral-700 rounded-md hover:bg-cco-neutral-200 transition-colors"
                     >
-                      Back to Templates
+                      Back
                     </motion.button>
                   )}
                   <button
@@ -783,36 +1362,29 @@ export default function MyCOOPage() {
             </motion.div>
 
             {/* Main Content Area */}
-            <div className="bg-white rounded-xl p-6">
+            <div className="bg-white rounded-xl p-4">
               {!selectedTemplate ? (
-                <div className="space-y-6">
+                <div>
+                  {/* Thin bar with logos only for data providers */}
                   <motion.div 
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                    className="flex items-center space-x-4 overflow-x-auto p-2"
                     layout
                   >
-                    {/* Empty Template Card */}
+                    {/* Empty Template Card (Plus button) */}
                     <motion.div 
                       onClick={() => {
                         setSelectedTemplate(EMPTY_TEMPLATE);
                         setMode('edit');
                       }}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="group cursor-pointer bg-white border-2 border-dashed border-cco-neutral-200 rounded-xl p-6 hover:border-cco-primary-500 hover:bg-cco-primary-50 transition-all"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="flex items-center justify-center w-10 h-10 rounded-full bg-cco-neutral-100 hover:bg-cco-primary-100 transition-colors cursor-pointer"
+                      title="Connect a custom data provider"
                     >
-                      <motion.div 
-                        className="flex items-center justify-center w-12 h-12 rounded-full bg-cco-neutral-100 group-hover:bg-white mb-4"
-                        whileHover={{ rotate: 180 }}
-                      >
-                        <PlusIcon className="w-6 h-6 text-cco-neutral-600 group-hover:text-cco-primary-600" />
-                      </motion.div>
-                      <h3 className="text-lg font-semibold text-cco-neutral-900 mb-2">Connect a Data Provider</h3>
-                      <p className="text-sm text-cco-neutral-600">
-                        Set up a custom connection to your preferred data storage service or API.
-                      </p>
+                      <PlusIcon className="w-6 h-6 text-cco-neutral-600 hover:text-cco-primary-600" />
                     </motion.div>
 
-                    {/* Template Cards */}
+                    {/* Template Cards as Logos Only */}
                     <AnimatePresence>
                       {INTEGRATION_TEMPLATES.map((template) => (
                         <DraggableTemplateCard
@@ -826,6 +1398,13 @@ export default function MyCOOPage() {
                       ))}
                     </AnimatePresence>
                   </motion.div>
+                  
+                  {/* Instructions below the logos */}
+                  <div className="mt-4 p-4 bg-cco-neutral-50 rounded-lg">
+                    <p className="text-sm text-cco-neutral-700 text-center">
+                      Select a data source to connect or drag it into your workspace
+                    </p>
+                  </div>
                 </div>
               ) : (
                 <motion.div 
@@ -837,9 +1416,8 @@ export default function MyCOOPage() {
                   {selectedTemplate.id === 'google-drive' || selectedTemplate.id === 'dropbox' ? (
                     <FileSyncView provider={selectedTemplate.id} />
                   ) : (
-                    <DataIntegrationNodeEditor 
-                      workflow={createWorkflowFromTemplate(selectedTemplate)} 
-                      mode={mode}
+                    <ModernWorkspace
+                      initialWorkflow={createWorkflowFromTemplate(selectedTemplate)}
                     />
                   )}
                 </motion.div>
