@@ -27,14 +27,14 @@ const CustomizeStep: FC<CustomizeStepProps> = ({
   return (
     <div className="bg-nebula-white dark:bg-cosmic-grey dark:bg-opacity-20 rounded-xl p-8 md:p-12 shadow-lg">
       <h2 className="text-2xl font-semibold text-midnight-blue dark:text-cosmic-latte mb-6">
-        Customize Your Second Brain
+        Customize Your Chief Cognitive Officer
       </h2>
       
       <div className="space-y-8">
         {/* Notification Frequency */}
         <div>
           <h3 className="font-medium text-lg text-midnight-blue dark:text-cosmic-latte mb-3">Notification Frequency</h3>
-          <p className="text-cosmic-grey dark:text-stardust mb-4">How often would you like to receive updates about your Second Brain?</p>
+          <p className="text-cosmic-grey dark:text-stardust mb-4">How often would you like to receive updates about your Chief Cognitive Officer?</p>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {['daily', 'weekly', 'monthly'].map(frequency => (

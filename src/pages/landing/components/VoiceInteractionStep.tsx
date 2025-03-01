@@ -154,7 +154,7 @@ const VoiceInteractionStep: FC<VoiceInteractionStepProps> = ({ onContinue, onSki
         </h2>
         
         <p className="text-cosmic-grey dark:text-stardust mb-6">
-          Before creating your Second Brain, I'd like to understand what you're working on.
+          Before creating your Chief Cognitive Officer, I'd like to understand what you're working on.
         </p>
         
         {/* Hidden audio element for playing TTS */}
@@ -254,7 +254,7 @@ const VoiceInteractionStep: FC<VoiceInteractionStepProps> = ({ onContinue, onSki
             !transcript && hasSpoken ? 'opacity-60 cursor-not-allowed' : ''
           }`}
         >
-          Continue to Second Brain Setup
+          Continue to Chief Cognitive Officer Setup
         </button>
       </div>
     </div>

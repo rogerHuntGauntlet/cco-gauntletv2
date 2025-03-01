@@ -52,13 +52,13 @@ export function Dashboard({ data }: DashboardProps) {
             Your dashboard is ready. Here's an overview of your latest activities.
           </p>
           <div className="flex flex-wrap gap-3">
-            <Link href="/dashboard/meetings/new">
+            <Link href="/dashboard/meetings">
               <Button variant="secondary" className="bg-white text-cco-primary-700 hover:bg-cco-primary-50">
                 <PlusIcon className="w-5 h-5 mr-2" />
                 Schedule Meeting
               </Button>
             </Link>
-            <Link href="/dashboard/projects/new">
+            <Link href="/dashboard/projects">
               <Button variant="secondary" className="bg-white/10 text-white hover:bg-white/20">
                 <PlusIcon className="w-5 h-5 mr-2" />
                 Create Project
@@ -198,7 +198,7 @@ export function Dashboard({ data }: DashboardProps) {
                 <CalendarIcon className="w-12 h-12 text-cco-neutral-400 mb-2" />
                 <h3 className="font-medium text-cco-neutral-900 mb-1">No upcoming meetings</h3>
                 <p className="text-cco-neutral-600 mb-4">Schedule your first meeting to get started</p>
-                <Link href="/dashboard/meetings/new">
+                <Link href="/dashboard/meetings">
                   <Button variant="accent" size="sm">
                     <PlusIcon className="w-4 h-4 mr-2" />
                     Schedule Meeting
@@ -355,7 +355,7 @@ export function Dashboard({ data }: DashboardProps) {
               </Card>
             )}
             
-            <Link href="/dashboard/projects/new">
+            <Link href="/dashboard/projects">
               <Card className="h-full bg-cco-neutral-50 border-dashed flex items-center justify-center p-4">
                 <div className="text-center">
                   <div className="rounded-full bg-cco-neutral-100 w-12 h-12 flex items-center justify-center mx-auto mb-3">
@@ -375,7 +375,7 @@ export function Dashboard({ data }: DashboardProps) {
               <p className="text-cco-neutral-600 mb-6 max-w-md">
                 You don't have any active projects yet. Create your first project to start collaborating.
               </p>
-              <Link href="/dashboard/projects/new">
+              <Link href="/projects">
                 <Button variant="accent">
                   <PlusIcon className="w-5 h-5 mr-2" />
                   Create New Project

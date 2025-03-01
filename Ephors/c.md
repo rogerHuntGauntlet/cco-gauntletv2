@@ -9,7 +9,7 @@ The "Chief Cognitive Officer" (CCO) is a productivity tool designed for "vibe co
 *   **Real-time Meeting Assistance:** Integrates with Zoom meetings via a widget to provide real-time tips and suggestions during calls.
 *   **Automated Post-Meeting Processing:** Automatically generates meeting notes, a Product Requirements Document (PRD), and initiates a code repository.
 *   **Personalized Training:** Allows users to train their CCO by integrating with various data sources (Google Drive, Dropbox, Twitter, email, calendar, etc.).
-*   **Second Brain Marketplace:** Provides a platform for users to find and interview vibe coders, and hire them directly through the platform.
+*   **Chief Cognitive Officer Marketplace:** Provides a platform for users to find and interview vibe coders, and hire them directly through the platform.
 
 **Goals:**
 

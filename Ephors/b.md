@@ -6,7 +6,7 @@ Chief Cognitive Officer (CCO) is an AI-powered tool designed to augment the capa
 
 The platform integrates with video conferencing tools (initially Zoom) to provide real-time, context-aware assistance during meetings, offering suggestions to improve communication and guide deal closure. Post-meeting, CCO automatically generates meeting notes, preliminary product requirements documents (PRDs), and even bootstrapped code repositories, streamlining the development workflow.
 
-CCO is also a platform for connecting vibe coders with clients. Users can train their CCO with data from various sources (Google Drive, Dropbox, Twitter, email, calendars, etc.), effectively creating a searchable "second brain." Potential clients can then "interview" these second brains to identify the best-suited vibe coder for their projects and hire them through the platform.
+CCO is also a platform for connecting vibe coders with clients. Users can train their CCO with data from various sources (Google Drive, Dropbox, Twitter, email, calendars, etc.), effectively creating a searchable "Chief Cognitive Officer." Potential clients can then "interview" these Chief Cognitive Officers to identify the best-suited vibe coder for their projects and hire them through the platform.
 
 **2. User Stories**
 
@@ -31,7 +31,7 @@ CCO is also a platform for connecting vibe coders with clients. Users can train 
         *   Natural Language Processing (NLP) for meeting analysis, action item extraction, and PRD generation.
         *   Code generation (using models like Codex or similar).
     *   Develop APIs for the Zoom widget, user authentication, data integration, and search.
-    *   Implement a vector database (e.g., Pinecone, Weaviate) to store and efficiently search the "second brain" data.
+    *   Implement a vector database (e.g., Pinecone, Weaviate) to store and efficiently search the "Chief Cognitive Officer" data.
 *   **Data Integration:**
     *   Develop connectors to integrate with various data sources (Google Drive, Dropbox, Twitter, email, calendar, etc.).
     *   Implement data indexing and processing pipelines to prepare the data for the AI models and search.

@@ -148,7 +148,7 @@ const AboutPage = () => {
         
         <h2 className="mt-12 text-midnight-blue dark:text-cosmic-latte">Our Marketplace</h2>
         <p className="text-cosmic-grey dark:text-nebula-white">
-          Beyond our AI assistant, we provide a unique marketplace that connects vibe coders with clients seeking their talent. Through our innovative "second brain interview" process, clients can evaluate a vibe coder's approach to problem-solving without disrupting their creative flow.
+          Beyond our AI assistant, we provide a unique marketplace that connects vibe coders with clients seeking their talent. Through our innovative "Chief Cognitive Officer interview" process, clients can evaluate a vibe coder's approach to problem-solving without disrupting their creative flow.
         </p>
         
         <h2 className="mt-12 text-midnight-blue dark:text-cosmic-latte">Join Our Journey</h2>

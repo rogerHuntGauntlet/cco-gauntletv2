@@ -203,4 +203,44 @@ export interface Notification {
 export interface NotificationsState {
   notifications: Notification[];
   unreadCount: number;
+}
+
+export interface SecondBrain {
+  id: string;
+  name: string;
+  ownerId: string;
+  ownerName: string;
+  avatar?: string;
+  description: string;
+  expertise: string[];
+  rating?: number;
+  ratingCount?: number;
+  pricing: {
+    hourly?: number;
+    project?: number;
+  };
+  status: 'available' | 'busy' | 'unavailable';
+  createdAt: string;
+  updatedAt: string;
+  tags: string[];
+  hireCount: number;
+  briefBio: string;
+}
+
+export interface SecondBrainMessage {
+  id: string;
+  secondBrainId: string;
+  role: 'user' | 'secondBrain';
+  content: string;
+  timestamp: string;
+}
+
+export interface SecondBrainInterview {
+  id: string;
+  secondBrainId: string;
+  userId: string;
+  startedAt: string;
+  endedAt?: string;
+  status: 'active' | 'completed' | 'hired';
+  messages: SecondBrainMessage[];
 } 

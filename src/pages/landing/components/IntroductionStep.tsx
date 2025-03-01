@@ -12,10 +12,10 @@ const IntroductionStep: FC<IntroductionStepProps> = ({ onContinue, onSkip }) => 
       <div className="flex flex-col md:flex-row gap-8 items-center">
         <div className="w-full md:w-1/2">
           <h2 className="text-2xl font-semibold text-midnight-blue dark:text-cosmic-latte mb-4">
-            What is a Second Brain?
+            What is a Chief Cognitive Officer?
           </h2>
           <p className="text-cosmic-grey dark:text-stardust mb-4">
-            Your second brain is a personal knowledge base that stores and organizes information from various sources, creating a searchable repository of your professional knowledge and expertise.
+            Your Chief Cognitive Officer is a personal knowledge base that stores and organizes information from various sources, creating a searchable repository of your professional knowledge and expertise.
           </p>
           <p className="text-cosmic-grey dark:text-stardust mb-6">
             By importing data from platforms like LinkedIn, GitHub, Dropbox, and more, CCO can build a comprehensive profile of your skills, experiences, and work to assist you during meetings and help potential clients discover you.
@@ -90,7 +90,7 @@ const IntroductionStep: FC<IntroductionStepProps> = ({ onContinue, onSkip }) => 
                 <div className="w-8 h-8 rounded-full bg-electric-indigo bg-opacity-10 dark:bg-opacity-20 flex items-center justify-center text-electric-indigo">
                   4
                 </div>
-                <p className="text-cosmic-grey dark:text-stardust">Your second brain is ready to use</p>
+                <p className="text-cosmic-grey dark:text-stardust">Your Chief Cognitive Officer is ready to use</p>
               </div>
             </div>
             
@@ -106,7 +106,7 @@ const IntroductionStep: FC<IntroductionStepProps> = ({ onContinue, onSkip }) => 
                 onClick={onSkip}
                 className="w-full border border-cosmic-grey dark:border-stardust border-opacity-30 dark:border-opacity-30 text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo hover:border-electric-indigo dark:hover:border-electric-indigo text-center px-4 py-3 rounded-md font-medium transition-all"
               >
-                Skip & Create Empty Second Brain
+                Skip & Create Empty Chief Cognitive Officer
               </button>
             </div>
           </div>

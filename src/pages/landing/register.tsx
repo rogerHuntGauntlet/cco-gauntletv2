@@ -9,10 +9,10 @@ const RegisterPage: FC = () => {
   const router = useRouter();
   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
   const [formData, setFormData] = useState({
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    password: 'password123',
-    confirmPassword: 'password123',
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
   });
   const [errors, setErrors] = useState({
     name: '',
@@ -20,8 +20,8 @@ const RegisterPage: FC = () => {
     password: '',
     confirmPassword: '',
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [generalError, setGeneralError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Check system preference on load
   useEffect(() => {
@@ -96,59 +96,8 @@ const RegisterPage: FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (validateForm()) {
-      setIsSubmitting(true);
-      setGeneralError('');
-      
-      try {
-        // Use Firebase register function
-        const { user, error } = await register(formData.email, formData.password);
-        
-        if (error) {
-          // Handle registration error
-          setGeneralError(
-            error.includes('email-already-in-use') 
-              ? 'This email is already registered. Please sign in instead.' 
-              : 'Registration failed. Please try again.'
-          );
-          setIsSubmitting(false);
-        } else if (user) {
-          // Save user profile data to Firestore
-          const userData = {
-            name: formData.name,
-            email: formData.email,
-            role: 'user',
-            photoURL: null,
-          };
-          
-          const { error: profileError } = await createUserProfile(user.uid, userData);
-          
-          if (profileError) {
-            console.error('Error creating user profile:', profileError);
-            // Continue with redirect even if profile creation fails
-          }
-          
-          // Create default user settings
-          const { error: settingsError } = await createUserSettings(user.uid, {
-            id: user.uid,
-            userId: user.uid,
-          });
-          
-          if (settingsError) {
-            console.error('Error creating user settings:', settingsError);
-            // Continue with redirect even if settings creation fails
-          }
-          
-          // Registration successful
-          // Redirect to onboarding page instead of dashboard
-          router.push('/landing/onboarding');
-        }
-      } catch (err) {
-        console.error('Registration error:', err);
-        setGeneralError('An unexpected error occurred. Please try again.');
-        setIsSubmitting(false);
-      }
-    }
+    // Display MVP client message instead of attempting to register
+    setGeneralError('Registration is currently limited to MVP clients only. Please contact us to learn how to become an MVP client.');
   };
 
   return (
@@ -162,7 +111,7 @@ const RegisterPage: FC = () => {
         {/* Left panel - Branding & Info */}
         <div className="bg-gradient-to-br from-electric-indigo to-neon-teal md:w-1/2 p-12 flex flex-col justify-between">
           <div>
-            <Link href="/" className="inline-flex items-center">
+            <Link href="/landing" className="inline-flex items-center">
               <span className="text-3xl font-bold text-white">CCO</span>
             </Link>
           </div>
@@ -193,7 +142,7 @@ const RegisterPage: FC = () => {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-medium text-lg">Your personalized second brain</h3>
+                  <h3 className="font-medium text-lg">Your personalized Chief Cognitive Officer</h3>
                   <p className="opacity-80">Import data from all your platforms to build your knowledge base</p>
                 </div>
               </div>
@@ -213,17 +162,26 @@ const RegisterPage: FC = () => {
           </div>
           
           <div className="text-white text-sm opacity-70">
-            © 2023 CCO. All rights reserved.
+            © {new Date().getFullYear()} CCO. All rights reserved.
           </div>
         </div>
         
         {/* Right panel - Registration Form */}
-        <div className="md:w-1/2 p-8 md:p-12 lg:p-16 flex items-center justify-center">
+        <div className="w-full md:w-1/2 p-12 flex items-center justify-center">
           <div className="w-full max-w-md">
             <h2 className="text-2xl md:text-3xl font-bold text-midnight-blue dark:text-cosmic-latte mb-6">Create your account</h2>
             <p className="text-cosmic-grey dark:text-stardust mb-8">
-              Start building your AI-powered second brain in minutes.
+              Start building your AI-powered Chief Cognitive Officer in minutes.
             </p>
+            
+            {/* MVP Client Message */}
+            <div className="mb-6 p-4 bg-electric-indigo bg-opacity-10 border border-electric-indigo border-opacity-50 rounded-md">
+              <h3 className="font-semibold text-electric-indigo mb-2">MVP Client Access Only</h3>
+              <p className="text-cosmic-grey dark:text-stardust">
+                Our state-of-the-art AI platform is currently available exclusively to MVP clients. 
+                Please contact us to learn how to become an MVP client and unlock the full potential of CCO.
+              </p>
+            </div>
             
             {generalError && (
               <div className="mb-6 p-4 bg-electric-crimson bg-opacity-10 border border-electric-crimson border-opacity-50 rounded-md">
@@ -299,18 +257,9 @@ const RegisterPage: FC = () => {
               <div className="pt-2">
                 <button
                   type="submit"
-                  disabled={isSubmitting}
-                  className={`w-full bg-electric-indigo hover:bg-opacity-90 text-nebula-white text-center px-4 py-3 rounded-md font-medium transition-all ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                  className="w-full bg-electric-indigo hover:bg-opacity-90 text-nebula-white text-center px-4 py-3 rounded-md font-medium transition-all"
                 >
-                  {isSubmitting ? (
-                    <span className="flex items-center justify-center">
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Creating account...
-                    </span>
-                  ) : 'Create Account'}
+                  Request MVP Access
                 </button>
               </div>
               

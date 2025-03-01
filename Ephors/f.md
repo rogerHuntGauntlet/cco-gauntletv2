@@ -12,7 +12,7 @@
 
 3. **As a vibe coder, I want to personalize my CCO by integrating various data sources like Google Drive, Dropbox, Twitter, email, and calendars so that the CCO can provide more tailored advice and insights.**
 
-4. **As a project owner, I want to log in to the platform and interview second brains (CCOs) so that I can find the best vibe coder for my project.**
+4. **As a project owner, I want to log in to the platform and interview Chief Cognitive Officers (CCOs) so that I can find the best vibe coder for my project.**
 
 5. **As a project owner, I want to hire vibe coders directly through the platform after evaluating their CCO performance so that the hiring process is streamlined and efficient.**
 

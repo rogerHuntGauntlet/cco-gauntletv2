@@ -112,7 +112,7 @@ const OnboardingInnerContent: FC = () => {
   };
 
   const handleSkip = () => {
-    // Create empty second brain without data sources
+    // Create empty Chief Cognitive Officer without data sources
     const updatedUserData = {
       ...userData,
       dataSources: [],
@@ -213,8 +213,8 @@ const OnboardingInnerContent: FC = () => {
   return (
     <div className="bg-white dark:bg-midnight-blue min-h-screen flex flex-col transition-colors duration-300">
       <Head>
-        <title>Create Your Second Brain - CCO</title>
-        <meta name="description" content="Import your data to create your personalized AI-powered second brain" />
+        <title>Create Your Chief Cognitive Officer - CCO</title>
+        <meta name="description" content="Import your data to create your personalized AI-powered Chief Cognitive Officer" />
       </Head>
 
       <div className="px-6 py-4 border-b border-cosmic-grey dark:border-stardust border-opacity-10 dark:border-opacity-10">
@@ -248,7 +248,7 @@ const OnboardingInnerContent: FC = () => {
           {currentStep === 1 ? (
             <div className="text-center mb-12">
               <h1 className="text-3xl md:text-4xl font-bold text-midnight-blue dark:text-cosmic-latte mb-4">
-                Create Your Second Brain
+                Create Your Chief Cognitive Officer
               </h1>
               <p className="text-xl text-cosmic-grey dark:text-stardust max-w-2xl mx-auto">
                 Import your data from various platforms to build a personalized knowledge base that will power your CCO experience.
@@ -260,7 +260,7 @@ const OnboardingInnerContent: FC = () => {
                 Connect Your Data Sources
               </h1>
               <p className="text-xl text-cosmic-grey dark:text-stardust max-w-2xl mx-auto">
-                Select the platforms you'd like to connect to build your second brain knowledge base.
+                Select the platforms you'd like to connect to build your Chief Cognitive Officer knowledge base.
               </p>
             </div>
           ) : currentStep === 3 ? (
@@ -269,13 +269,13 @@ const OnboardingInnerContent: FC = () => {
                 Customize Your Experience
               </h1>
               <p className="text-xl text-cosmic-grey dark:text-stardust max-w-2xl mx-auto">
-                Set your preferences for how your Second Brain will work for you.
+                Set your preferences for how your Chief Cognitive Officer will work for you.
               </p>
             </div>
           ) : (
             <div className="text-center mb-12">
               <h1 className="text-3xl md:text-4xl font-bold text-midnight-blue dark:text-cosmic-latte mb-4">
-                Ready to Launch Your Second Brain
+                Ready to Launch Your Chief Cognitive Officer
               </h1>
               <p className="text-xl text-cosmic-grey dark:text-stardust max-w-2xl mx-auto">
                 Review your selections and complete the setup process.

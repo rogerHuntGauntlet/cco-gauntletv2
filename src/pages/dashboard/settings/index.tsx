@@ -540,41 +540,18 @@ const SettingsContent: React.FC = () => {
                           <div className="relative h-16 w-16 rounded-full overflow-hidden">
                             <img
                               className="h-16 w-16 rounded-full object-cover"
-                              src={avatarPreview || settings.profile?.avatar || "https://i.pravatar.cc/150?img=68"}
+                              src={settings.profile?.avatar || "https://i.pravatar.cc/150?img=68"}
                               alt="User avatar"
                             />
-                            {isUploading && (
-                              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
-                              </div>
-                            )}
                           </div>
-                          <div>
-                            <Button 
-                              variant="secondary" 
-                              size="sm"
-                              onClick={handleAvatarClick}
-                              disabled={isUploading}
-                              className="mb-1"
-                            >
-                              {isUploading ? 'Uploading...' : 'Change avatar'}
-                            </Button>
-                            <p className="text-xs text-cco-neutral-500">JPEG, PNG or GIF. Max 5MB.</p>
-                          </div>
-                          <input
-                            type="file"
-                            ref={fileInputRef}
-                            className="hidden"
-                            accept="image/*"
-                            onChange={handleFileChange}
-                          />
+                          {/* Upload button has been removed */}
+                          {successMessage && activeTab === 'profile' && (
+                            <p className="mt-2 text-sm text-green-600">{successMessage}</p>
+                          )}
+                          {errorMessage && activeTab === 'profile' && (
+                            <p className="mt-2 text-sm text-red-600">{errorMessage}</p>
+                          )}
                         </div>
-                        {successMessage && activeTab === 'profile' && (
-                          <p className="mt-2 text-sm text-green-600">{successMessage}</p>
-                        )}
-                        {errorMessage && activeTab === 'profile' && (
-                          <p className="mt-2 text-sm text-red-600">{errorMessage}</p>
-                        )}
                       </div>
                     </div>
                   </div>

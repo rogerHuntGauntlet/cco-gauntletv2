@@ -201,7 +201,7 @@ const FeaturesPage = () => {
                     </svg>
                   </div>
                   <p className="ml-3 text-cosmic-grey dark:text-nebula-white">
-                    <span className="font-medium text-midnight-blue dark:text-cosmic-latte">Second brain interview:</span> Our unique evaluation process allows clients to assess your problem-solving approach without disrupting your creative flow.
+                    <span className="font-medium text-midnight-blue dark:text-cosmic-latte">Chief Cognitive Officer interview:</span> Our unique evaluation process allows clients to assess your problem-solving approach without disrupting your creative flow.
                   </p>
                 </div>
                 

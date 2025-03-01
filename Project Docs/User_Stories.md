@@ -21,7 +21,7 @@
 
 ### Platform Experience
 12. As a vibe coder, I want a centralized dashboard to access all my meeting notes, PRDs, and code repositories so that I can easily manage my projects.
-13. As a vibe coder, I want to showcase my expertise through my "second brain" profile so that potential clients can discover and hire me based on my actual capabilities.
+13. As a vibe coder, I want to showcase my expertise through my "Chief Cognitive Officer" profile so that potential clients can discover and hire me based on my actual capabilities.
 14. As a vibe coder, I want to receive notifications about potential client matches so that I can focus on coding rather than business development.
 
 ## Client Stories
@@ -32,7 +32,7 @@
 17. As a client, I want to see ratings and reviews of vibe coders so that I can assess their reputation and track record.
 
 ### Interviewing and Hiring
-18. As a client, I want to interview vibe coders' "second brains" (CCOs) so that I can evaluate their problem-solving approach and technical expertise.
+18. As a client, I want to interview vibe coders' "Chief Cognitive Officers" (CCOs) so that I can evaluate their problem-solving approach and technical expertise.
 19. As a client, I want to ask technical questions during the CCO interview so that I can assess the vibe coder's knowledge in specific areas.
 20. As a client, I want to hire a vibe coder directly through the platform so that I can streamline the onboarding process.
 

@@ -11,7 +11,7 @@ To create a revolutionary tool that eliminates administrative overhead for creat
 - Provide real-time tips for effective meeting management and deal closing
 - Automatically generate meeting notes, PRDs, and starter code repositories
 - Enable personalized AI training through integration with various data sources
-- Create a marketplace connecting clients with vibe coders through an innovative "second brain interview" process
+- Create a marketplace connecting clients with vibe coders through an innovative "Chief Cognitive Officer interview" process
 
 ## Target Users
 1. **Vibe Coders**: Creative developers who prioritize coding flow over administrative tasks and documentation

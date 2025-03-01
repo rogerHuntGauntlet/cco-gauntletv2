@@ -1,7 +1,7 @@
 # Chief Cognitive Officer (CCO) Project Summary
 
 ## Project Overview
-Chief Cognitive Officer is an AI-powered productivity platform designed specifically for "vibe coders" - developers who prefer intuitive, flow-based work rather than structured documentation and meeting management. The CCO acts as an intelligent assistant that integrates with Zoom meetings, providing real-time guidance during client interactions and automatically generating comprehensive documentation, specifications, and even starter code repositories afterward. The platform also facilitates matching between clients and vibe coders through an innovative "second brain interview" process.
+Chief Cognitive Officer is an AI-powered productivity platform designed specifically for "vibe coders" - developers who prefer intuitive, flow-based work rather than structured documentation and meeting management. The CCO acts as an intelligent assistant that integrates with Zoom meetings, providing real-time guidance during client interactions and automatically generating comprehensive documentation, specifications, and even starter code repositories afterward. The platform also facilitates matching between clients and vibe coders through an innovative "Chief Cognitive Officer interview" process.
 
 ## Core Value Proposition
 CCO eliminates the administrative overhead that disrupts creative coding flow by handling meeting management, documentation, project requirements, and initial code scaffolding automatically. It allows vibe coders to focus purely on ideation and development while improving their client outcomes through AI-powered interaction guidance.
@@ -25,7 +25,7 @@ CCO eliminates the administrative overhead that disrupts creative coding flow by
 4. I want a PRD automatically generated from my client conversations, so I can start coding immediately without documentation overhead.
 5. I want starter code repositories created based on meeting discussions, so I can begin development with scaffolding already in place.
 6. I want to integrate my existing digital footprint (Google Drive, Dropbox, Twitter, email, calendar) to personalize my CCO, so it better represents my coding style and preferences.
-7. I want to showcase my expertise through my "second brain" profile, so potential clients can discover and hire me based on my actual capabilities rather than just a resume.
+7. I want to showcase my expertise through my "Chief Cognitive Officer" profile, so potential clients can discover and hire me based on my actual capabilities rather than just a resume.
 
 ## As a Client Looking for a Vibe Coder
 1. I want to interview the AI representations of multiple vibe coders, so I can find someone whose skills and approach match my project needs.
@@ -71,7 +71,7 @@ CCO eliminates the administrative overhead that disrupts creative coding flow by
   - Privacy-preserving vector embedding storage
   
 - **Matchmaking System:**
-  - Vector database of vibe coder "second brains"
+  - Vector database of vibe coder "Chief Cognitive Officers"
   - Natural language search interface for clients
   - Simulated interview environment with AI representation
   - Analytics dashboard for match quality assessment

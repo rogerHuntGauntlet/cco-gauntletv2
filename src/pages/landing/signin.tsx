@@ -73,38 +73,11 @@ const SignInPage: FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate form before submission
-    if (!validateForm()) return;
-    
-    setIsSubmitting(true);
-    setErrors((prev) => ({ ...prev, general: '' }));
-    
-    try {
-      const { user, error } = await signIn(formData.email, formData.password);
-      
-      if (user) {
-        // Redirect to dashboard on successful sign-in
-        router.push('/dashboard');
-      } else if (error) {
-        console.error("Sign-in error:", error);
-        
-        // Handle specific Firebase error codes
-        if (error.includes("auth/user-not-found") || error.includes("auth/wrong-password")) {
-          setErrors((prev) => ({ ...prev, general: 'Invalid email or password' }));
-        } else if (error.includes("auth/too-many-requests")) {
-          setErrors((prev) => ({ ...prev, general: 'Too many failed login attempts. Please try again later or reset your password' }));
-        } else if (error.includes("auth/invalid-api-key") || error.includes("auth/app-deleted")) {
-          setErrors((prev) => ({ ...prev, general: 'Authentication service is unavailable. Please contact support.' }));
-        } else {
-          setErrors((prev) => ({ ...prev, general: `Sign-in failed: ${error}` }));
-        }
-      }
-    } catch (err) {
-      console.error("Sign-in exception:", err);
-      setErrors((prev) => ({ ...prev, general: 'An unexpected error occurred during sign-in' }));
-    } finally {
-      setIsSubmitting(false);
-    }
+    // Display MVP client message instead of attempting to sign in
+    setErrors((prev) => ({ 
+      ...prev, 
+      general: 'Access to our platform is currently limited to MVP clients only. Please contact us at https://x.com/LamarDealMaker to learn how to become an MVP client.' 
+    }));
   };
 
   return (
@@ -118,7 +91,7 @@ const SignInPage: FC = () => {
         {/* Left panel - Branding & Info */}
         <div className="bg-gradient-to-br from-electric-indigo to-neon-teal md:w-1/2 p-12 flex flex-col justify-between">
           <div>
-            <Link href="/" className="inline-flex items-center">
+            <Link href="/landing" className="inline-flex items-center">
               <span className="text-3xl font-bold text-white">CCO</span>
             </Link>
           </div>
@@ -137,7 +110,7 @@ const SignInPage: FC = () => {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-medium text-lg">Access your second brain</h3>
+                  <h3 className="font-medium text-lg">Access your Chief Cognitive Officer</h3>
                   <p className="opacity-80">All your knowledge and insights in one place</p>
                 </div>
               </div>
@@ -169,17 +142,26 @@ const SignInPage: FC = () => {
           </div>
           
           <div className="text-white text-sm opacity-70">
-            © 2023 CCO. All rights reserved.
+            © {new Date().getFullYear()} CCO. All rights reserved.
           </div>
         </div>
         
         {/* Right panel - Sign In Form */}
-        <div className="md:w-1/2 p-8 md:p-12 lg:p-16 flex items-center justify-center">
+        <div className="w-full md:w-1/2 p-12 flex items-center justify-center">
           <div className="w-full max-w-md">
             <h2 className="text-2xl md:text-3xl font-bold text-midnight-blue dark:text-cosmic-latte mb-6">Sign in to your account</h2>
             <p className="text-cosmic-grey dark:text-stardust mb-8">
-              Access your AI-powered second brain and tools.
+              Access your AI-powered Chief Cognitive Officer and tools.
             </p>
+            
+            {/* MVP Client Message */}
+            <div className="mb-6 p-4 bg-electric-indigo bg-opacity-10 border border-electric-indigo border-opacity-50 rounded-md">
+              <h3 className="font-semibold text-electric-indigo mb-2">MVP Client Access Only</h3>
+              <p className="text-cosmic-grey dark:text-stardust">
+                Our state-of-the-art AI platform is currently available exclusively to MVP clients. 
+                Please <a href="https://x.com/LamarDealMaker" className="text-electric-indigo hover:underline">contact us</a> to learn how to become an MVP client and unlock the full potential of CCO.
+              </p>
+            </div>
             
             {errors.general && (
               <div className="mb-6 p-4 bg-electric-crimson bg-opacity-10 border border-electric-crimson border-opacity-50 rounded-md">
@@ -209,9 +191,9 @@ const SignInPage: FC = () => {
                   <label htmlFor="password" className="block text-sm font-medium text-midnight-blue dark:text-cosmic-latte">
                     Password
                   </label>
-                  <a href="#" className="text-sm text-electric-indigo hover:underline">
+                  <Link href="/landing/forgot-password" className="text-sm text-electric-indigo hover:underline">
                     Forgot password?
-                  </a>
+                  </Link>
                 </div>
                 <input
                   type="password"
@@ -225,33 +207,12 @@ const SignInPage: FC = () => {
                 {errors.password && <p className="mt-1 text-sm text-electric-crimson">{errors.password}</p>}
               </div>
               
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-electric-indigo focus:ring-electric-indigo border-cosmic-grey rounded"
-                />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-cosmic-grey dark:text-stardust">
-                  Remember me
-                </label>
-              </div>
-              
               <div>
                 <button
                   type="submit"
-                  disabled={isSubmitting}
-                  className={`w-full bg-electric-indigo hover:bg-opacity-90 text-nebula-white text-center px-4 py-3 rounded-md font-medium transition-all ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                  className="w-full bg-electric-indigo hover:bg-opacity-90 text-nebula-white text-center px-4 py-3 rounded-md font-medium transition-all"
                 >
-                  {isSubmitting ? (
-                    <span className="flex items-center justify-center">
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Signing in...
-                    </span>
-                  ) : 'Sign In'}
+                  Request MVP Access
                 </button>
               </div>
               

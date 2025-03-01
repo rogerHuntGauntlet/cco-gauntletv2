@@ -58,7 +58,7 @@ const UseCasesPage = () => {
             
             <h3 className="text-midnight-blue dark:text-cosmic-latte">Solution</h3>
             <p className="text-cosmic-grey dark:text-nebula-white">
-              The CCO Platform's marketplace allows clients to "interview" vibe coders' "second brains" (CCOs) to evaluate their problem-solving approach and technical expertise. This revolutionary process provides deeper insight into how developers think and work without disrupting their creative flow.
+              The CCO Platform's marketplace allows clients to "interview" vibe coders' "Chief Cognitive Officers" (CCOs) to evaluate their problem-solving approach and technical expertise. This revolutionary process provides deeper insight into how developers think and work without disrupting their creative flow.
             </p>
             
             <h3 className="text-midnight-blue dark:text-cosmic-latte">Results</h3>
@@ -70,7 +70,7 @@ const UseCasesPage = () => {
             </ul>
             
             <blockquote className="italic border-l-4 border-cosmic-blue pl-4 mt-6 text-cosmic-grey dark:text-nebula-white">
-              "The second brain interview process revealed insights about developers that traditional interviews never could. We found the perfect vibe coder for our project in half the time, and the automated documentation kept everyone aligned throughout."
+              "The Chief Cognitive Officer interview process revealed insights about developers that traditional interviews never could. We found the perfect vibe coder for our project in half the time, and the automated documentation kept everyone aligned throughout."
               <footer className="mt-2 font-medium text-midnight-blue dark:text-cosmic-latte">— Maria Rodriguez, Startup Founder</footer>
             </blockquote>
           </div>

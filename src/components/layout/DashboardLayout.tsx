@@ -102,8 +102,7 @@ const SpecialOfferModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =
                     SOLD OUT
                   </div>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="bg-red-500 h-0.5 w-full transform rotate-6"></div>
-                    <div className="bg-red-500 h-0.5 w-full transform -rotate-6"></div>
+                   
                   </div>
                   <h4 className="font-bold text-lg mb-1 line-through">First 5 People</h4>
                   <p className="text-yellow-800 text-xl font-bold line-through">FREE MVP Development</p>
@@ -115,7 +114,7 @@ const SpecialOfferModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =
                   <h4 className="font-bold text-lg mb-1">Next 5 People</h4>
                   <p className="text-blue-800 text-xl font-bold">$500 for MVP Development</p>
                   <div className="mt-2 text-sm text-blue-700">
-                    <span className="font-bold">Only 8 spots left!</span> Going fast!
+                    <span className="font-bold">Only 3 spots left!</span> Going fast!
                   </div>
                 </div>
 

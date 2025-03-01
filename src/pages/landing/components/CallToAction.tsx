@@ -15,13 +15,13 @@ const CallToAction: FC = () => {
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Link 
-              href="/landing/register" 
+              href="/secondbrains" 
               className="bg-nebula-white text-electric-indigo px-8 py-3 rounded-md font-medium transition-all shadow-md hover:shadow-lg transform hover:-translate-y-1"
             >
               Get Started Free
             </Link>
             <Link 
-              href="/pricing" 
+              href="/secondbrains" 
               className="border border-nebula-white text-nebula-white hover:bg-nebula-white hover:bg-opacity-10 px-8 py-3 rounded-md font-medium transition-all"
             >
               View Pricing

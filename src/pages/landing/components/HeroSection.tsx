@@ -16,13 +16,13 @@ const HeroSection: FC = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link 
-                href="/landing/register" 
+                href="/secondbrains" 
                 className="bg-electric-indigo hover:bg-opacity-90 text-nebula-white px-8 py-3 rounded-md font-medium transition-all shadow-md hover:shadow-lg transform hover:-translate-y-1"
               >
                 Get Started
               </Link>
               <Link 
-                href="#how-it-works" 
+                href="/secondbrains" 
                 className="border border-electric-indigo text-electric-indigo hover:text-midnight-blue hover:border-midnight-blue dark:border-digital-lavender dark:text-digital-lavender dark:hover:text-nebula-white dark:hover:border-nebula-white px-8 py-3 rounded-md font-medium transition-all"
               >
                 How It Works
