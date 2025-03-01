@@ -33,7 +33,7 @@ const RoundedIcon: React.FC<RoundedIconProps> = ({
   return (
     <div className={`${dimensions} ${roundedClass} overflow-hidden flex-shrink-0 ${className}`}>
       <img 
-        src="/Untitled design.png" 
+        src="/assets/icons/brain-card-rounded.png" 
         alt="Icon" 
         className="w-full h-full object-cover"
       />

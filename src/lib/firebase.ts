@@ -2,7 +2,7 @@
 import { initializeApp, getApps } from "firebase/app";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
 import { getFirestore, collection, doc, setDoc, getDoc, updateDoc, query, where, getDocs, deleteDoc, writeBatch } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { UserSettings } from "../types";
 
 // Your web app's Firebase configuration
@@ -552,6 +552,25 @@ export const getDashboardData = async (userId: string) => {
   } catch (error: any) {
     console.error("Error fetching dashboard data:", error);
     return { data: null, error: error.message };
+  }
+};
+
+// File upload function
+export const uploadFileToStorage = async (file: File, path: string) => {
+  try {
+    // Create a storage reference
+    const storageRef = ref(storage, path);
+    
+    // Upload the file
+    const snapshot = await uploadBytes(storageRef, file);
+    
+    // Get the download URL
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    
+    return { url: downloadURL, error: null };
+  } catch (error: any) {
+    console.error("Error uploading file:", error);
+    return { url: null, error: error.message };
   }
 };
 

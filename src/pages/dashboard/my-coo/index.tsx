@@ -681,7 +681,7 @@ export default function MyCOOPage() {
               animate={{ y: 0 }}
             >
               <h1 className="text-xl font-bold text-gray-900">
-                My Chief Cognitive Officer
+                My Chief Cognitive Officer (coming soon)
               </h1>
               <p className="mt-2 text-gray-600 leading-relaxed">
                 Connect and manage your external data sources here. Your Chief Cognitive Officer can analyze and chat with documents from Google Drive, Dropbox, and other connected services, helping you extract insights and information efficiently.

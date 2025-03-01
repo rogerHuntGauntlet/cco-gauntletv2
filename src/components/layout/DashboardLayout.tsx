@@ -12,7 +12,8 @@ import {
   ArrowRightOnRectangleIcon,
   Bars3Icon,
   XMarkIcon,
-  CircleStackIcon
+  CircleStackIcon,
+  SparklesIcon
 } from '@heroicons/react/24/outline';
 import VibeChatPanel from '../ui/VibeChatPanel';
 import RoundedIcon from '../ui/RoundedIcon';
@@ -49,6 +50,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [isSigningOut, setIsSigningOut] = useState(false);
   const { currentUser, userProfile } = useAuth();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  
+  // Check if user has upgraded (paid property exists)
+  const isUpgraded = userProfile && 'paid' in userProfile;
 
   // Get display name from user profile or fallback to email
   const displayName = userProfile?.name || (currentUser?.email?.split('@')[0] || 'User');
@@ -135,6 +139,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 >
                   <item.icon className={`w-5 h-5 mr-3 ${isActive ? 'text-cco-primary-700' : 'text-cco-neutral-700'}`} />
                   {item.name}
+                  {item.name === 'Settings' && !isUpgraded && (
+                    <SparklesIcon className="w-4 h-4 ml-2 text-cco-accent-500" />
+                  )}
                 </Link>
               );
             })}

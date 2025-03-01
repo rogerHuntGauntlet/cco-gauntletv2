@@ -15,7 +15,8 @@ export default function Home() {
       <Head>
         <title>CCO VibeCoder Platform</title>
         <meta name="description" content="Your AI-powered assistant for software development" />
-        <link rel="icon" href="/Untitled design.png" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/assets/icons/favicon.png" />
       </Head>
 
       <main className="flex w-full flex-1 flex-col items-center justify-center px-6 text-center">

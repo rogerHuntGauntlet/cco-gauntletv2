@@ -87,7 +87,7 @@ interface NewProjectData {
 
 const ProjectsPage: React.FC = () => {
   const router = useRouter();
-  const { currentUser } = useAuth();
+  const { currentUser, userProfile } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -118,6 +118,9 @@ const ProjectsPage: React.FC = () => {
   });
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const dropdownRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
+  
+  // Check if user has upgraded (paid property exists)
+  const isUpgraded = userProfile && 'paid' in userProfile;
   
   // Fetch projects from Firebase when the component mounts or user changes
   useEffect(() => {
@@ -264,6 +267,12 @@ const ProjectsPage: React.FC = () => {
 
   const handleShareVibes = (project: Project, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent card click event
+    
+    // If user is not upgraded, show upgrade message
+    if (!isUpgraded) {
+      alert('Upgrade to premium to share your projects with clients!');
+      return;
+    }
     
     // Create the shareable link using window.location.origin
     const origin = window.location.origin;
@@ -862,11 +871,14 @@ Please generate the code for the main interface components.`;
               <Button 
                 variant="accent" 
                 size="sm" 
-                className="flex-1"
+                className={`flex-1 ${!isUpgraded ? 'opacity-50 cursor-not-allowed' : ''}`}
                 onClick={(e) => handleShareVibes(project, e)}
               >
                 <ShareIcon className="w-5 h-5 mr-2" />
                 Share Vibes
+                {!isUpgraded && (
+                  <SparklesIcon className="w-4 h-4 ml-2" />
+                )}
               </Button>
               
               <div className="relative">

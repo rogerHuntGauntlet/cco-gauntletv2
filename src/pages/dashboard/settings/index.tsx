@@ -5,7 +5,8 @@ import { Card } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
 import { UserSettings } from '../../../types';
 import { useAuth } from '../../../contexts/AuthContext';
-import { getUserSettings, updateUserSettings, createUserSettings } from '../../../lib/firebase';
+import { getUserSettings, updateUserSettings, createUserSettings, uploadFileToStorage } from '../../../lib/firebase';
+import Head from 'next/head';
 import {
   UserIcon,
   BellIcon,
@@ -109,6 +110,9 @@ const SettingsContent: React.FC = () => {
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   // Fetch user settings from Firestore
   useEffect(() => {
@@ -259,6 +263,87 @@ const SettingsContent: React.FC = () => {
     setSuccessMessage('');
   };
 
+  // Handle avatar upload
+  const handleAvatarClick = () => {
+    // Trigger the hidden file input click
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0 || !currentUser) return;
+    
+    const file = files[0];
+    // Validate file type (only images)
+    if (!file.type.startsWith('image/')) {
+      setErrorMessage('Please select an image file');
+      return;
+    }
+    
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMessage('Image size should be less than 5MB');
+      return;
+    }
+    
+    // Create a preview of the image
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (e.target && typeof e.target.result === 'string') {
+        setAvatarPreview(e.target.result);
+      }
+    };
+    reader.readAsDataURL(file);
+    
+    setIsUploading(true);
+    setErrorMessage('');
+    setSuccessMessage('');
+    
+    try {
+      // Create a unique path for the avatar
+      const filePath = `avatars/${currentUser.uid}/${new Date().getTime()}_${file.name}`;
+      
+      // Upload the file to Firebase Storage
+      const { url, error } = await uploadFileToStorage(file, filePath);
+      
+      if (error) {
+        console.error("Error uploading avatar:", error);
+        setErrorMessage("Failed to upload avatar. Please try again.");
+        setAvatarPreview(null);
+        return;
+      }
+      
+      if (url) {
+        // Update settings with the new avatar URL
+        const updatedSettings = {
+          ...settings,
+          profile: {
+            ...settings.profile,
+            avatar: url
+          }
+        };
+        
+        setSettings(updatedSettings);
+        setIsDirty(true);
+        setSuccessMessage("Avatar uploaded successfully! Don't forget to save your changes.");
+        // Clear the preview after successful upload
+        setAvatarPreview(null);
+      }
+    } catch (err) {
+      console.error("Error in handleFileChange:", err);
+      setErrorMessage("An unexpected error occurred while uploading avatar.");
+      setAvatarPreview(null);
+    } finally {
+      setIsUploading(false);
+      // Clear the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -269,6 +354,9 @@ const SettingsContent: React.FC = () => {
 
   return (
     <DashboardLayout>
+      <Head>
+        <script async src="https://js.stripe.com/v3/buy-button.js"></script>
+      </Head>
       <div className="max-w-7xl mx-auto pb-12">
         <div className="md:flex md:items-center md:justify-between mb-8">
           <div>
@@ -289,6 +377,48 @@ const SettingsContent: React.FC = () => {
               Save Changes
             </Button>
           </div>
+        </div>
+
+        {/* Premium Plan */}
+        <div className="mb-6">
+          <Card className="bg-gradient-to-r from-cco-primary-50 to-cco-primary-100 border-cco-primary-200">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+              <div className="flex-1">
+                <h3 className="text-xl font-bold text-cco-primary-900 mb-2">Upgrade to Premium</h3>
+                <p className="text-cco-primary-800 mb-4">Contact begin@ideatrek.io after payment if our team is not in contact within 24 hours</p>
+                <ul className="space-y-2 mb-6">
+                  <li className="flex items-start">
+                    <svg className="h-5 w-5 text-cco-primary-700 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-cco-primary-800"><span className="font-medium">AI-powered phone number</span> to automatically solicit and land business for you</span>
+                  </li>
+                  <li className="flex items-start">
+                    <svg className="h-5 w-5 text-cco-primary-700 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-cco-primary-800"><span className="font-medium">Client sharing</span> - share projects with clients without dealing with client issues</span>
+                  </li>
+                  <li className="flex items-start">
+                    <svg className="h-5 w-5 text-cco-primary-700 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-cco-primary-800"><span className="font-medium">App building service</span> - our team will build one of your client apps (conditions apply)</span>
+                  </li>
+                  
+                </ul>
+              </div>
+              <div className="w-full md:w-auto mt-4 md:mt-0">
+                <div id="stripe-button-container">
+                  <stripe-buy-button
+                    buy-button-id="buy_btn_1QxnZHEWuluK4LYAcemS0mfu"
+                    publishable-key="pk_live_gWN40hIz2Hds1qotnyqgxWFQ"
+                  >
+                  </stripe-buy-button>
+                </div>
+              </div>
+            </div>
+          </Card>
         </div>
 
         <div className="md:grid md:grid-cols-12 md:gap-6">
@@ -371,15 +501,46 @@ const SettingsContent: React.FC = () => {
                       >
                         Avatar
                       </label>
-                      <div className="mt-1 flex items-center space-x-5">
-                        <img
-                          className="h-16 w-16 rounded-full"
-                          src={settings.profile?.avatar || "https://i.pravatar.cc/150?img=68"}
-                          alt="User avatar"
-                        />
-                        <Button variant="secondary" size="sm">
-                          Change
-                        </Button>
+                      <div className="mt-1">
+                        <div className="flex items-center space-x-5">
+                          <div className="relative h-16 w-16 rounded-full overflow-hidden">
+                            <img
+                              className="h-16 w-16 rounded-full object-cover"
+                              src={avatarPreview || settings.profile?.avatar || "https://i.pravatar.cc/150?img=68"}
+                              alt="User avatar"
+                            />
+                            {isUploading && (
+                              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <Button 
+                              variant="secondary" 
+                              size="sm"
+                              onClick={handleAvatarClick}
+                              disabled={isUploading}
+                              className="mb-1"
+                            >
+                              {isUploading ? 'Uploading...' : 'Change avatar'}
+                            </Button>
+                            <p className="text-xs text-cco-neutral-500">JPEG, PNG or GIF. Max 5MB.</p>
+                          </div>
+                          <input
+                            type="file"
+                            ref={fileInputRef}
+                            className="hidden"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                          />
+                        </div>
+                        {successMessage && activeTab === 'profile' && (
+                          <p className="mt-2 text-sm text-green-600">{successMessage}</p>
+                        )}
+                        {errorMessage && activeTab === 'profile' && (
+                          <p className="mt-2 text-sm text-red-600">{errorMessage}</p>
+                        )}
                       </div>
                     </div>
                   </div>
