@@ -818,7 +818,7 @@ export default function MyCOOPage() {
   return (
     <>
       <Head>
-        <title>My COO | CCO VibeCoder Platform</title>
+        <title>My CCO | CCO VibeCoder Platform</title>
         <meta name="description" content="Integrate with external services and import data" />
       </Head>
       

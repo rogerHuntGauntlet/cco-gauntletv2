@@ -27,7 +27,7 @@ interface NavItem {
 
 const navigation: NavItem[] = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
-  { name: 'My COO', href: '/dashboard/my-coo', icon: CircleStackIcon },
+  { name: 'My CCO', href: '/dashboard/my-coo', icon: CircleStackIcon },
   { name: 'Meetings', href: '/dashboard/meetings', icon: CalendarIcon },
   { name: 'Documents', href: '/dashboard/documents', icon: DocumentTextIcon },
   { name: 'Projects', href: '/dashboard/projects', icon: RectangleStackIcon },

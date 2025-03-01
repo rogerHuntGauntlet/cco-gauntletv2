@@ -37,7 +37,7 @@ export function Dashboard({ data }: DashboardProps) {
         <div className="relative">
           <h1 className="text-2xl sm:text-3xl font-bold mb-2">Welcome back, {userName}!</h1>
           <p className="text-cco-primary-100 max-w-xl">
-            Your virtual COO is here to help you manage your business operations. Let's get started.
+            Your virtual CCO is here to help you manage your business operations. Let's get started.
           </p>
         </div>
       </div>

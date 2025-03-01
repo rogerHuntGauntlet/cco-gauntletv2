@@ -272,6 +272,28 @@ export const getProjectsByUserId = async (userId: string) => {
   }
 };
 
+export const getProjectById = async (projectId: string) => {
+  try {
+    const projectRef = doc(db, "projects", projectId);
+    const projectSnap = await getDoc(projectRef);
+    
+    if (projectSnap.exists()) {
+      return { 
+        data: { 
+          id: projectSnap.id, 
+          ...projectSnap.data() 
+        }, 
+        error: null 
+      };
+    } else {
+      return { data: null, error: "Project not found" };
+    }
+  } catch (error: any) {
+    console.error("Error fetching project:", error);
+    return { data: null, error: error.message };
+  }
+};
+
 export const createProject = async (projectData: any) => {
   try {
     const docRef = doc(collection(db, "projects"));
@@ -349,6 +371,21 @@ export const createDocument = async (documentData: any) => {
     return { data: { id: docRef.id, ...documentData }, error: null };
   } catch (error: any) {
     console.error("Error creating document:", error);
+    return { data: null, error: error.message };
+  }
+};
+
+export const updateDocument = async (documentId: string, documentData: any) => {
+  try {
+    const documentRef = doc(db, "documents", documentId);
+    await updateDoc(documentRef, {
+      ...documentData,
+      updatedAt: new Date(),
+    });
+    
+    return { data: { id: documentId, ...documentData }, error: null };
+  } catch (error: any) {
+    console.error("Error updating document:", error);
     return { data: null, error: error.message };
   }
 };

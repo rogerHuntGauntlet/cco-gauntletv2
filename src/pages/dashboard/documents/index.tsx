@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import DashboardLayout from '../../../components/layout/DashboardLayout';
 import { 
@@ -9,14 +9,19 @@ import {
   ArrowUpTrayIcon,
   DocumentDuplicateIcon,
   DocumentIcon,
-  CloudArrowUpIcon
+  CloudArrowUpIcon,
+  EllipsisVerticalIcon,
+  FolderPlusIcon,
+  TrashIcon,
+  PencilIcon
 } from '@heroicons/react/24/outline';
 import { Button } from '../../../components/ui/Button';
 import { Card } from '../../../components/ui/Card';
 import { useAuth } from '../../../contexts/AuthContext';
-import { getDocumentsByUserId, createDocument } from '../../../lib/firebase';
+import { getDocumentsByUserId, createDocument, updateDocument } from '../../../lib/firebase';
 import { UploadDocumentModal } from '../../../components/documents/UploadDocumentModal';
 import { CreateMarkdownModal, MarkdownFormData } from '../../../components/documents/CreateMarkdownModal';
+import { AssignProjectModal } from '../../../components/documents/AssignProjectModal';
 import { useRouter } from 'next/router';
 
 // Mock uploadFile function until it's properly implemented in firebase.ts
@@ -47,6 +52,7 @@ interface Document {
   path: string;
   sharedWith: string[];
   userId: string;
+  projectId?: string;
 }
 
 interface Folder {
@@ -71,6 +77,11 @@ const DocumentsPage: React.FC = () => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showMarkdownModal, setShowMarkdownModal] = useState(false);
   const [aiServiceModal, setAIServiceModal] = useState({ isOpen: false });
+  const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
+  const [showAssignProjectModal, setShowAssignProjectModal] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const dropdownRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
+  const buttonRefs = useRef<{[key: string]: HTMLButtonElement | null}>({});
   
   // Fetch documents from Firestore
   useEffect(() => {
@@ -234,6 +245,89 @@ const DocumentsPage: React.FC = () => {
     console.log('Open folder', folderId);
   };
 
+  // Handle document options menu toggle
+  const toggleDocumentMenu = (e: React.MouseEvent, documentId: string) => {
+    e.stopPropagation(); // Prevent card click
+    
+    if (activeDropdownId === documentId) {
+      setActiveDropdownId(null);
+    } else {
+      setActiveDropdownId(documentId);
+    }
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (activeDropdownId) {
+        const dropdownElement = dropdownRefs.current[activeDropdownId];
+        const buttonElement = buttonRefs.current[activeDropdownId];
+        
+        if (
+          dropdownElement && 
+          !dropdownElement.contains(event.target as Node) && 
+          buttonElement && 
+          !buttonElement.contains(event.target as Node)
+        ) {
+          setActiveDropdownId(null);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [activeDropdownId]);
+
+  // Handle assigning document to project
+  const handleAssignToProject = (document: Document) => {
+    setSelectedDocument(document);
+    setShowAssignProjectModal(true);
+    setActiveDropdownId(null);
+  };
+
+  // Handle the project assignment
+  const handleProjectAssign = async (projectId: string) => {
+    if (!selectedDocument || !currentUser) return;
+    
+    try {
+      // Update the document with the project ID
+      const response = await updateDocument(selectedDocument.id, {
+        projectId: projectId,
+        updatedAt: new Date().toISOString()
+      });
+      
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      
+      // Update the document in the state
+      setDocuments(prevDocs => 
+        prevDocs.map(doc => 
+          doc.id === selectedDocument.id 
+            ? { ...doc, projectId: projectId, updatedAt: new Date().toISOString() } 
+            : doc
+        )
+      );
+      
+      // Close the modal
+      setShowAssignProjectModal(false);
+      setSelectedDocument(null);
+      
+      // Show success message
+      alert('Document assigned to project successfully!');
+    } catch (error) {
+      console.error('Failed to assign document to project:', error);
+      alert('Failed to assign document to project. Please try again.');
+    }
+  };
+
+  const handleCancelAssignProject = () => {
+    setShowAssignProjectModal(false);
+    setSelectedDocument(null);
+  };
+
   // Document card component for grid view
   const DocumentCard = ({ document }: { document: Document }) => {
     // Select icon based on document type
@@ -269,8 +363,11 @@ const DocumentsPage: React.FC = () => {
     });
     
     return (
-      <Card hover onClick={() => handleDocumentClick(document.id)} className="cursor-pointer h-full">
-        <div className="flex flex-col h-full">
+      <Card hover className="cursor-pointer h-full relative">
+        <div 
+          className="flex flex-col h-full"
+          onClick={() => handleDocumentClick(document.id)}
+        >
           <div className="flex items-center mb-3">
             <TypeIcon className={`w-8 h-8 ${getTypeColor()} mr-3`} />
             <div className="flex-1 min-w-0">
@@ -279,6 +376,58 @@ const DocumentsPage: React.FC = () => {
                 {document.type.charAt(0).toUpperCase() + document.type.slice(1)}
               </p>
             </div>
+            
+            {/* Three dot menu button */}
+            <button
+              ref={(el) => { buttonRefs.current[document.id] = el; }}
+              onClick={(e) => toggleDocumentMenu(e, document.id)}
+              className="p-1.5 rounded-full hover:bg-cco-neutral-100 focus:outline-none"
+            >
+              <EllipsisVerticalIcon className="w-5 h-5 text-cco-neutral-600" />
+            </button>
+            
+            {/* Dropdown menu */}
+            {activeDropdownId === document.id && (
+              <div
+                ref={(el) => { dropdownRefs.current[document.id] = el; }}
+                className="absolute right-2 top-12 w-48 bg-white rounded-md shadow-lg z-10 border border-cco-neutral-200"
+              >
+                <div className="py-1">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAssignToProject(document);
+                    }}
+                    className="w-full flex items-center px-4 py-2 text-sm text-cco-neutral-700 hover:bg-cco-neutral-100"
+                  >
+                    <FolderPlusIcon className="w-4 h-4 mr-2" />
+                    Assign to project
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log('Rename document', document.id);
+                      setActiveDropdownId(null);
+                    }}
+                    className="w-full flex items-center px-4 py-2 text-sm text-cco-neutral-700 hover:bg-cco-neutral-100"
+                  >
+                    <PencilIcon className="w-4 h-4 mr-2" />
+                    Rename
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log('Delete document', document.id);
+                      setActiveDropdownId(null);
+                    }}
+                    className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-cco-neutral-100"
+                  >
+                    <TrashIcon className="w-4 h-4 mr-2" />
+                    Delete
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
           
           <div className="flex justify-between items-center text-xs text-cco-neutral-700 mt-auto">
@@ -286,7 +435,7 @@ const DocumentsPage: React.FC = () => {
             <span>{document.size}</span>
           </div>
           
-          {document.tags.length > 0 && (
+          {document.tags && document.tags.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-1">
               {document.tags.map(tag => (
                 <span 
@@ -296,6 +445,14 @@ const DocumentsPage: React.FC = () => {
                   {tag}
                 </span>
               ))}
+            </div>
+          )}
+          
+          {/* Show project indicator if assigned to project */}
+          {document.projectId && (
+            <div className="mt-3 flex items-center text-xs text-cco-neutral-600">
+              <FolderIcon className="w-3.5 h-3.5 mr-1 text-cco-accent-500" />
+              <span>Assigned to project</span>
             </div>
           )}
         </div>
@@ -410,6 +567,17 @@ const DocumentsPage: React.FC = () => {
       <>
         {/* AI Service Modal */}
         {aiServiceModal.isOpen && AIServiceModal()}
+        
+        {/* Assign Project Modal */}
+        {showAssignProjectModal && selectedDocument && (
+          <AssignProjectModal
+            documentId={selectedDocument.id}
+            documentTitle={selectedDocument.title}
+            onAssign={handleProjectAssign}
+            onCancel={handleCancelAssignProject}
+            currentProjectId={selectedDocument.projectId}
+          />
+        )}
 
         {/* Header with actions */}
         <div className="flex justify-between items-center mb-6">

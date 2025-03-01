@@ -86,17 +86,29 @@ interface NewProjectData {
 }
 
 const ProjectsPage: React.FC = () => {
-  const { currentUser, userProfile } = useAuth();
+  const router = useRouter();
+  const { currentUser } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
+  const [statusDropdownOpen, setStatusDropdownOpen] = useState<string | null>(null);
+  const statusDropdownRef = useRef<HTMLDivElement>(null);
+  const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
+  const [showCursorInstructionsModal, setShowCursorInstructionsModal] = useState<boolean>(false);
+  const [aiServiceModal, setAIServiceModal] = useState<AIServiceModalState>({
+    isOpen: false,
+    projectId: null,
+    selectedService: null,
+    generatedPrompt: null
+  });
+  const buttonRefs = useRef<{[key: string]: HTMLButtonElement | null}>({});
   const [filters, setFilters] = useState<ProjectFilters>({
     status: [],
     priority: [],
     tags: []
   });
-  const [showCreateModal, setShowCreateModal] = useState(false);
   const [newProjectData, setNewProjectData] = useState<NewProjectData>({
     name: '',
     description: '',
@@ -104,19 +116,8 @@ const ProjectsPage: React.FC = () => {
     priority: 'medium',
     tags: []
   });
-  // Replace the dropdown state with modal state
-  const [aiServiceModal, setAIServiceModal] = useState<AIServiceModalState>({
-    isOpen: false,
-    projectId: null,
-    selectedService: null,
-    generatedPrompt: null
-  });
-  const [showCursorInstructionsModal, setShowCursorInstructionsModal] = useState(false);
-  const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const dropdownRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
-  const buttonRefs = useRef<{[key: string]: HTMLButtonElement | null}>({});
-  const router = useRouter();
   
   // Fetch projects from Firebase when the component mounts or user changes
   useEffect(() => {
@@ -168,6 +169,10 @@ const ProjectsPage: React.FC = () => {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      if (statusDropdownRef.current && !statusDropdownRef.current.contains(event.target as Node)) {
+        setStatusDropdownOpen(null);
+      }
+      
       // If we have an active dropdown and click is not on the button
       if (activeDropdownId) {
         const buttonElement = buttonRefs.current[activeDropdownId];
@@ -227,6 +232,34 @@ const ProjectsPage: React.FC = () => {
   const handleProjectClick = (projectId: string) => {
     // Navigate to project details page
     router.push(`/dashboard/projects/${projectId}`);
+  };
+
+  const handleStatusClick = (projectId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click event
+    setStatusDropdownOpen(statusDropdownOpen === projectId ? null : projectId);
+  };
+
+  const handleChangeStatus = (projectId: string, newStatus: 'active' | 'completed' | 'on-hold' | 'planning', e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click event
+    
+    // Find the project
+    const project = projects.find(p => p.id === projectId);
+    if (!project) return;
+    
+    // Update the project status
+    handleUpdateProject(projectId, { status: newStatus })
+      .then(() => {
+        // Close the dropdown
+        setStatusDropdownOpen(null);
+        
+        // Update the toast notification
+        const statusDisplay = newStatus.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        alert(`Project status updated to ${statusDisplay}`);
+      })
+      .catch((err) => {
+        console.error("Error updating project status:", err);
+        alert(`Failed to update status. Please try again.`);
+      });
   };
 
   const handleShareVibes = (project: Project, e: React.MouseEvent) => {
@@ -718,9 +751,33 @@ Please generate the code for the main interface components.`;
           <div className="flex justify-between items-start mb-2">
             <h3 className="text-lg font-semibold text-cco-neutral-900 truncate">{project.name}</h3>
             <div className="flex items-center space-x-2">
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[project.status]}`}>
-                {statusDisplay}
-              </span>
+              <div className="relative">
+                <span 
+                  className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[project.status]} cursor-pointer hover:ring-2 hover:ring-cco-primary-300`}
+                  onClick={(e) => handleStatusClick(project.id, e)}
+                >
+                  {statusDisplay}
+                </span>
+                {statusDropdownOpen === project.id && (
+                  <div 
+                    ref={statusDropdownRef}
+                    className="absolute z-10 mt-1 -ml-1 w-36 bg-white rounded-md shadow-lg py-1 text-sm ring-1 ring-black ring-opacity-5 focus:outline-none"
+                  >
+                    {['planning', 'active', 'on-hold', 'completed'].map((status) => (
+                      <div
+                        key={status}
+                        className={`
+                          px-4 py-2 hover:bg-cco-neutral-100 cursor-pointer flex items-center
+                          ${project.status === status ? 'bg-cco-neutral-50 text-cco-primary-600 font-medium' : ''}
+                        `}
+                        onClick={(e) => handleChangeStatus(project.id, status as any, e)}
+                      >
+                        {status.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${priorityColors[project.priority]}`}>
                 {project.priority.charAt(0).toUpperCase() + project.priority.slice(1)}
               </span>
@@ -1032,7 +1089,7 @@ Please generate the code for the main interface components.`;
     );
   };
 
-  // New function to handle updating a project
+  // Update function to handle updating a project
   const handleUpdateProject = async (projectId: string, updatedData: Partial<Project>) => {
     if (!currentUser) {
       alert('You must be logged in to update a project');

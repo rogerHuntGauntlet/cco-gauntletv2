@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import DashboardLayout from '../../../components/layout/DashboardLayout';
@@ -17,10 +17,13 @@ import {
   PencilIcon,
   TrashIcon,
   ShareIcon,
+  ExclamationCircleIcon
 } from '@heroicons/react/24/outline';
 import { Button } from '../../../components/ui/Button';
 import { Card } from '../../../components/ui/Card';
 import { getAvatarUrl } from '../../../utils/avatarUtils';
+import { getProjectById, updateProject, deleteProject, getDocumentsByUserId } from '../../../lib/firebase';
+import { useAuth } from '../../../contexts/AuthContext';
 
 // Define project types (same as in the dashboard)
 interface Project {
@@ -36,7 +39,16 @@ interface Project {
   tags: string[];
   clientName?: string;
   priority: 'low' | 'medium' | 'high' | 'urgent';
+  userId: string;
 }
+
+// Define the status options (matching the ones in CreateProjectForm)
+const statusOptions = [
+  { value: 'planning', label: 'Planning', color: 'bg-purple-100 text-purple-800' },
+  { value: 'active', label: 'Active', color: 'bg-green-100 text-green-800' },
+  { value: 'on-hold', label: 'On Hold', color: 'bg-yellow-100 text-yellow-800' },
+  { value: 'completed', label: 'Completed', color: 'bg-blue-100 text-blue-800' }
+];
 
 interface TeamMember {
   id: string;
@@ -67,7 +79,8 @@ const mockProjects: Project[] = [
     teamMembers: [mockTeamMembers[0], mockTeamMembers[1], mockTeamMembers[2]],
     tags: ['design', 'development', 'branding'],
     clientName: 'Acme Corp',
-    priority: 'high'
+    priority: 'high',
+    userId: 'user1'
   },
   {
     id: 'p2',
@@ -80,7 +93,8 @@ const mockProjects: Project[] = [
     teamMembers: [mockTeamMembers[0], mockTeamMembers[2], mockTeamMembers[4]],
     tags: ['mobile', 'development', 'app'],
     clientName: 'TechStart Inc',
-    priority: 'medium'
+    priority: 'medium',
+    userId: 'user1'
   },
   {
     id: 'p3',
@@ -93,7 +107,8 @@ const mockProjects: Project[] = [
     teamMembers: [mockTeamMembers[0], mockTeamMembers[3]],
     tags: ['marketing', 'content', 'social'],
     clientName: 'Global Retail',
-    priority: 'high'
+    priority: 'high',
+    userId: 'user1'
   },
   {
     id: 'p4',
@@ -106,7 +121,8 @@ const mockProjects: Project[] = [
     teamMembers: [mockTeamMembers[0], mockTeamMembers[2], mockTeamMembers[4]],
     tags: ['e-commerce', 'integration', 'development'],
     clientName: 'ShopNow Ltd',
-    priority: 'medium'
+    priority: 'medium',
+    userId: 'user1'
   },
   {
     id: 'p5',
@@ -120,7 +136,8 @@ const mockProjects: Project[] = [
     teamMembers: [mockTeamMembers[1], mockTeamMembers[3]],
     tags: ['design', 'report', 'finance'],
     clientName: 'Internal',
-    priority: 'low'
+    priority: 'low',
+    userId: 'user1'
   }
 ];
 
@@ -144,27 +161,85 @@ const mockDocuments: ProjectDocument[] = [
 const ProjectDetailsPage: React.FC = () => {
   const router = useRouter();
   const { id } = router.query;
+  const { currentUser } = useAuth();
   
   const [project, setProject] = useState<Project | null>(null);
   const [documents, setDocuments] = useState<ProjectDocument[]>([]);
   const [activeTab, setActiveTab] = useState<'overview' | 'team' | 'documents'>('overview');
   const [isEditing, setIsEditing] = useState(false);
+  const [showStatusDropdown, setShowStatusDropdown] = useState(false);
+  const statusDropdownRef = useRef<HTMLDivElement>(null);
+  const [notification, setNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
-  // In a real app, this would fetch project data from an API
+  // Fetch project data from Firebase
   useEffect(() => {
-    if (id) {
-      // Find the project by ID from mock data
-      const foundProject = mockProjects.find(p => p.id === id);
-      if (foundProject) {
-        setProject(foundProject);
+    const fetchProjectData = async () => {
+      if (!id || typeof id !== 'string') return;
+      
+      setLoading(true);
+      setError(null);
+      
+      try {
+        // Fetch project details
+        const { data, error } = await getProjectById(id);
         
-        // Simulate fetching related documents
-        setDocuments(mockDocuments.slice(0, 3 + Math.floor(Math.random() * 3)));
+        if (error) {
+          setError(error);
+          setLoading(false);
+          return;
+        }
+        
+        if (!data) {
+          setError("Project not found");
+          setLoading(false);
+          return;
+        }
+        
+        // Set the project data
+        setProject(data as Project);
+        
+        // Check if the current user has access to this project
+        if (currentUser && data.userId !== currentUser.uid) {
+          setError("You don't have permission to view this project");
+        }
+        
+        // Fetch related documents
+        if (currentUser) {
+          const docsResponse = await getDocumentsByUserId(currentUser.uid);
+          if (docsResponse.data) {
+            // Filter documents that might be related to this project
+            // In a real app, you would have a proper relationship between projects and documents
+            setDocuments(docsResponse.data.slice(0, 3));
+          }
+        }
+      } catch (err: any) {
+        console.error("Error fetching project:", err);
+        setError("Failed to load project. Please try again.");
+      } finally {
+        setLoading(false);
       }
-    }
-  }, [id]);
+    };
+    
+    fetchProjectData();
+  }, [id, currentUser]);
   
-  if (!project) {
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (statusDropdownRef.current && !statusDropdownRef.current.contains(event.target as Node)) {
+        setShowStatusDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+  
+  if (loading) {
     return (
       <DashboardLayout>
         <div className="h-full flex items-center justify-center">
@@ -177,6 +252,30 @@ const ProjectDetailsPage: React.FC = () => {
             </div>
             <h1 className="text-2xl font-semibold text-gray-800">Loading project...</h1>
             <p className="text-gray-600 mt-2">Please wait while we retrieve the project details.</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+  
+  if (error || !project) {
+    return (
+      <DashboardLayout>
+        <div className="h-full flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-red-100 flex items-center justify-center">
+              <ExclamationCircleIcon className="h-8 w-8 text-red-600" />
+            </div>
+            <h1 className="text-2xl font-semibold text-gray-800">Error Loading Project</h1>
+            <p className="text-gray-600 mt-2">{error || "Project not found"}</p>
+            <Button
+              variant="default"
+              size="md"
+              className="mt-6"
+              onClick={() => router.push('/dashboard/projects')}
+            >
+              Back to Projects
+            </Button>
           </div>
         </div>
       </DashboardLayout>
@@ -202,6 +301,62 @@ const ProjectDetailsPage: React.FC = () => {
     ? Math.round((new Date(project.dueDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
     : null;
   
+  const handleChangeStatus = (newStatus: 'active' | 'completed' | 'on-hold' | 'planning') => {
+    if (project) {
+      // Update loading state
+      setLoading(true);
+      
+      // Optimistically update the UI
+      setProject({
+        ...project,
+        status: newStatus
+      });
+      
+      // Close the dropdown
+      setShowStatusDropdown(false);
+      
+      // Update the project in Firebase
+      updateProject(project.id, { status: newStatus })
+        .then(({ error }) => {
+          if (error) {
+            // Show error notification
+            setNotification({
+              message: `Error updating status: ${error}`,
+              type: 'error'
+            });
+            
+            // Revert the optimistic update
+            setProject(prev => prev ? { ...prev, status: prev.status } : null);
+          } else {
+            // Show success notification
+            const statusDisplayName = statusOptions.find(s => s.value === newStatus)?.label || newStatus;
+            setNotification({
+              message: `Project status updated to ${statusDisplayName}`,
+              type: 'success'
+            });
+          }
+        })
+        .catch(err => {
+          console.error("Error updating project status:", err);
+          setNotification({
+            message: "Failed to update status. Please try again.",
+            type: 'error'
+          });
+          
+          // Revert the optimistic update
+          setProject(prev => prev ? { ...prev, status: prev.status } : null);
+        })
+        .finally(() => {
+          setLoading(false);
+          
+          // Auto-hide notification after 3 seconds
+          setTimeout(() => {
+            setNotification(null);
+          }, 3000);
+        });
+    }
+  };
+  
   const handleShareProject = () => {
     // Create the shareable link using window.location.origin
     const origin = window.location.origin;
@@ -210,10 +365,27 @@ const ProjectDetailsPage: React.FC = () => {
     // Copy to clipboard
     navigator.clipboard.writeText(shareableLink)
       .then(() => {
-        alert('Shareable link copied to clipboard!');
+        setNotification({
+          message: 'Shareable link copied to clipboard!',
+          type: 'success'
+        });
+        
+        // Auto-hide notification after 3 seconds
+        setTimeout(() => {
+          setNotification(null);
+        }, 3000);
       })
       .catch(err => {
         console.error('Failed to copy link: ', err);
+        setNotification({
+          message: 'Failed to copy link to clipboard',
+          type: 'error'
+        });
+        
+        // Auto-hide notification after 3 seconds
+        setTimeout(() => {
+          setNotification(null);
+        }, 3000);
       });
   };
   
@@ -223,9 +395,38 @@ const ProjectDetailsPage: React.FC = () => {
   
   const handleDeleteProject = () => {
     if (confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
-      // In a real app, this would call an API to delete the project
-      alert('Project deleted successfully!');
-      router.push('/dashboard/projects');
+      if (!project) return;
+      
+      setLoading(true);
+      
+      // Delete the project in Firebase
+      deleteProject(project.id)
+        .then(({ error }) => {
+          if (error) {
+            setNotification({
+              message: `Error deleting project: ${error}`,
+              type: 'error'
+            });
+          } else {
+            setNotification({
+              message: 'Project deleted successfully!',
+              type: 'success'
+            });
+            
+            // Navigate back to projects list
+            router.push('/dashboard/projects');
+          }
+        })
+        .catch(err => {
+          console.error("Error deleting project:", err);
+          setNotification({
+            message: "Failed to delete project. Please try again.",
+            type: 'error'
+          });
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     }
   };
   
@@ -237,14 +438,59 @@ const ProjectDetailsPage: React.FC = () => {
       </Head>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Notification Toast */}
+        {notification && (
+          <div className={`fixed top-4 right-4 z-50 p-4 rounded-md shadow-md ${
+            notification.type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 
+            'bg-red-50 text-red-800 border border-red-200'
+          }`}>
+            <div className="flex">
+              {notification.type === 'success' ? (
+                <svg className="h-5 w-5 text-green-500 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              ) : (
+                <svg className="h-5 w-5 text-red-500 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              )}
+              <span>{notification.message}</span>
+            </div>
+          </div>
+        )}
+        
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
           <div>
             <div className="flex items-center">
               <h1 className="text-3xl font-bold text-gray-900">{project.name}</h1>
-              <span className={`ml-4 px-3 py-1 text-sm font-medium rounded-full ${statusColors[project.status as keyof typeof statusColors]}`}>
-                {statusDisplay}
-              </span>
+              <div className="relative" ref={statusDropdownRef}>
+                <button
+                  onClick={() => setShowStatusDropdown(!showStatusDropdown)}
+                  className={`ml-4 px-3 py-1 text-sm font-medium rounded-full ${statusColors[project.status as keyof typeof statusColors]} hover:bg-opacity-80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 cursor-pointer`}
+                >
+                  {statusDisplay}
+                </button>
+                
+                {showStatusDropdown && (
+                  <div className="absolute z-10 mt-1 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                    <div className="py-1" role="menu" aria-orientation="vertical">
+                      {statusOptions.map((option) => (
+                        <button
+                          key={option.value}
+                          onClick={() => handleChangeStatus(option.value as 'active' | 'completed' | 'on-hold' | 'planning')}
+                          className={`block w-full text-left px-4 py-2 text-sm ${project.status === option.value ? 'bg-gray-100' : ''} hover:bg-gray-100`}
+                          role="menuitem"
+                        >
+                          <span className={`inline-block mr-2 px-2 py-0.5 rounded-full text-xs ${option.color}`}>
+                            {option.label}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
               <span className={`ml-2 px-3 py-1 text-sm font-medium rounded-full ${priorityColors[project.priority]}`}>
                 {project.priority.charAt(0).toUpperCase() + project.priority.slice(1)} Priority
               </span>
