@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs
 import { initializeApp, getApps } from "firebase/app";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
-import { getFirestore, collection, doc, setDoc, getDoc, updateDoc, query, where, getDocs } from "firebase/firestore";
+import { getFirestore, collection, doc, setDoc, getDoc, updateDoc, query, where, getDocs, deleteDoc } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { UserSettings } from "../types";
 
@@ -256,7 +256,7 @@ export const getProjectsByUserId = async (userId: string) => {
     const projectsRef = collection(db, "projects");
     const q = query(
       projectsRef, 
-      where("participantIds", "array-contains", userId)
+      where("userId", "==", userId)
     );
     
     const querySnapshot = await getDocs(q);
@@ -285,6 +285,33 @@ export const createProject = async (projectData: any) => {
   } catch (error: any) {
     console.error("Error creating project:", error);
     return { data: null, error: error.message };
+  }
+};
+
+export const updateProject = async (projectId: string, projectData: any) => {
+  try {
+    const projectRef = doc(db, "projects", projectId);
+    await updateDoc(projectRef, {
+      ...projectData,
+      updatedAt: new Date(),
+    });
+    
+    return { data: { id: projectId, ...projectData }, error: null };
+  } catch (error: any) {
+    console.error("Error updating project:", error);
+    return { data: null, error: error.message };
+  }
+};
+
+export const deleteProject = async (projectId: string) => {
+  try {
+    const projectRef = doc(db, "projects", projectId);
+    await deleteDoc(projectRef);
+    
+    return { error: null };
+  } catch (error: any) {
+    console.error("Error deleting project:", error);
+    return { error: error.message };
   }
 };
 

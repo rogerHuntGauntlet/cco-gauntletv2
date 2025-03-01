@@ -82,8 +82,11 @@ const DocumentsPage: React.FC = () => {
 
       try {
         setLoading(true);
-        const fetchedDocuments = await getDocumentsByUserId(currentUser.uid);
-        setDocuments(fetchedDocuments);
+        const response = await getDocumentsByUserId(currentUser.uid);
+        if (response.error) {
+          throw new Error(response.error);
+        }
+        setDocuments(response.data || []);
         
         // For now, we'll set folders to empty until we implement folder functionality
         setFolders([]);
@@ -124,7 +127,7 @@ const DocumentsPage: React.FC = () => {
     
     try {
       // Create a new markdown document in Firestore
-      const newDocument = await createDocument({
+      const response = await createDocument({
         title: markdownData.title,
         type: "markdown",
         createdAt: new Date().toISOString(),
@@ -135,8 +138,15 @@ const DocumentsPage: React.FC = () => {
         path: "/",
         sharedWith: [],
         userId: currentUser.uid,
+        createdBy: currentUser.uid,
         content: markdownData.content
       });
+      
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      
+      const newDocument = response.data;
       
       // Add the new document to the list
       setDocuments(prevDocuments => {
@@ -176,14 +186,27 @@ const DocumentsPage: React.FC = () => {
       }
       
       // Create document in Firestore
-      const newDoc = await createDocument({
+      const response = await createDocument({
         title: documentData.title,
         type: documentData.type,
         fileUrl: fileUrl,
         uploadDate: new Date().toISOString(),
         tags: documentData.tags,
-        userId: currentUser.uid
+        userId: currentUser.uid,
+        createdBy: currentUser.uid,
+        updatedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        size: documentData.file ? `${documentData.file.size} bytes` : '0 bytes',
+        owner: currentUser.displayName || "User",
+        path: "/",
+        sharedWith: []
       });
+      
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      
+      const newDoc = response.data;
       
       // Add the new document to the list
       setDocuments(prevDocs => {
@@ -343,8 +366,11 @@ const DocumentsPage: React.FC = () => {
               setLoading(true);
               setError(null);
               getDocumentsByUserId(currentUser?.uid || '')
-                .then(documents => {
-                  setDocuments(documents);
+                .then(response => {
+                  if (response.error) {
+                    throw new Error(response.error);
+                  }
+                  setDocuments(response.data || []);
                   setLoading(false);
                 })
                 .catch(err => {
