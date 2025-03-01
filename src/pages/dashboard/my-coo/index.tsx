@@ -62,301 +62,6 @@ const BoxIcon = () => (
   </svg>
 );
 
-// Types
-interface Node {
-  id: string;
-  type: 'cco' | 'data' | 'analytics' | 'ai' | 'integration';
-      label: string;
-  icon: React.ReactNode;
-  x: number;
-  y: number;
-}
-
-interface NodeStyle {
-  color: string;
-  connectionColor: string;
-}
-
-// Node type styles
-const nodeStyles: Record<Node['type'], NodeStyle> = {
-  cco: { color: '#1a1a1a', connectionColor: '#666666' },
-  data: { color: '#3B82F6', connectionColor: '#93C5FD' },
-  analytics: { color: '#10B981', connectionColor: '#6EE7B7' },
-  ai: { color: '#8B5CF6', connectionColor: '#C4B5FD' },
-  integration: { color: '#EC4899', connectionColor: '#F9A8D4' }
-};
-
-const NodeMap: React.FC = () => {
-  const svgRef = useRef<SVGSVGElement>(null);
-  const [nodes, setNodes] = useState<Node[]>(() => {
-    // Calculate initial circular layout
-    const radius = 280;
-    const centerX = 0;
-    const centerY = 0;
-    
-    // CCO at center
-    const ccoNode: Node = {
-      id: 'cco',
-      type: 'cco',
-      label: 'Chief Cognitive Officer',
-      icon: <CogIcon className="w-6 h-6" />,
-      x: centerX,
-      y: centerY
-    };
-    
-    // Data source nodes in a circle
-    const dataNodes: Node[] = [
-      {
-        id: 'google-drive',
-        type: 'data',
-        label: 'Google Drive',
-        icon: <GoogleDriveIcon />,
-        x: centerX + radius * Math.cos(0),
-        y: centerY + radius * Math.sin(0)
-      },
-      {
-        id: 'dropbox',
-        type: 'data',
-        label: 'Dropbox',
-        icon: <DropboxIcon />,
-        x: centerX + radius * Math.cos((2 * Math.PI) / 3),
-        y: centerY + radius * Math.sin((2 * Math.PI) / 3)
-      },
-      {
-        id: 'templates',
-        type: 'data',
-        label: 'Templates',
-        icon: <ServerIcon className="w-6 h-6" />,
-        x: centerX + radius * Math.cos((4 * Math.PI) / 3),
-        y: centerY + radius * Math.sin((4 * Math.PI) / 3)
-      }
-    ];
-    
-    return [ccoNode, ...dataNodes];
-  });
-  
-  const [dragging, setDragging] = useState<string | null>(null);
-  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-
-  // Update dimensions on mount and resize
-  useEffect(() => {
-    const updateDimensions = () => {
-      if (svgRef.current?.parentElement) {
-        const { width, height } = svgRef.current.parentElement.getBoundingClientRect();
-        setDimensions({ width, height });
-      }
-    };
-    
-    updateDimensions();
-    window.addEventListener('resize', updateDimensions);
-    return () => window.removeEventListener('resize', updateDimensions);
-  }, []);
-
-  // Handle node dragging
-  const handleMouseDown = (nodeId: string, e: React.MouseEvent) => {
-    setDragging(nodeId);
-      e.preventDefault();
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (dragging) {
-      const svg = svgRef.current;
-      if (svg) {
-        const point = svg.createSVGPoint();
-        point.x = e.clientX;
-        point.y = e.clientY;
-        const ctm = svg.getScreenCTM();
-        if (ctm) {
-          const svgPoint = point.matrixTransform(ctm.inverse());
-          setNodes(prev => prev.map(node =>
-            node.id === dragging
-              ? { ...node, x: svgPoint.x, y: svgPoint.y }
-              : node
-          ));
-        }
-      }
-    }
-  };
-
-  const handleMouseUp = () => {
-    setDragging(null);
-  };
-
-  // Calculate curved path between nodes
-  const getConnectionPath = (source: Node, target: Node) => {
-    const dx = target.x - source.x;
-    const dy = target.y - source.y;
-    const dr = Math.sqrt(dx * dx + dy * dy) * 1.2;
-    return `M ${source.x},${source.y} A ${dr},${dr} 0 0,1 ${target.x},${target.y}`;
-  };
-
-  return (
-    <div className="w-full h-full bg-white relative">
-      <svg
-        ref={svgRef}
-        width={dimensions.width}
-        height={dimensions.height}
-        viewBox={`${-dimensions.width/2} ${-dimensions.height/2} ${dimensions.width} ${dimensions.height}`}
-        className="absolute inset-0"
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-      >
-        <defs>
-          {/* Gradient for CCO node */}
-          <linearGradient id="cco-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#1a1a1a" />
-            <stop offset="100%" stopColor="#333333" />
-          </linearGradient>
-          
-          {/* Glow filter */}
-          <filter id="glow">
-            <feGaussianBlur stdDeviation="2" result="coloredBlur" />
-            <feMerge>
-              <feMergeNode in="coloredBlur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-
-          {/* Particle filter */}
-          <filter id="particle-glow">
-            <feGaussianBlur stdDeviation="1" />
-          </filter>
-
-          {/* File icon symbol */}
-          <symbol id="file-icon" viewBox="0 0 24 24">
-            <path d="M14 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V8L14 2Z" 
-                  strokeWidth="2" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round"
-                  fill="none" />
-            <path d="M14 2V8H20" 
-                  strokeWidth="2" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round"
-                  fill="none" />
-          </symbol>
-        </defs>
-
-        {/* Connection lines */}
-        {nodes.map(node => {
-          if (node.id === 'cco') return null;
-          const cco = nodes.find(n => n.id === 'cco')!;
-          return (
-            <g key={`connection-${node.id}`}>
-              {/* Base connection line */}
-              <path
-                d={getConnectionPath(node, cco)}
-                stroke={nodeStyles[node.type].connectionColor}
-                strokeWidth={2}
-                fill="none"
-                opacity={0.2}
-                className="transition-all duration-200"
-              />
-              {/* Animated file icons */}
-              {[0, 1, 2].map((i) => (
-                <g key={`file-${i}`}>
-                  <use
-                    href="#file-icon"
-                    width="28"
-                    height="28"
-                    stroke={nodeStyles[node.type].connectionColor}
-                    style={{ transform: 'translate(-14px, -14px)' }}
-                  >
-                    <animateMotion
-                      dur="3s"
-                      repeatCount="indefinite"
-                      begin={`${i * 1}s`}
-                      path={getConnectionPath(node, cco)}
-                    />
-                    <animate
-                      attributeName="opacity"
-                      values="0.9;0.3;0.9"
-                      dur="3s"
-                      repeatCount="indefinite"
-                      begin={`${i * 1}s`}
-                    />
-                  </use>
-                </g>
-              ))}
-            </g>
-          );
-        })}
-          
-          {/* Nodes */}
-        {nodes.map(node => (
-          <g
-              key={node.id}
-            transform={`translate(${node.x},${node.y})`}
-            onMouseDown={(e) => handleMouseDown(node.id, e)}
-            style={{ cursor: 'grab' }}
-            className="transition-transform duration-200"
-          >
-            {/* Node circle */}
-            <circle
-              r={node.id === 'cco' ? 80 : 60}
-              fill={node.id === 'cco' ? 'url(#cco-gradient)' : nodeStyles[node.type].color}
-              className="filter drop-shadow-lg"
-              filter="url(#glow)"
-              opacity={node.id === 'cco' ? 1 : 0.5}
-            />
-            
-            {/* Icon */}
-            <foreignObject
-              x={-24}
-              y={node.id === 'cco' ? -55 : -35}
-              width={48}
-              height={48}
-              className="pointer-events-none"
-            >
-              <div className="flex items-center justify-center w-full h-full">
-                {React.cloneElement(node.icon as React.ReactElement, {
-                  className: `w-12 h-12 ${node.id === 'cco' ? 'text-white' : 'text-white'}`
-                })}
-              </div>
-            </foreignObject>
-
-            {/* Label - Split into multiple lines for CCO */}
-            {node.id === 'cco' ? (
-              <>
-                <text
-                  y={15}
-                  textAnchor="middle"
-                  className="text-lg font-medium select-none pointer-events-none fill-white"
-                >
-                  Chief
-                </text>
-                <text
-                  y={40}
-                  textAnchor="middle"
-                  className="text-lg font-medium select-none pointer-events-none fill-white"
-                >
-                  Cognitive
-                </text>
-                <text
-                  y={65}
-                  textAnchor="middle"
-                  className="text-lg font-medium select-none pointer-events-none fill-white"
-                >
-                  Officer
-                </text>
-              </>
-            ) : (
-              <text
-                y={35}
-                textAnchor="middle"
-                className={`${node.id === 'google-drive' ? 'text-sm' : 'text-lg'} font-medium select-none pointer-events-none fill-white`}
-              >
-                {node.label}
-              </text>
-            )}
-          </g>
-        ))}
-                  </svg>
-              </div>
-  );
-};
-
 // Add mock data for files
 const mockFiles = {
   'google-drive': [
@@ -579,79 +284,117 @@ const ConnectServiceModal: React.FC<{
   isOpen: boolean;
   onClose: () => void;
 }> = ({ isOpen, onClose }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [activeTab, setActiveTab] = useState<'upload' | 'connect'>('upload');
+  const [uploadingFiles, setUploadingFiles] = useState<File[]>([]);
+  const [dragActive, setDragActive] = useState(false);
 
-  const services = [
+  const popularServices = [
     {
-      id: 'salesforce',
-      name: 'Salesforce',
-      icon: <SalesforceIcon />,
-      category: 'crm',
-      description: 'Connect your Salesforce instance to analyze customer data and interactions.'
+      id: 'google-drive',
+      name: 'Google Drive',
+      icon: <GoogleDriveIcon />,
+      color: '#0066DA'
+    },
+    {
+      id: 'dropbox',
+      name: 'Dropbox',
+      icon: <DropboxIcon />,
+      color: '#0061FF'
     },
     {
       id: 'onedrive',
       name: 'OneDrive',
       icon: <OneDriveIcon />,
-      category: 'storage',
-      description: 'Access and analyze documents stored in Microsoft OneDrive.'
+      color: '#0078D4'
     },
     {
       id: 'notion',
       name: 'Notion',
       icon: <NotionIcon />,
-      category: 'workspace',
-      description: 'Import and analyze your Notion workspace documents and databases.'
-    },
+      color: '#000000'
+    }
+  ];
+
+  const otherServices = [
     {
-      id: 'box',
-      name: 'Box',
-      icon: <BoxIcon />,
-      category: 'storage',
-      description: 'Connect your Box account to analyze enterprise content.'
+      id: 'salesforce',
+      name: 'Salesforce',
+      icon: <SalesforceIcon />,
+      color: '#00A1E0'
     },
     {
       id: 'slack',
       name: 'Slack',
       icon: <ChatBubbleLeftIcon className="w-6 h-6" />,
-      category: 'communication',
-      description: 'Analyze communication patterns and knowledge from Slack channels.'
+      color: '#4A154B'
+    },
+    {
+      id: 'box',
+      name: 'Box',
+      icon: <BoxIcon />,
+      color: '#0061D5'
     },
     {
       id: 'jira',
       name: 'Jira',
       icon: <CommandLineIcon className="w-6 h-6" />,
-      category: 'project',
-      description: 'Connect Jira to analyze project data and team workflows.'
+      color: '#0052CC'
     }
   ];
 
-  const categories = [
-    { id: 'all', name: 'All Services' },
-    { id: 'storage', name: 'Storage' },
-    { id: 'crm', name: 'CRM' },
-    { id: 'workspace', name: 'Workspace' },
-    { id: 'communication', name: 'Communication' },
-    { id: 'project', name: 'Project Management' }
-  ];
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setUploadingFiles(Array.from(e.target.files));
+    }
+  };
 
-  const filteredServices = services.filter(service => 
-    (selectedCategory === 'all' || service.category === selectedCategory) &&
-    service.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      setUploadingFiles(Array.from(e.dataTransfer.files));
+    }
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setUploadingFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleUpload = () => {
+    // Simulate upload success
+    alert(`Uploading ${uploadingFiles.length} file(s)`);
+    setUploadingFiles([]);
+    onClose();
+  };
+
+  const handleConnect = (serviceId: string) => {
+    // Simulate connection flow
+    alert(`Connecting to ${serviceId}`);
+    onClose();
+  };
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl w-[800px] max-h-[80vh] flex flex-col shadow-2xl">
+      <div className="bg-white rounded-xl w-[600px] max-h-[80vh] flex flex-col shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">Connect a New Service</h2>
-            <p className="text-sm text-gray-500 mt-1">Choose a service to connect to your Chief Cognitive Officer</p>
-          </div>
+          <h2 className="text-xl font-semibold text-gray-900">Add content to your CCO</h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 transition-colors"
@@ -660,72 +403,157 @@ const ConnectServiceModal: React.FC<{
           </button>
         </div>
 
-        {/* Search and Categories */}
-        <div className="px-6 py-4 border-b">
-          <div className="flex space-x-4">
-            <div className="relative flex-grow">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search services..."
-                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
-              />
-              <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
-            </div>
-          </div>
-          <div className="flex space-x-2 mt-4">
-            {categories.map(category => (
-              <button
-                key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
-                className={`px-3 py-1 rounded-full text-sm ${
-                  selectedCategory === category.id
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                } transition-colors`}
-              >
-                {category.name}
-              </button>
-            ))}
-          </div>
+        {/* Tabs */}
+        <div className="flex border-b">
+          <button
+            onClick={() => setActiveTab('upload')}
+            className={`flex-1 py-3 text-center font-medium text-sm ${
+              activeTab === 'upload'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Upload Files
+          </button>
+          <button
+            onClick={() => setActiveTab('connect')}
+            className={`flex-1 py-3 text-center font-medium text-sm ${
+              activeTab === 'connect'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Connect Services
+          </button>
         </div>
 
-        {/* Services Grid */}
-        <div className="p-6 overflow-y-auto grid grid-cols-2 gap-4">
-          {filteredServices.map((service) => (
+        {/* Upload Files Tab */}
+        {activeTab === 'upload' && (
+          <div className="p-6">
             <div
-              key={service.id}
-              className="p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-md transition-all cursor-pointer group"
+              className={`border-2 border-dashed rounded-lg p-6 text-center ${
+                dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+              }`}
+              onDragEnter={handleDrag}
+              onDragOver={handleDrag}
+              onDragLeave={handleDrag}
+              onDrop={handleDrop}
             >
-              <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 flex items-center justify-center bg-gray-50 rounded-lg border border-gray-100">
-                  {service.icon}
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                onChange={handleFileChange}
+                className="hidden"
+              />
+              
+              <div className="mb-4">
+                <CloudIcon className="w-12 h-12 mx-auto text-gray-400" />
+              </div>
+              
+              <p className="mb-2 text-sm text-gray-600">
+                Drag and drop files here, or{' '}
+                <button
+                  type="button"
+                  className="text-blue-600 hover:text-blue-800 font-medium"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  browse
+                </button>
+              </p>
+              <p className="text-xs text-gray-500">
+                Support for documents, spreadsheets, PDFs, images, and more
+              </p>
+            </div>
+
+            {/* File List */}
+            {uploadingFiles.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-sm font-medium text-gray-700 mb-3">
+                  Files to upload ({uploadingFiles.length})
+                </h3>
+                <div className="space-y-2 max-h-[200px] overflow-y-auto">
+                  {uploadingFiles.map((file, index) => (
+                    <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                      <div className="flex items-center">
+                        <DocumentIcon className="w-5 h-5 text-gray-500 mr-3" />
+                        <div>
+                          <p className="text-sm font-medium text-gray-900 truncate max-w-[300px]">
+                            {file.name}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {(file.size / 1024).toFixed(0)} KB
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleRemoveFile(index)}
+                        className="text-gray-400 hover:text-gray-600"
+                      >
+                        <XMarkIcon className="w-5 h-5" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex-grow">
-                  <h3 className="font-medium text-gray-900 group-hover:text-blue-500 transition-colors">
-                    {service.name}
-                  </h3>
-                  <p className="text-sm text-gray-500 mt-1">
-                    {service.description}
-                  </p>
+                <div className="mt-4 flex justify-end">
+                  <button
+                    onClick={handleUpload}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    Upload {uploadingFiles.length} file{uploadingFiles.length !== 1 ? 's' : ''}
+                  </button>
                 </div>
               </div>
-              <div className="mt-4 flex justify-end">
-                <button className="px-3 py-1.5 text-sm text-blue-500 hover:text-blue-700 font-medium">
-                  Connect →
-                </button>
+            )}
+          </div>
+        )}
+
+        {/* Connect Services Tab */}
+        {activeTab === 'connect' && (
+          <div className="p-6 overflow-y-auto">
+            <div className="mb-6">
+              <h3 className="text-sm font-medium text-gray-900 mb-3">Popular services</h3>
+              <div className="grid grid-cols-2 gap-3">
+                {popularServices.map((service) => (
+                  <button
+                    key={service.id}
+                    onClick={() => handleConnect(service.id)}
+                    className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all"
+                  >
+                    <div className="w-10 h-10 flex items-center justify-center mr-3">
+                      {service.icon}
+                    </div>
+                    <div className="text-left">
+                      <p className="font-medium">Connect {service.name}</p>
+                      <p className="text-xs text-gray-500">Log in to access your files</p>
+                    </div>
+                  </button>
+                ))}
               </div>
             </div>
-          ))}
-        </div>
-
-        {/* Footer */}
-        <div className="px-6 py-4 border-t bg-gray-50 rounded-b-xl">
-          <p className="text-sm text-gray-500">
-            Need help connecting a service? <a href="#" className="text-blue-500 hover:text-blue-700">View documentation</a>
-          </p>
-        </div>
+            
+            <div>
+              <h3 className="text-sm font-medium text-gray-900 mb-3">Other services</h3>
+              <div className="grid grid-cols-2 gap-3">
+                {otherServices.map((service) => (
+                  <button
+                    key={service.id}
+                    onClick={() => handleConnect(service.id)}
+                    className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all"
+                  >
+                    <div className="w-10 h-10 flex items-center justify-center mr-3">
+                      {service.icon}
+                    </div>
+                    <div className="text-left">
+                      <p className="font-medium">Connect {service.name}</p>
+                      <p className="text-xs text-gray-500">Log in to access your files</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -813,8 +641,31 @@ const ConnectedDevices: React.FC = () => {
   );
 };
 
+// Import our new CCONodeMap component
+import dynamic from 'next/dynamic';
+
+// Use dynamic import with ssr: false to avoid React Flow hydration issues
+const CCONodeMap = dynamic(
+  () => import('../../../components/CCONodeMap'),
+  { ssr: false }
+);
+
 // Main page component
 export default function MyCOOPage() {
+  const [selectedService, setSelectedService] = useState<string | null>(null);
+  
+  // List of connected services - this is the same data used in ConnectedDevices
+  const connectedServices = [
+    { id: 'google-drive', name: 'Google Drive' },
+    { id: 'dropbox', name: 'Dropbox' },
+    { id: 'templates', name: 'Templates' }
+  ];
+  
+  // Handle clicking on a service node in the node map
+  const handleServiceClick = (serviceId: string) => {
+    setSelectedService(serviceId);
+  };
+  
   return (
     <>
       <Head>
@@ -840,9 +691,22 @@ export default function MyCOOPage() {
           <ConnectedDevices />
 
           <div className="bg-white rounded-xl p-4 h-[calc(100vh-280px)]">
-            <NodeMap />
-                  </div>
-                </div>
+            {/* Replace the old NodeMap with our new CCONodeMap */}
+            <CCONodeMap 
+              connectedServices={connectedServices}
+              onServiceClick={handleServiceClick}
+            />
+          </div>
+        </div>
+        
+        {/* File modal when a service is selected */}
+        {selectedService && (
+          <FileModal
+            serviceId={selectedService}
+            isOpen={true}
+            onClose={() => setSelectedService(null)}
+          />
+        )}
       </DashboardLayout>
     </>
   );
