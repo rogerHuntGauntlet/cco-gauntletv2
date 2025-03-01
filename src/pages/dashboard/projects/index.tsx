@@ -26,6 +26,7 @@ import { getProjectsByUserId, createProject, updateProject, deleteProject } from
 import { Project as ProjectType } from '../../../types';
 import { getAvatarUrl } from '../../../utils/avatarUtils';
 
+
 // Define project types
 interface Project {
   id: string;
@@ -41,6 +42,18 @@ interface Project {
   clientName?: string;
   priority: 'low' | 'medium' | 'high' | 'urgent';
   userId: string; // Added to associate with Firebase user
+}
+
+// Define the form data interface
+interface ProjectFormData {
+  name: string;
+  description: string;
+  status: string;
+  priority: string;
+  startDate: string;
+  dueDate?: string;
+  clientName?: string;
+  tags: string[];
 }
 
 interface TeamMember {
@@ -74,17 +87,6 @@ interface AIServiceModalState {
   generatedPrompt: string | null;
 }
 
-interface NewProjectData {
-  name: string;
-  description: string;
-  status: string;
-  priority: string;
-  startDate?: string;
-  dueDate?: string;
-  clientName?: string;
-  tags?: string[];
-}
-
 const ProjectsPage: React.FC = () => {
   const router = useRouter();
   const { currentUser, userProfile } = useAuth();
@@ -107,13 +109,6 @@ const ProjectsPage: React.FC = () => {
   const [filters, setFilters] = useState<ProjectFilters>({
     status: [],
     priority: [],
-    tags: []
-  });
-  const [newProjectData, setNewProjectData] = useState<NewProjectData>({
-    name: '',
-    description: '',
-    status: 'planning',
-    priority: 'medium',
     tags: []
   });
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
@@ -314,7 +309,8 @@ const ProjectsPage: React.FC = () => {
     setAIServiceModal(prev => ({
       ...prev,
       selectedService: serviceName,
-      generatedPrompt: prompt
+      generatedPrompt: prompt,
+      isOpen: true // Explicitly ensure the modal stays open when selecting a service
     }));
   };
   
@@ -368,61 +364,58 @@ const ProjectsPage: React.FC = () => {
     setSearchQuery('');
   };
   
-  // New function to handle input changes in the create project form
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setNewProjectData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  // New function to submit the new project to Firebase
-  const handleSubmitProject = async () => {
+  // Handle form submission from the CreateProjectForm component
+  const handleSubmitNewProject = async (formData: ProjectFormData) => {
     if (!currentUser) {
       alert('You must be logged in to create a project');
       return;
     }
-
-    if (!newProjectData.name || !newProjectData.description) {
-      alert('Please fill in all required fields');
-      return;
-    }
-
+    
     try {
-      // Prepare project data for Firebase
-      const projectData = {
-        ...newProjectData,
-        userId: currentUser.uid,
-        startDate: newProjectData.startDate || new Date().toISOString(),
+      setLoading(true);
+      setError(null);
+      
+      // Create a new project object from form data
+      const newProject: Partial<Project> = {
+        name: formData.name,
+        description: formData.description,
+        status: formData.status as 'active' | 'completed' | 'on-hold' | 'planning',
+        priority: formData.priority as 'low' | 'medium' | 'high' | 'urgent',
+        startDate: formData.startDate,
+        dueDate: formData.dueDate || undefined,
+        clientName: formData.clientName || undefined,
+        tags: formData.tags || [],
         progress: 0,
-        teamMembers: [mockTeamMembers[0]], // Assign a default team member for now
-        tags: newProjectData.tags || []
+        teamMembers: [mockTeamMembers[0]], // Add a default team member
+        userId: currentUser.uid
       };
-
-      // Create project in Firebase
-      const { data, error } = await createProject(projectData);
-
-      if (error) {
-        alert(`Error creating project: ${error}`);
-      } else {
-        // Add the new project to our local state
-        setProjects(prev => [...prev, data as Project]);
-        
-        // Close the modal and reset form
-        setShowCreateModal(false);
-        setNewProjectData({
-          name: '',
-          description: '',
-          status: 'planning',
-          priority: 'medium',
-          tags: []
-        });
-        
-        alert('Project created successfully!');
+      
+      // Submit to Firebase
+      const result = await createProject(newProject);
+      
+      if (result.error) {
+        throw new Error(result.error);
       }
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+      
+      // Add the new project to our local state with the ID from Firebase
+      const createdProject: Project = {
+        id: result.data.id,
+        ...(newProject as Omit<Project, 'id'>)
+      };
+      
+      setProjects(prev => [...prev, createdProject]);
+      
+      // Close modal and reset form
+      setShowCreateModal(false);
+      
+      // Show success toast
+      alert('Project created successfully!');
+      
+    } catch (error) {
+      console.error('Error creating project:', error);
+      alert('Failed to create project. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
   
@@ -504,7 +497,7 @@ Please generate the code for the main interface components.`;
     setShowCursorInstructionsModal(true);
   };
   
-  // Add this component for the AI Service Modal
+  // Add this new component for the AI Service Modal
   const AIServiceModal = () => {
     if (!aiServiceModal.isOpen) return null;
     
@@ -682,7 +675,12 @@ Please generate the code for the main interface components.`;
               <div className="flex justify-between">
                 <Button 
                   variant="outline"
-                  onClick={() => setAIServiceModal(prev => ({...prev, selectedService: null, generatedPrompt: null}))}
+                  onClick={() => setAIServiceModal(prev => ({
+                    ...prev, 
+                    selectedService: null, 
+                    generatedPrompt: null,
+                    isOpen: true // Ensure the modal stays open when switching back to service selection
+                  }))}
                 >
                   Back to AI Services
                 </Button>
@@ -1323,143 +1321,24 @@ Please generate the code for the main interface components.`;
             </div>
           </div>
           
-          {/* Create Project Modal - updated for Firebase */}
-          {showCreateModal && (
+          {/* Project Create Modal */}
+          {showCreateModal && ReactDOM.createPortal(
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white rounded-lg p-6 max-w-lg w-full">
-                <h3 className="text-lg font-semibold mb-4">Create New Project</h3>
-                <div className="space-y-4">
-                  <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-cco-neutral-700 mb-1">
-                      Project Name *
-                    </label>
-                    <input 
-                      type="text"
-                      id="name"
-                      name="name"
-                      className="w-full px-3 py-2 border border-cco-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cco-primary-500"
-                      placeholder="Enter project name"
-                      value={newProjectData.name}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-                  
-                  <div>
-                    <label htmlFor="description" className="block text-sm font-medium text-cco-neutral-700 mb-1">
-                      Description *
-                    </label>
-                    <textarea 
-                      id="description"
-                      name="description"
-                      className="w-full px-3 py-2 border border-cco-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cco-primary-500"
-                      placeholder="Enter project description"
-                      rows={3}
-                      value={newProjectData.description}
-                      onChange={handleInputChange}
-                      required
-                    ></textarea>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label htmlFor="status" className="block text-sm font-medium text-cco-neutral-700 mb-1">
-                        Status
-                      </label>
-                      <select 
-                        id="status"
-                        name="status"
-                        className="w-full px-3 py-2 border border-cco-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cco-primary-500"
-                        value={newProjectData.status}
-                        onChange={handleInputChange}
-                      >
-                        <option value="planning">Planning</option>
-                        <option value="active">Active</option>
-                        <option value="on-hold">On Hold</option>
-                        <option value="completed">Completed</option>
-                      </select>
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="priority" className="block text-sm font-medium text-cco-neutral-700 mb-1">
-                        Priority
-                      </label>
-                      <select 
-                        id="priority"
-                        name="priority"
-                        className="w-full px-3 py-2 border border-cco-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cco-primary-500"
-                        value={newProjectData.priority}
-                        onChange={handleInputChange}
-                      >
-                        <option value="low">Low</option>
-                        <option value="medium">Medium</option>
-                        <option value="high">High</option>
-                        <option value="urgent">Urgent</option>
-                      </select>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label htmlFor="clientName" className="block text-sm font-medium text-cco-neutral-700 mb-1">
-                      Client Name
-                    </label>
-                    <input 
-                      type="text"
-                      id="clientName"
-                      name="clientName"
-                      className="w-full px-3 py-2 border border-cco-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cco-primary-500"
-                      placeholder="Enter client name"
-                      value={newProjectData.clientName || ''}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label htmlFor="startDate" className="block text-sm font-medium text-cco-neutral-700 mb-1">
-                        Start Date
-                      </label>
-                      <input 
-                        type="date"
-                        id="startDate"
-                        name="startDate"
-                        className="w-full px-3 py-2 border border-cco-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cco-primary-500"
-                        value={newProjectData.startDate || ''}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="dueDate" className="block text-sm font-medium text-cco-neutral-700 mb-1">
-                        Due Date
-                      </label>
-                      <input 
-                        type="date"
-                        id="dueDate"
-                        name="dueDate"
-                        className="w-full px-3 py-2 border border-cco-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cco-primary-500"
-                        value={newProjectData.dueDate || ''}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="flex justify-end mt-6 space-x-3">
-                  <Button 
-                    variant="ghost" 
+              <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-xl font-semibold text-cco-neutral-900">Create New Project</h3>
+                  <button 
                     onClick={() => setShowCreateModal(false)}
+                    className="text-cco-neutral-500 hover:text-cco-neutral-700"
                   >
-                    Cancel
-                  </Button>
-                  <Button 
-                    variant="default"
-                    onClick={handleSubmitProject}
-                  >
-                    Create Project
-                  </Button>
+                    <XMarkIcon className="w-6 h-6" />
+                  </button>
                 </div>
+                
+                <ProjectForm onSubmit={handleSubmitNewProject} onCancel={() => setShowCreateModal(false)} />
               </div>
-            </div>
+            </div>,
+            document.body
           )}
         </div>
       </DashboardLayout>
@@ -1467,6 +1346,261 @@ Please generate the code for the main interface components.`;
       {/* Add the Cursor Instructions Modal */}
       <CursorInstructionsModal />
     </>
+  );
+};
+
+// Inline Project Form Component
+const ProjectForm: React.FC<{
+  onSubmit: (data: ProjectFormData) => void;
+  onCancel: () => void;
+  initialData?: Partial<ProjectFormData>;
+}> = ({ onSubmit, onCancel, initialData = {} }) => {
+  const [formData, setFormData] = useState<ProjectFormData>({
+    name: initialData.name || '',
+    description: initialData.description || '',
+    status: initialData.status || 'planning',
+    priority: initialData.priority || 'medium',
+    startDate: initialData.startDate || new Date().toISOString().split('T')[0],
+    dueDate: initialData.dueDate || '',
+    clientName: initialData.clientName || '',
+    tags: initialData.tags || [],
+  });
+  
+  const [tagInput, setTagInput] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Clear error when field is edited
+    if (errors[name]) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+  };
+
+  const addTag = () => {
+    if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
+      setFormData(prev => ({
+        ...prev,
+        tags: [...prev.tags, tagInput.trim()]
+      }));
+      setTagInput('');
+    }
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    setFormData(prev => ({
+      ...prev,
+      tags: prev.tags.filter(tag => tag !== tagToRemove)
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Basic validation
+    const newErrors: Record<string, string> = {};
+    
+    if (!formData.name.trim()) {
+      newErrors.name = 'Project name is required';
+    }
+    
+    if (!formData.description.trim()) {
+      newErrors.description = 'Description is required';
+    }
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    
+    onSubmit(formData);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div>
+        <label htmlFor="name" className="block text-sm font-medium text-cco-neutral-700 mb-1">
+          Project Name*
+        </label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          className={`w-full px-3 py-2 border ${errors.name ? 'border-red-500' : 'border-cco-neutral-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-cco-primary-500`}
+          placeholder="Enter project name"
+        />
+        {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
+      </div>
+      
+      <div>
+        <label htmlFor="description" className="block text-sm font-medium text-cco-neutral-700 mb-1">
+          Description*
+        </label>
+        <textarea
+          id="description"
+          name="description"
+          value={formData.description}
+          onChange={handleChange}
+          rows={4}
+          className={`w-full px-3 py-2 border ${errors.description ? 'border-red-500' : 'border-cco-neutral-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-cco-primary-500`}
+          placeholder="Describe the project..."
+        />
+        {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description}</p>}
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label htmlFor="status" className="block text-sm font-medium text-cco-neutral-700 mb-1">
+            Status
+          </label>
+          <select
+            id="status"
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-cco-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cco-primary-500"
+          >
+            <option value="planning">Planning</option>
+            <option value="active">Active</option>
+            <option value="on-hold">On Hold</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+        
+        <div>
+          <label htmlFor="priority" className="block text-sm font-medium text-cco-neutral-700 mb-1">
+            Priority
+          </label>
+          <select
+            id="priority"
+            name="priority"
+            value={formData.priority}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-cco-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cco-primary-500"
+          >
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="urgent">Urgent</option>
+          </select>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label htmlFor="startDate" className="block text-sm font-medium text-cco-neutral-700 mb-1">
+            Start Date
+          </label>
+          <input
+            type="date"
+            id="startDate"
+            name="startDate"
+            value={formData.startDate}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-cco-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cco-primary-500"
+          />
+        </div>
+        
+        <div>
+          <label htmlFor="dueDate" className="block text-sm font-medium text-cco-neutral-700 mb-1">
+            Due Date (Optional)
+          </label>
+          <input
+            type="date"
+            id="dueDate"
+            name="dueDate"
+            value={formData.dueDate}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-cco-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cco-primary-500"
+          />
+        </div>
+      </div>
+      
+      <div>
+        <label htmlFor="clientName" className="block text-sm font-medium text-cco-neutral-700 mb-1">
+          Client Name (Optional)
+        </label>
+        <input
+          type="text"
+          id="clientName"
+          name="clientName"
+          value={formData.clientName}
+          onChange={handleChange}
+          className="w-full px-3 py-2 border border-cco-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cco-primary-500"
+          placeholder="Enter client name"
+        />
+      </div>
+      
+      <div>
+        <label className="block text-sm font-medium text-cco-neutral-700 mb-1">
+          Tags (Optional)
+        </label>
+        <div className="flex items-center mb-2">
+          <input
+            type="text"
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                addTag();
+              }
+            }}
+            className="flex-1 px-3 py-2 border border-cco-neutral-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-cco-primary-500"
+            placeholder="Add a tag and press Enter"
+          />
+          <button
+            type="button"
+            onClick={addTag}
+            className="px-4 py-2 bg-cco-neutral-200 text-cco-neutral-700 rounded-r-md hover:bg-cco-neutral-300"
+          >
+            Add
+          </button>
+        </div>
+        
+        <div className="flex flex-wrap gap-2 mt-2">
+          {formData.tags.map(tag => (
+            <span
+              key={tag}
+              className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-cco-neutral-100 text-cco-neutral-800"
+            >
+              {tag}
+              <button
+                type="button"
+                className="ml-1.5 text-cco-neutral-500 hover:text-cco-neutral-700"
+                onClick={() => removeTag(tag)}
+              >
+                <XMarkIcon className="w-4 h-4" />
+              </button>
+            </span>
+          ))}
+        </div>
+      </div>
+      
+      <div className="flex justify-end space-x-3 pt-4 border-t border-cco-neutral-200">
+        <Button
+          variant="outline"
+          type="button"
+          onClick={onCancel}
+        >
+          Cancel
+        </Button>
+        <Button
+          variant="default"
+          type="submit"
+        >
+          Create Project
+        </Button>
+      </div>
+    </form>
   );
 };
 

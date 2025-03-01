@@ -97,20 +97,26 @@ const SpecialOfferModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =
             <div className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Tier 1 */}
-                <div className="bg-gradient-to-r from-yellow-100 to-yellow-200 p-4 rounded-lg border border-yellow-300 relative overflow-hidden h-full">
-                  <div className="absolute top-0 right-0 bg-yellow-500 text-white px-2 py-1 text-xs font-bold">
-                    EXCLUSIVE
+                <div className="bg-gradient-to-r from-yellow-100 to-yellow-200 p-4 rounded-lg border border-yellow-300 relative overflow-hidden h-full opacity-75">
+                  <div className="absolute top-0 right-0 bg-red-500 text-white px-2 py-1 text-xs font-bold">
+                    SOLD OUT
                   </div>
-                  <h4 className="font-bold text-lg mb-1">First 5 People</h4>
-                  <p className="text-yellow-800 text-xl font-bold">FREE MVP Development</p>
-                  <div className="mt-2 text-sm text-yellow-700">Only a few spots left!</div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="bg-red-500 h-0.5 w-full transform rotate-6"></div>
+                    <div className="bg-red-500 h-0.5 w-full transform -rotate-6"></div>
+                  </div>
+                  <h4 className="font-bold text-lg mb-1 line-through">First 5 People</h4>
+                  <p className="text-yellow-800 text-xl font-bold line-through">FREE MVP Development</p>
+                  <div className="mt-2 text-sm text-red-700 font-semibold">All spots claimed!</div>
                 </div>
 
                 {/* Tier 2 */}
                 <div className="bg-gradient-to-r from-blue-100 to-blue-200 p-4 rounded-lg border border-blue-300 h-full">
                   <h4 className="font-bold text-lg mb-1">Next 5 People</h4>
                   <p className="text-blue-800 text-xl font-bold">$500 for MVP Development</p>
-                  <div className="mt-2 text-sm text-blue-700">Limited availability!</div>
+                  <div className="mt-2 text-sm text-blue-700">
+                    <span className="font-bold">Only 8 spots left!</span> Going fast!
+                  </div>
                 </div>
 
                 {/* Tier 3 */}
@@ -220,7 +226,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           {/* Logo */}
           <div className="flex items-center justify-between h-16 px-6 border-b border-cco-neutral-200">
             <Link href="/dashboard" className="flex items-center space-x-2">
-              <RoundedIcon size="md" roundness="full" />
+       
               <span className="text-xl font-semibold text-cco-neutral-900">VibeCoder</span>
             </Link>
             <button 
@@ -386,7 +392,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     </div>
                   )}
                 </div>
-                <span className="ml-2 text-sm font-medium hidden md:block">{displayName}</span>
+             
               </button>
               
               {userMenuOpen && (

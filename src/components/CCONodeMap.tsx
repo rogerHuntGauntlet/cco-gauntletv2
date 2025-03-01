@@ -18,10 +18,10 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import { CogIcon, ServerIcon, SparklesIcon, CloudIcon } from '@heroicons/react/24/outline';
+import { CogIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import CCONode, { CCONodeData, NodeType } from './CCONode';
 import AnimatedEdge, { AnimatedEdgeData } from './AnimatedEdge';
-import { GoogleDriveIcon, DropboxIcon, NotionIcon, SalesforceIcon, OneDriveIcon } from './ServiceIcons';
+import BrainCardLogo from './BrainCardLogo';
 
 // Define node types for React Flow
 const nodeTypes = {
@@ -52,21 +52,22 @@ const getNodeColor = (node: Node) => {
   }
 };
 
-// Service icon mapping
+// Service icon mapping - using our new logo for all services
 const serviceIcons: Record<string, React.ReactNode> = {
-  'google-drive': <GoogleDriveIcon />,
-  'dropbox': <DropboxIcon />,
-  'templates': <ServerIcon className="w-6 h-6" />,
-  'notion': <NotionIcon />,
-  'salesforce': <SalesforceIcon />,
-  'onedrive': <OneDriveIcon />,
+  'google-drive': <BrainCardLogo size="lg" />,
+  'dropbox': <BrainCardLogo size="lg" />,
+  'templates': <BrainCardLogo size="lg" />,
+  'notion': <BrainCardLogo size="lg" />,
+  'salesforce': <BrainCardLogo size="lg" />,
+  'onedrive': <BrainCardLogo size="lg" />,
 };
 
 // Main component
 const CCONodeMap: React.FC<{
   onServiceClick?: (serviceId: string) => void;
   connectedServices: Array<{id: string; name: string}>;
-}> = ({ onServiceClick, connectedServices = [] }) => {
+  showOnlyLogos?: boolean;
+}> = ({ onServiceClick, connectedServices = [], showOnlyLogos = false }) => {
   // Initialize flow with nodes and edges
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -83,6 +84,7 @@ const CCONodeMap: React.FC<{
         type: 'cco' as NodeType,
         label: 'Chief Cognitive Officer',
         icon: <CogIcon />,
+        showOnlyLogos: showOnlyLogos
       },
     };
     
@@ -100,7 +102,8 @@ const CCONodeMap: React.FC<{
         data: {
           type: 'data' as NodeType,
           label: service.name,
-          icon: serviceIcons[service.id] || <CloudIcon />,
+          icon: serviceIcons[service.id] || <BrainCardLogo size="lg" />,
+          showOnlyLogos: showOnlyLogos
         },
       };
     });
@@ -131,7 +134,7 @@ const CCONodeMap: React.FC<{
     setTimeout(() => {
       fitView({ padding: 0.2 });
     }, 100);
-  }, [connectedServices, fitView, setEdges, setNodes]);
+  }, [connectedServices, fitView, setEdges, setNodes, showOnlyLogos]);
 
   // Handle node connecting
   const onConnect = useCallback(
@@ -219,6 +222,7 @@ const CCONodeMap: React.FC<{
 const CCONodeMapWithProvider: React.FC<{
   onServiceClick?: (serviceId: string) => void;
   connectedServices: Array<{id: string; name: string}>;
+  showOnlyLogos?: boolean;
 }> = (props) => {
   return (
     <ReactFlowProvider>

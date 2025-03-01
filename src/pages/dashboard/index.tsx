@@ -7,6 +7,7 @@ import { getDashboardData } from '../../lib/firebase';
 import ProtectedRoute from '../../components/ProtectedRoute';
 import type { NextPage } from 'next';
 import { Dashboard as DashboardType } from '../../types';
+import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
 
 const DashboardContent: React.FC = () => {
   const { currentUser } = useAuth();
@@ -62,13 +63,28 @@ const DashboardContent: React.FC = () => {
       <DashboardLayout>
         {loading ? (
           <div className="flex items-center justify-center h-64">
-            <div className="animate-pulse text-cco-primary-600">
-              Loading dashboard data...
+            <div className="animate-pulse flex flex-col items-center">
+              <div className="h-12 w-12 bg-cco-primary-100 rounded-full mb-4 animate-bounce"></div>
+              <div className="text-cco-primary-600 font-medium">
+                Loading dashboard data...
+              </div>
             </div>
           </div>
         ) : error ? (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
-            Error loading dashboard data: {error}
+          <div className="max-w-lg mx-auto my-12">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-red-700">
+              <div className="flex items-center mb-4">
+                <ExclamationCircleIcon className="w-8 h-8 text-red-500 mr-3" />
+                <h3 className="text-lg font-semibold">Error Loading Dashboard</h3>
+              </div>
+              <p className="mb-4">{error}</p>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="px-4 py-2 bg-red-100 hover:bg-red-200 rounded-md text-red-700 transition-colors"
+              >
+                Try Again
+              </button>
+            </div>
           </div>
         ) : (
           <Dashboard data={dashboardData || emptyDashboardData} />

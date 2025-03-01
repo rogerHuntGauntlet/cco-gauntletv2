@@ -11,6 +11,7 @@ export interface CCONodeData {
   type: NodeType;
   icon: React.ReactNode;
   subtitle?: string;
+  showOnlyLogos?: boolean;
 }
 
 // Node type style mapping
@@ -59,7 +60,7 @@ type CCONodeProps = Omit<NodeProps, 'data'> & {
 
 // The component receives NodeProps where the data property contains our custom CCONodeData
 const CCONode = ({ data, selected }: CCONodeProps) => {
-  const { type, label, icon, subtitle } = data;
+  const { type, label, icon, subtitle, showOnlyLogos } = data;
   const styles = nodeStyles[type];
   
   // Determine node appearance based on type
@@ -111,7 +112,7 @@ const CCONode = ({ data, selected }: CCONodeProps) => {
       
       {/* Icon */}
       <div 
-        className={`${isCCO ? 'w-16 h-16' : 'w-12 h-12'} flex items-center justify-center mb-2`}
+        className={`${isCCO ? 'w-16 h-16' : 'w-12 h-12'} flex items-center justify-center ${!showOnlyLogos ? 'mb-2' : ''}`}
         style={{ color: styles.iconColor }}
       >
         {React.isValidElement(icon) ? 
@@ -122,20 +123,22 @@ const CCONode = ({ data, selected }: CCONodeProps) => {
         }
       </div>
       
-      {/* Label */}
-      <div className="flex flex-col items-center text-center px-2">
-        <span 
-          className={`${isCCO ? 'text-lg font-bold' : 'text-sm font-medium'} leading-tight`}
-          style={{ color: styles.textColor }}
-        >
-          {label}
-        </span>
-        {subtitle && (
-          <span className="text-xs mt-1 opacity-80" style={{ color: styles.textColor }}>
-            {subtitle}
+      {/* Label - only show if showOnlyLogos is false */}
+      {!showOnlyLogos && (
+        <div className="flex flex-col items-center text-center px-2">
+          <span 
+            className={`${isCCO ? 'text-lg font-bold' : 'text-sm font-medium'} leading-tight`}
+            style={{ color: styles.textColor }}
+          >
+            {label}
           </span>
-        )}
-      </div>
+          {subtitle && (
+            <span className="text-xs mt-1 opacity-80" style={{ color: styles.textColor }}>
+              {subtitle}
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 };

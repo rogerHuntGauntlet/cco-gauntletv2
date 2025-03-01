@@ -7,13 +7,13 @@ import { UserSettings } from "../types";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyB5RwTLoNCkArzKpB8gaZfiEsvvjORrkXk",
-  authDomain: "cco-gauntlet-3d975.firebaseapp.com",
-  projectId: "cco-gauntlet-3d975",
-  storageBucket: "cco-gauntlet-3d975.firebasestorage.app",
-  messagingSenderId: "170751489035",
-  appId: "1:170751489035:web:47efc6b6fdc7435200430e",
-  measurementId: "G-YZRVRLH0GF"
+  apiKey: process.env.FIREBASE_API_KEY || "AIzaSyB5RwTLoNCkArzKpB8gaZfiEsvvjORrkXk",
+  authDomain: process.env.FIREBASE_AUTH_DOMAIN || "cco-gauntlet-3d975.firebaseapp.com",
+  projectId: process.env.FIREBASE_PROJECT_ID || "cco-gauntlet-3d975",
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET || "cco-gauntlet-3d975.appspot.com",
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID || "170751489035",
+  appId: process.env.FIREBASE_APP_ID || "1:170751489035:web:47efc6b6fdc7435200430e",
+  measurementId: process.env.FIREBASE_MEASUREMENT_ID || "G-YZRVRLH0GF"
 };
 
 // Initialize Firebase
@@ -558,6 +558,15 @@ export const getDashboardData = async (userId: string) => {
 // File upload function
 export const uploadFileToStorage = async (file: File, path: string) => {
   try {
+    // Check if user is authenticated
+    if (!auth.currentUser) {
+      console.error("User not authenticated");
+      return { url: null, error: "Authentication required. Please sign in again." };
+    }
+    
+    console.log("Current user:", auth.currentUser.uid);
+    console.log("Storage path:", path);
+    
     // Create a storage reference
     const storageRef = ref(storage, path);
     
@@ -570,7 +579,15 @@ export const uploadFileToStorage = async (file: File, path: string) => {
     return { url: downloadURL, error: null };
   } catch (error: any) {
     console.error("Error uploading file:", error);
-    return { url: null, error: error.message };
+    const errorCode = error.code || "";
+    const errorMessage = error.message || "Unknown error";
+    console.log(`Storage error details - Code: ${errorCode}, Message: ${errorMessage}`);
+    
+    // Return more descriptive error
+    return { 
+      url: null, 
+      error: `${errorMessage} (${errorCode})` 
+    };
   }
 };
 

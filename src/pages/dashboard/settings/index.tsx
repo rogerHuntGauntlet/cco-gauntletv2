@@ -271,20 +271,20 @@ const SettingsContent: React.FC = () => {
     }
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0 || !currentUser) return;
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files || event.target.files.length === 0) return;
     
-    const file = files[0];
-    // Validate file type (only images)
+    const file = event.target.files[0];
+    
+    // Check if the file is an image
     if (!file.type.startsWith('image/')) {
-      setErrorMessage('Please select an image file');
+      setErrorMessage('Please upload an image file (JPEG, PNG, GIF).');
       return;
     }
     
-    // Validate file size (max 5MB)
+    // Check if the file size is less than 5MB
     if (file.size > 5 * 1024 * 1024) {
-      setErrorMessage('Image size should be less than 5MB');
+      setErrorMessage('Please upload an image smaller than 5MB.');
       return;
     }
     
@@ -301,21 +301,48 @@ const SettingsContent: React.FC = () => {
     setErrorMessage('');
     setSuccessMessage('');
     
+    console.log("Starting avatar upload process...");
+    console.log("Current user ID:", currentUser?.uid);
+    console.log("Storage bucket:", process.env.FIREBASE_STORAGE_BUCKET || "cco-gauntlet-3d975.appspot.com");
+    
     try {
+      if (!currentUser || !currentUser.uid) {
+        throw new Error("User authentication required. Please sign in again.");
+      }
+      
       // Create a unique path for the avatar
       const filePath = `avatars/${currentUser.uid}/${new Date().getTime()}_${file.name}`;
+      console.log("Upload file path:", filePath);
       
       // Upload the file to Firebase Storage
       const { url, error } = await uploadFileToStorage(file, filePath);
       
       if (error) {
         console.error("Error uploading avatar:", error);
-        setErrorMessage("Failed to upload avatar. Please try again.");
+        // Provide more specific error messages based on common storage errors
+        if (error.includes('unauthorized') || error.includes('permission-denied')) {
+          setErrorMessage("You don't have permission to upload files. Please check your account permissions.");
+        } else if (error.includes('quota-exceeded')) {
+          setErrorMessage("Storage quota exceeded. Please contact support.");
+        } else if (error.includes('invalid-argument') || error.includes('not-found')) {
+          setErrorMessage("Storage location not found. Please try again or contact support.");
+        } else if (error.includes('canceled')) {
+          setErrorMessage("Upload was canceled. Please try again.");
+        } else if (error.includes('Authentication required')) {
+          setErrorMessage("Your session has expired. Please sign in again.");
+        } else if (error.includes('cors') || error.includes('CORS') || error.includes('blocked by CORS')) {
+          setErrorMessage("CORS error: Your request was blocked. Please make sure you're using the correct origin or try refreshing the page.");
+          console.error("CORS error detected. Check Firebase Storage CORS configuration and bucket name.");
+        } else {
+          setErrorMessage("Failed to upload avatar. Please try again. Error: " + error);
+        }
         setAvatarPreview(null);
+        setIsUploading(false);
         return;
       }
       
       if (url) {
+        console.log("Upload successful, URL:", url);
         // Update settings with the new avatar URL
         const updatedSettings = {
           ...settings,
@@ -331,16 +358,23 @@ const SettingsContent: React.FC = () => {
         // Clear the preview after successful upload
         setAvatarPreview(null);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error in handleFileChange:", err);
-      setErrorMessage("An unexpected error occurred while uploading avatar.");
+      // Get a more descriptive error message if available
+      const errorMessage = err?.message || "An unexpected error occurred while uploading avatar.";
+      
+      // Check for CORS errors in the error message
+      if (errorMessage.includes('cors') || errorMessage.includes('CORS') || 
+          (err.code && (err.code === 'storage/unauthorized' || err.code.includes('cors')))) {
+        setErrorMessage("CORS error: Your browser blocked the upload request. This is likely a configuration issue with storage permissions.");
+        console.error("CORS error details:", err);
+      } else {
+        setErrorMessage(errorMessage);
+      }
+      
       setAvatarPreview(null);
     } finally {
       setIsUploading(false);
-      // Clear the file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
     }
   };
 
