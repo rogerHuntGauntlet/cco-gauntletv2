@@ -15,6 +15,7 @@ import {
   CircleStackIcon
 } from '@heroicons/react/24/outline';
 import VibeChatPanel from '../ui/VibeChatPanel';
+import RoundedIcon from '../ui/RoundedIcon';
 import { notifications } from '../../utils/mockData';
 import { logOut } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
@@ -107,9 +108,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           {/* Logo */}
           <div className="flex items-center justify-between h-16 px-6 border-b border-cco-neutral-200">
             <Link href="/dashboard" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-cco-primary-500 to-cco-accent-500 rounded-md flex items-center justify-center text-white font-bold">
-                CCO
-              </div>
+              <RoundedIcon size="md" roundness="full" />
               <span className="text-xl font-semibold text-cco-neutral-900">VibeCoder</span>
             </Link>
             <button 

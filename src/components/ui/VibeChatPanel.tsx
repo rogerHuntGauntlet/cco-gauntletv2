@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { XMarkIcon, PaperAirplaneIcon, TrashIcon, BoltIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 import { useAI } from '../../contexts/AIContext';
 import { format } from 'date-fns';
+import RoundedIcon from './RoundedIcon';
 
 interface VibeChatPanelProps {
   isOpen: boolean;
@@ -135,14 +136,7 @@ export default function VibeChatPanel({ isOpen, onClose }: VibeChatPanelProps) {
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-cco-neutral-200">
         <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cco-primary-500 to-cco-accent-500 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
-              <path d="M12 2a10 10 0 1 0 10 10H12V2z" />
-              <path d="M12 12L2 12" />
-              <path d="M12 12l4.3-4.3" />
-              <path d="M12 12l4.3 4.3" />
-            </svg>
-          </div>
+          <RoundedIcon size="sm" roundness="full" />
           <div>
             <h3 className="text-lg font-semibold text-cco-neutral-900">VIBE Assistant</h3>
             {currentModel !== 'default' && (
