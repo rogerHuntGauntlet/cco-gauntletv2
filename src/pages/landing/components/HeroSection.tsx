@@ -1,13 +1,8 @@
 import React from 'react';
 import type { FC } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 
-interface HeroSectionProps {
-  isDarkMode?: boolean;
-}
-
-const HeroSection: FC<HeroSectionProps> = ({ isDarkMode }) => {
+const HeroSection: FC = () => {
   return (
     <section className="py-20 px-6 md:px-12 lg:px-24 bg-gradient-to-br from-nebula-white to-cosmic-latte dark:from-midnight-blue dark:to-obsidian transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
@@ -36,11 +31,11 @@ const HeroSection: FC<HeroSectionProps> = ({ isDarkMode }) => {
           </div>
           <div className="lg:w-1/2 relative">
             <div className="relative w-full h-[400px] md:h-[480px]">
-              {/* Background changes based on theme */}
+              {/* Background decoration */}
               <div className="absolute inset-0 bg-gradient-to-br from-electric-indigo via-neon-teal to-digital-lavender opacity-10 dark:opacity-20 rounded-2xl animate-pulse"></div>
+              {/* Hero icon/illustration */}
               <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4">
                 <div className="w-full h-full relative">
-                  {/* Placeholder for hero image/illustration */}
                   <div className="absolute inset-0 flex items-center justify-center">
                     <svg className="w-24 h-24 text-electric-indigo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

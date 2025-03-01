@@ -5,9 +5,23 @@ module.exports = {
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
+        // Custom CCO theme colors from the CSS variables
+        'midnight-blue': '#121C42',
+        'electric-indigo': '#6016FC',
+        'cosmic-latte': '#FFF8E7',
+        'neon-teal': '#00F5D4',
+        'digital-lavender': '#D9C6F5',
+        'electric-crimson': '#FF003C',
+        'obsidian': '#1E1E2E',
+        'cosmic-grey': '#2A2A3A',
+        'stardust': '#8B8B9E',
+        'nebula-white': '#E9E9F0',
+        
+        // Existing colors
         primary: {
           50: '#f0f9ff',
           100: '#e0f2fe',
