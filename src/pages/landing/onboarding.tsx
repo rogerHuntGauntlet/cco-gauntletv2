@@ -3,6 +3,8 @@ import type { FC } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
+import ProtectedRoute from '../../components/ProtectedRoute';
+import { useAuth } from '../../contexts/AuthContext';
 
 // Import components
 import {
@@ -16,8 +18,9 @@ import {
   Preferences
 } from './components';
 
-const OnboardingPage: FC = () => {
+const OnboardingInnerContent: FC = () => {
   const router = useRouter();
+  const { currentUser } = useAuth();
   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedSources, setSelectedSources] = useState<string[]>([]);
@@ -344,6 +347,14 @@ const OnboardingPage: FC = () => {
         </div>
       </main>
     </div>
+  );
+};
+
+const OnboardingPage: FC = () => {
+  return (
+    <ProtectedRoute>
+      <OnboardingInnerContent />
+    </ProtectedRoute>
   );
 };
 

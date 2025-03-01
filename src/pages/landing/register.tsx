@@ -3,6 +3,7 @@ import type { FC } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
+import { register } from '../../lib/firebase';
 
 const RegisterPage: FC = () => {
   const router = useRouter();
@@ -20,6 +21,7 @@ const RegisterPage: FC = () => {
     confirmPassword: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [generalError, setGeneralError] = useState('');
 
   // Check system preference on load
   useEffect(() => {
@@ -91,24 +93,35 @@ const RegisterPage: FC = () => {
     return isValid;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (validateForm()) {
       setIsSubmitting(true);
+      setGeneralError('');
       
-      // Simulate API call for creating account
-      setTimeout(() => {
-        // Store user data in localStorage (for demo purposes only)
-        localStorage.setItem('cco_user', JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          isAuthenticated: true
-        }));
+      try {
+        // Use Firebase register function
+        const { user, error } = await register(formData.email, formData.password);
         
-        // Redirect to onboarding
-        router.push('/landing/onboarding');
-      }, 1500);
+        if (error) {
+          // Handle registration error
+          setGeneralError(
+            error.includes('email-already-in-use') 
+              ? 'This email is already registered. Please sign in instead.' 
+              : 'Registration failed. Please try again.'
+          );
+          setIsSubmitting(false);
+        } else if (user) {
+          // Registration successful
+          // Redirect to dashboard instead of onboarding
+          router.push('/dashboard');
+        }
+      } catch (err) {
+        console.error('Registration error:', err);
+        setGeneralError('An unexpected error occurred. Please try again.');
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -185,6 +198,12 @@ const RegisterPage: FC = () => {
             <p className="text-cosmic-grey dark:text-stardust mb-8">
               Start building your AI-powered second brain in minutes.
             </p>
+            
+            {generalError && (
+              <div className="mb-6 p-4 bg-electric-crimson bg-opacity-10 border border-electric-crimson border-opacity-50 rounded-md">
+                <p className="text-electric-crimson">{generalError}</p>
+              </div>
+            )}
             
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>

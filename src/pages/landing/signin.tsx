@@ -93,8 +93,8 @@ const SignInPage: FC = () => {
           setIsSubmitting(false);
         } else if (user) {
           // Successful login
-          // Redirect to dashboard or onboarding
-          router.push('/landing/onboarding');
+          // Redirect to dashboard instead of onboarding
+          router.push('/dashboard');
         }
       } catch (err) {
         console.error('Login error:', err);
