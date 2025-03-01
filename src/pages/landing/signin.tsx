@@ -3,6 +3,7 @@ import type { FC } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
+import { signIn } from '../../lib/firebase';
 
 const SignInPage: FC = () => {
   const router = useRouter();
@@ -69,42 +70,37 @@ const SignInPage: FC = () => {
     return isValid;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (validateForm()) {
       setIsSubmitting(true);
       
-      // Simulate API call for login
-      setTimeout(() => {
-        // For demo purposes, create a dummy user if one doesn't exist
-        const userData = localStorage.getItem('cco_user');
+      try {
+        // Use Firebase signIn function
+        const { user, error } = await signIn(formData.email, formData.password);
         
-        if (userData) {
-          const user = JSON.parse(userData);
-          if (user.email === formData.email) {
-            // Update auth status
-            user.isAuthenticated = true;
-            localStorage.setItem('cco_user', JSON.stringify(user));
-            
-            // Redirect to dashboard or onboarding
-            router.push('/landing/onboarding');
-          } else {
-            setErrors(prev => ({ ...prev, general: 'Invalid email or password' }));
-            setIsSubmitting(false);
-          }
-        } else {
-          // No existing user, create a dummy one (for demo)
-          localStorage.setItem('cco_user', JSON.stringify({
-            name: 'Demo User',
-            email: formData.email,
-            isAuthenticated: true
+        if (error) {
+          // Handle authentication error
+          setErrors(prev => ({ 
+            ...prev, 
+            general: error === 'Firebase: Error (auth/user-not-found).' 
+              ? 'User not found. Please check your email or create an account.'
+              : error === 'Firebase: Error (auth/wrong-password).'
+              ? 'Invalid password. Please try again.'
+              : 'Authentication failed. Please try again.'
           }));
-          
-          // Redirect to onboarding
+          setIsSubmitting(false);
+        } else if (user) {
+          // Successful login
+          // Redirect to dashboard or onboarding
           router.push('/landing/onboarding');
         }
-      }, 1500);
+      } catch (err) {
+        console.error('Login error:', err);
+        setErrors(prev => ({ ...prev, general: 'An unexpected error occurred. Please try again.' }));
+        setIsSubmitting(false);
+      }
     }
   };
 
