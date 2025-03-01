@@ -19,4 +19,9 @@ export interface UserData {
   preferences?: Preferences;
   userProject?: string;
   onboardingComplete: boolean;
+}
+
+// This empty export prevents Next.js from treating this file as a page
+export default function NotAPage() {
+  return null;
 } 

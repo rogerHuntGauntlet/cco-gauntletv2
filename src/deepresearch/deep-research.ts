@@ -75,7 +75,7 @@ async function generateSerpQueries({
   );
 
   // Convert the array of strings to the expected format with query and researchGoal properties
-  const formattedQueries = res.object.queries.map(queryString => ({
+  const formattedQueries = res.object.queries.map((queryString: string) => ({
     query: queryString,
     researchGoal: `Research goal for: ${queryString}. Explore the topic in depth and identify key information.`,
   }));
@@ -95,7 +95,7 @@ async function processSerpResult({
   numFollowUpQuestions?: number;
 }) {
   const contents = compact(result.data.map(item => item.markdown)).map(
-    content => trimPrompt(content, 25_000),
+    (content: string) => trimPrompt(content, 25_000),
   );
   log(`Ran ${query}, found ${contents.length} contents`);
 
@@ -104,7 +104,7 @@ async function processSerpResult({
     abortSignal: AbortSignal.timeout(60_000),
     system: systemPrompt(),
     prompt: `Given the following contents from a SERP search for the query <query>${query}</query>, generate a list of learnings from the contents. Return a maximum of ${numLearnings} learnings, but feel free to return less if the contents are clear. Make sure each learning is unique and not similar to each other. The learnings should be concise and to the point, as detailed and information dense as possible. Make sure to include any entities like people, places, companies, products, things, etc in the learnings, as well as any exact metrics, numbers, or dates. The learnings will be used to research the topic further.\n\n<contents>${contents
-      .map(content => `<content>\n${content}\n</content>`)
+      .map((content: string) => `<content>\n${content}\n</content>`)
       .join('\n')}</contents>`,
     schema: z.object({
       learnings: z
@@ -200,7 +200,7 @@ export async function deepResearch({
   const limit = pLimit(ConcurrencyLimit);
 
   const results = await Promise.all(
-    serpQueries.map(serpQuery =>
+    serpQueries.map((serpQuery: any) =>
       limit(async () => {
         try {
           const result = await firecrawl.search(serpQuery.query, {
@@ -236,7 +236,7 @@ export async function deepResearch({
 
             const nextQuery = `
             Previous research goal: ${serpQuery.researchGoal}
-            Follow-up research directions: ${newLearnings.followUpQuestions.map(q => `\n${q}`).join('')}
+            Follow-up research directions: ${newLearnings.followUpQuestions.map((q: string) => `\n${q}`).join('')}
           `.trim();
 
             return deepResearch({
@@ -277,7 +277,7 @@ export async function deepResearch({
   );
 
   return {
-    learnings: [...new Set(results.flatMap(r => r.learnings))],
-    visitedUrls: [...new Set(results.flatMap(r => r.visitedUrls))],
+    learnings: Array.from(new Set(results.flatMap(r => r.learnings))),
+    visitedUrls: Array.from(new Set(results.flatMap(r => r.visitedUrls))),
   };
 }

@@ -52,7 +52,7 @@ const MeetingsPage: React.FC = () => {
       try {
         setLoading(true);
         const fetchedMeetings = await getMeetingsByUserId(currentUser.uid);
-        setMeetings(fetchedMeetings);
+        setMeetings(fetchedMeetings.data || []);
         setError(null);
       } catch (err) {
         console.error("Error fetching meetings:", err);
@@ -171,7 +171,7 @@ const MeetingsPage: React.FC = () => {
     
     try {
       // Create a new meeting in Firestore
-      const newMeeting = await createMeeting({
+      const result = await createMeeting({
         title: meetingData.title || 'Untitled Meeting',
         date: meetingData.date || new Date().toISOString(),
         duration: meetingData.duration || 30,
@@ -179,7 +179,7 @@ const MeetingsPage: React.FC = () => {
           id: currentUser.uid,
           name: currentUser.displayName || 'User',
           email: currentUser.email || '',
-          role: 'Organizer',
+          role: 'client',
           avatar: currentUser.photoURL || ''
         }],
         projectId: meetingData.projectId || '',
@@ -191,12 +191,11 @@ const MeetingsPage: React.FC = () => {
       });
       
       // Add the new meeting to the list
-      setMeetings(prevMeetings => {
-        if (!prevMeetings || !Array.isArray(prevMeetings)) {
-          return [newMeeting];
-        }
-        return [newMeeting, ...prevMeetings];
-      });
+      if (result.data) {
+        setMeetings(prevMeetings => {
+          return [result.data as Meeting, ...prevMeetings];
+        });
+      }
       
       // Close the form
       setShowCreateForm(false);
@@ -228,7 +227,7 @@ const MeetingsPage: React.FC = () => {
               setError(null);
               getMeetingsByUserId(currentUser?.uid || '')
                 .then(meetings => {
-                  setMeetings(meetings);
+                  setMeetings(meetings.data || []);
                   setLoading(false);
                 })
                 .catch(err => {
@@ -253,7 +252,7 @@ const MeetingsPage: React.FC = () => {
             id: currentUser.uid,
             name: currentUser.displayName || 'User',
             email: currentUser.email || '',
-            role: 'Organizer',
+            role: 'client',
             avatar: currentUser.photoURL || ''
           } : undefined}
         />
