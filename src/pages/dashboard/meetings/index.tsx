@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import DashboardLayout from '../../../components/layout/DashboardLayout';
 import { 
@@ -8,13 +8,15 @@ import {
   FunnelIcon,
   EnvelopeIcon,
   CheckCircleIcon,
-  DocumentTextIcon
+  DocumentTextIcon,
+  ClockIcon
 } from '@heroicons/react/24/outline';
 import { MeetingCard } from '../../../components/meetings/MeetingCard';
 import { Button } from '../../../components/ui/Button';
 import { Card } from '../../../components/ui/Card';
 import { Meeting, User } from '../../../types';
-import { upcomingMeeting, recentMeeting, currentUser } from '../../../utils/mockData'; // Temporary mock data
+import { useAuth } from '../../../contexts/AuthContext';
+import { getMeetingsByUserId, createMeeting } from '../../../lib/firebase';
 import { 
   CalendarConnection, 
   CalendarProvider, 
@@ -25,16 +27,11 @@ import {
 } from '../../../utils/calendarIntegration';
 import { CreateMeetingForm } from '../../../components/meetings/CreateMeetingForm';
 
-// Placeholder for meetings data
-const mockMeetings: Meeting[] = [
-  { ...upcomingMeeting, id: 'm2', title: 'API Integration Planning', date: new Date(new Date().getTime() + 2 * 24 * 60 * 60 * 1000).toISOString() },
-  { ...upcomingMeeting, id: 'm3', title: 'Client Status Review', date: new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000).toISOString() },
-  { ...upcomingMeeting, id: 'm4', title: 'Sprint Planning', date: new Date(new Date().getTime() + 1 * 24 * 60 * 60 * 1000).toISOString() },
-  { ...recentMeeting, id: 'm1', title: 'E-Commerce Platform Initial Planning', status: 'completed' }
-];
-
 const MeetingsPage: React.FC = () => {
-  const [meetings, setMeetings] = useState<Meeting[]>(mockMeetings);
+  const { user } = useAuth();
+  const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [calendarConnection, setCalendarConnection] = useState<CalendarConnection | null>(null);
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
@@ -43,6 +40,27 @@ const MeetingsPage: React.FC = () => {
   const [sendingInvite, setSendingInvite] = useState<boolean>(false);
   const [inviteSuccess, setInviteSuccess] = useState<boolean>(false);
   const [showCreateForm, setShowCreateForm] = useState<boolean>(false);
+
+  // Fetch meetings from Firestore
+  useEffect(() => {
+    async function fetchMeetings() {
+      if (!user) return;
+
+      try {
+        setLoading(true);
+        const fetchedMeetings = await getMeetingsByUserId(user.uid);
+        setMeetings(fetchedMeetings);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching meetings:", err);
+        setError("Failed to load meetings. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchMeetings();
+  }, [user]);
 
   // Filter meetings to show only upcoming ones (scheduled status)
   const upcomingMeetings = meetings.filter(meeting => meeting.status === 'scheduled');
@@ -141,35 +159,91 @@ const MeetingsPage: React.FC = () => {
     setShowCreateForm(false);
   };
   
-  const handleSaveMeeting = (meetingData: Partial<Meeting>) => {
-    // Create a new meeting with the provided data
-    const newMeeting: Meeting = {
-      id: `m${new Date().getTime()}`, // Generate a unique ID
-      title: meetingData.title || 'Untitled Meeting',
-      date: meetingData.date || new Date().toISOString(),
-      duration: meetingData.duration || 30,
-      participants: meetingData.participants || [currentUser],
-      projectId: 'p1', // Default project ID
-      status: 'scheduled',
-      summary: meetingData.summary,
-      actionItems: [],
-      documents: []
-    };
+  const handleSaveMeeting = async (meetingData: Partial<Meeting>) => {
+    if (!user) return;
     
-    // Add the new meeting to the list
-    setMeetings([newMeeting, ...meetings]);
-    
-    // Close the form
-    setShowCreateForm(false);
+    try {
+      // Create a new meeting in Firestore
+      const newMeeting = await createMeeting({
+        title: meetingData.title || 'Untitled Meeting',
+        date: meetingData.date || new Date().toISOString(),
+        duration: meetingData.duration || 30,
+        participants: meetingData.participants || [{
+          id: user.uid,
+          name: user.displayName || 'User',
+          email: user.email || '',
+          role: 'Organizer',
+          avatar: user.photoURL || ''
+        }],
+        projectId: meetingData.projectId || '',
+        status: 'scheduled',
+        summary: meetingData.summary || '',
+        actionItems: [],
+        documents: [],
+        userId: user.uid
+      });
+      
+      // Add the new meeting to the list
+      setMeetings(prevMeetings => [newMeeting, ...prevMeetings]);
+      
+      // Close the form
+      setShowCreateForm(false);
+    } catch (error) {
+      console.error('Failed to create meeting:', error);
+      alert('Failed to create meeting. Please try again.');
+    }
   };
 
   const renderContent = () => {
+    if (loading) {
+      return (
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cco-primary-500 mb-4"></div>
+          <p className="text-cco-neutral-700">Loading meetings...</p>
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="bg-red-50 border border-red-200 rounded-md p-4 my-6">
+          <p className="text-red-700">{error}</p>
+          <Button 
+            variant="outline" 
+            className="mt-2"
+            onClick={() => {
+              setLoading(true);
+              setError(null);
+              getMeetingsByUserId(user?.uid || '')
+                .then(meetings => {
+                  setMeetings(meetings);
+                  setLoading(false);
+                })
+                .catch(err => {
+                  console.error("Error retrying fetch:", err);
+                  setError("Failed to load meetings. Please try again.");
+                  setLoading(false);
+                });
+            }}
+          >
+            Try Again
+          </Button>
+        </div>
+      );
+    }
+
     if (showCreateForm) {
       return (
         <CreateMeetingForm 
           onSubmit={handleSaveMeeting}
           onCancel={handleCancelCreate}
-          currentUser={currentUser}
+          currentUser={user ? {
+            id: user.uid,
+            name: user.displayName || 'User',
+            email: user.email || '',
+            role: 'Organizer',
+            avatar: user.photoURL || ''
+          } : undefined}
         />
       );
     }
@@ -248,21 +322,21 @@ const MeetingsPage: React.FC = () => {
               ))}
             </div>
           ) : (
-            <Card className="bg-cco-neutral-50 border-dashed">
-              <div className="flex flex-col items-center justify-center py-8">
-                <CalendarIcon className="w-12 h-12 text-cco-neutral-400 mb-4" />
-                <h3 className="font-medium text-cco-neutral-700 mb-2">No upcoming meetings</h3>
-                <p className="text-sm text-cco-neutral-600 text-center max-w-md mb-4">
-                  You don't have any scheduled meetings. Create a new meeting or connect your calendar to import existing ones.
-                </p>
-                <Button
-                  variant="default"
-                  onClick={handleCreateMeeting}
-                >
-                  <PlusIcon className="w-5 h-5 mr-2" />
-                  Schedule Meeting
-                </Button>
+            <Card className="p-6 flex flex-col items-center justify-center text-center">
+              <div className="bg-cco-primary-50 p-3 rounded-full mb-4">
+                <CalendarIcon className="w-8 h-8 text-cco-primary-500" />
               </div>
+              <h3 className="text-lg font-medium text-cco-neutral-900 mb-2">No upcoming meetings</h3>
+              <p className="text-cco-neutral-600 mb-6 max-w-md">
+                You don't have any scheduled meetings coming up. Would you like to create one?
+              </p>
+              <Button 
+                variant="accent" 
+                onClick={handleCreateMeeting}
+              >
+                <PlusIcon className="w-5 h-5 mr-2" />
+                Schedule a Meeting
+              </Button>
             </Card>
           )}
         </div>
@@ -276,20 +350,20 @@ const MeetingsPage: React.FC = () => {
           {pastMeetings.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {pastMeetings.map((meeting) => (
-                <div key={meeting.id}>
+                <div key={meeting.id} className="relative">
                   <MeetingCard meeting={meeting} />
                 </div>
               ))}
             </div>
           ) : (
-            <Card className="bg-cco-neutral-50 border-dashed">
-              <div className="flex flex-col items-center justify-center py-8">
-                <DocumentTextIcon className="w-12 h-12 text-cco-neutral-400 mb-4" />
-                <h3 className="font-medium text-cco-neutral-700 mb-2">No past meetings</h3>
-                <p className="text-sm text-cco-neutral-600 text-center max-w-md">
-                  You don't have any past meetings. Once you've had meetings, they'll appear here.
-                </p>
+            <Card className="p-6 flex flex-col items-center justify-center text-center">
+              <div className="bg-cco-neutral-100 p-3 rounded-full mb-4">
+                <ClockIcon className="w-8 h-8 text-cco-neutral-500" />
               </div>
+              <h3 className="text-lg font-medium text-cco-neutral-900 mb-2">No past meetings</h3>
+              <p className="text-cco-neutral-600 max-w-md">
+                You don't have any past meetings. Once you've completed meetings, they'll appear here.
+              </p>
             </Card>
           )}
         </div>
@@ -303,12 +377,11 @@ const MeetingsPage: React.FC = () => {
         <title>Meetings | CCO VibeCoder Platform</title>
         <meta
           name="description"
-          content="Manage your meetings, schedule new ones, and review past meetings"
+          content="Manage your meetings, schedule new ones, and sync with your calendar"
         />
       </Head>
-      
       <DashboardLayout>
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 py-8">
           {renderContent()}
         </div>
       </DashboardLayout>

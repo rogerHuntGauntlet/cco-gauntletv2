@@ -16,6 +16,8 @@ import {
 } from '@heroicons/react/24/outline';
 import VibeChatPanel from '../ui/VibeChatPanel';
 import { notifications } from '../../utils/mockData';
+import { logOut } from '../../lib/firebase';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface NavItem {
   name: string;
@@ -40,6 +42,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [vibeMode, setVibeMode] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const { currentUser, userProfile } = useAuth();
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  // Get display name from user profile or fallback to email
+  const displayName = userProfile?.name || (currentUser?.email?.split('@')[0] || 'User');
+  
+  // Get user avatar or use first letter of name
+  const userAvatar = userProfile?.photoURL || null;
+  const userInitial = displayName.charAt(0).toUpperCase();
 
   // Get unread notification count
   const unreadNotificationsCount = notifications.filter(n => !n.isRead).length;
@@ -50,6 +62,26 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const toggleVibeMode = () => {
     setVibeMode(!vibeMode);
+  };
+  
+  const handleSignOut = async () => {
+    if (isSigningOut) return;
+    
+    setIsSigningOut(true);
+    try {
+      const { error } = await logOut();
+      if (error) {
+        console.error('Error signing out:', error);
+        alert('Failed to sign out. Please try again.');
+      } else {
+        router.push('/landing/signin');
+      }
+    } catch (err) {
+      console.error('Error signing out:', err);
+      alert('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsSigningOut(false);
+    }
   };
 
   return (
@@ -117,13 +149,21 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 />
               </div>
               <div>
-                <p className="text-sm font-medium text-cco-neutral-900">Alex Johnson</p>
-                <p className="text-xs text-cco-neutral-700">alex@vibecoder.dev</p>
+                <p className="text-sm font-medium text-cco-neutral-900">
+                  {currentUser?.displayName || 'User'}
+                </p>
+                <p className="text-xs text-cco-neutral-700">
+                  {currentUser?.email || 'user@example.com'}
+                </p>
               </div>
             </div>
-            <button className="mt-3 flex items-center w-full px-4 py-2 text-sm text-cco-neutral-700 rounded-md hover:bg-cco-neutral-100 transition-colors">
+            <button 
+              onClick={handleSignOut}
+              disabled={isSigningOut}
+              className="mt-3 flex items-center w-full px-4 py-2 text-sm text-cco-neutral-700 rounded-md hover:bg-cco-neutral-100 transition-colors"
+            >
               <ArrowRightOnRectangleIcon className="w-5 h-5 mr-3 text-cco-neutral-700" />
-              Sign out
+              {isSigningOut ? 'Signing out...' : 'Sign out'}
             </button>
           </div>
         </div>
@@ -191,9 +231,44 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 Notifications
               </span>
             </Link>
-            <button className="p-1 rounded-md text-cco-neutral-700 hover:bg-cco-neutral-100">
-              <UserIcon className="w-6 h-6" />
-            </button>
+            
+            {/* User Menu */}
+            <div className="relative">
+              <button 
+                className="flex items-center focus:outline-none"
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+              >
+                <div className="relative">
+                  {userAvatar ? (
+                    <img 
+                      src={userAvatar} 
+                      alt={displayName} 
+                      className="w-8 h-8 rounded-full bg-cco-primary-100 object-cover"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-cco-primary-500 flex items-center justify-center text-white">
+                      {userInitial}
+                    </div>
+                  )}
+                </div>
+                <span className="ml-2 text-sm font-medium hidden md:block">{displayName}</span>
+              </button>
+              
+              {userMenuOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                  <Link href="/dashboard/settings" className="block px-4 py-2 text-sm text-cco-neutral-700 hover:bg-cco-neutral-100">
+                    Settings
+                  </Link>
+                  <button 
+                    onClick={handleSignOut}
+                    disabled={isSigningOut}
+                    className="block w-full text-left px-4 py-2 text-sm text-cco-neutral-700 hover:bg-cco-neutral-100"
+                  >
+                    {isSigningOut ? 'Signing out...' : 'Sign out'}
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 

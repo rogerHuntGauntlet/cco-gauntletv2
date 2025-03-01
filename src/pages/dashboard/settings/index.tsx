@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NextPage } from 'next';
 import DashboardLayout from '../../../components/layout/DashboardLayout';
 import { Card } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
 import { UserSettings } from '../../../types';
+import { useAuth } from '../../../contexts/AuthContext';
+import { getUserSettings, updateUserSettings, createUserSettings } from '../../../lib/firebase';
 import {
   UserIcon,
   BellIcon,
@@ -12,6 +14,7 @@ import {
   ShieldCheckIcon,
   ArrowPathIcon,
 } from '@heroicons/react/24/outline';
+import ProtectedRoute from '../../../components/ProtectedRoute';
 
 const TABS = [
   { id: 'profile', name: 'Profile', icon: UserIcon },
@@ -22,19 +25,19 @@ const TABS = [
   { id: 'integrations', name: 'Integrations', icon: ArrowPathIcon },
 ];
 
-// Mock data for demonstration purposes
-const mockSettings: UserSettings = {
-  id: '1',
-  userId: 'user1',
+// Default settings to use if none exist
+const defaultSettings: UserSettings = {
+  id: '',
+  userId: '',
   emailNotifications: {
     meetings: true,
     documents: true,
     actionItems: true,
     projectUpdates: false,
   },
-  theme: 'light',
+  theme: 'system',
   language: 'English',
-  timezone: 'America/New_York',
+  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   dateFormat: 'MM/DD/YYYY',
   timeFormat: '12h',
   accessibility: {
@@ -51,14 +54,12 @@ const mockSettings: UserSettings = {
       {
         id: 'github',
         name: 'GitHub',
-        connected: true,
-        lastSync: '2023-08-15T12:00:00Z',
+        connected: false,
       },
       {
         id: 'google',
         name: 'Google Calendar',
-        connected: true,
-        lastSync: '2023-08-14T10:30:00Z',
+        connected: false,
       },
       {
         id: 'slack',
@@ -69,13 +70,66 @@ const mockSettings: UserSettings = {
   },
 };
 
-const Settings: NextPage = () => {
+const SettingsContent: React.FC = () => {
+  const { currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState<string>('profile');
-  const [settings, setSettings] = useState<UserSettings>(mockSettings);
+  const [settings, setSettings] = useState<UserSettings>(defaultSettings);
+  const [originalSettings, setOriginalSettings] = useState<UserSettings>(defaultSettings);
   const [isDirty, setIsDirty] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [successMessage, setSuccessMessage] = useState<string>('');
+
+  // Fetch user settings from Firestore
+  useEffect(() => {
+    const fetchSettings = async () => {
+      if (!currentUser) return;
+      
+      setIsLoading(true);
+      
+      try {
+        const { data, error } = await getUserSettings(currentUser.uid);
+        
+        if (error && error !== "No settings found") {
+          console.error("Error fetching settings:", error);
+          setErrorMessage("Failed to load settings. Please try again.");
+        }
+        
+        if (data) {
+          setSettings(data);
+          setOriginalSettings(data);
+        } else {
+          // If no settings exist, create default settings
+          const { data: newData, error: createError } = await createUserSettings(
+            currentUser.uid, 
+            { ...defaultSettings, id: currentUser.uid, userId: currentUser.uid }
+          );
+          
+          if (createError) {
+            console.error("Error creating settings:", createError);
+            setErrorMessage("Failed to create default settings.");
+          } else if (newData) {
+            setSettings(newData);
+            setOriginalSettings(newData);
+          }
+        }
+      } catch (err) {
+        console.error("Error in fetchSettings:", err);
+        setErrorMessage("An unexpected error occurred while loading settings.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchSettings();
+  }, [currentUser]);
 
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
+    // Clear any messages when changing tabs
+    setErrorMessage('');
+    setSuccessMessage('');
   };
 
   const handleInputChange = (
@@ -84,8 +138,8 @@ const Settings: NextPage = () => {
     value: any
   ) => {
     setSettings((prev) => {
-      // Handle nested objects
-      if (typeof prev[section] === 'object' && prev[section] !== null) {
+      // If the section is a nested object
+      if (typeof prev[section] === 'object' && !Array.isArray(prev[section])) {
         return {
           ...prev,
           [section]: {
@@ -101,20 +155,52 @@ const Settings: NextPage = () => {
       };
     });
     setIsDirty(true);
+    // Clear any messages when making changes
+    setErrorMessage('');
+    setSuccessMessage('');
   };
 
-  const handleSave = () => {
-    // Here you would typically save the settings to your backend
-    console.log('Saving settings:', settings);
-    setIsDirty(false);
-    // Show a success message to the user
-    alert('Settings saved successfully!');
+  const handleSave = async () => {
+    if (!currentUser) return;
+    
+    setIsSaving(true);
+    setErrorMessage('');
+    setSuccessMessage('');
+    
+    try {
+      const { data, error } = await updateUserSettings(currentUser.uid, settings);
+      
+      if (error) {
+        console.error("Error updating settings:", error);
+        setErrorMessage("Failed to save settings. Please try again.");
+      } else {
+        setSettings(data as UserSettings);
+        setOriginalSettings(data as UserSettings);
+        setIsDirty(false);
+        setSuccessMessage("Settings saved successfully!");
+      }
+    } catch (err) {
+      console.error("Error in handleSave:", err);
+      setErrorMessage("An unexpected error occurred while saving settings.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleReset = () => {
-    setSettings(mockSettings);
+    setSettings(originalSettings);
     setIsDirty(false);
+    setErrorMessage('');
+    setSuccessMessage('');
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cco-primary-600"></div>
+      </div>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -714,6 +800,14 @@ const Settings: NextPage = () => {
         </div>
       </div>
     </DashboardLayout>
+  );
+};
+
+const Settings: NextPage = () => {
+  return (
+    <ProtectedRoute>
+      <SettingsContent />
+    </ProtectedRoute>
   );
 };
 

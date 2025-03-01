@@ -3,7 +3,7 @@ import type { FC } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
-import { register } from '../../lib/firebase';
+import { register, createUserProfile, createUserSettings } from '../../lib/firebase';
 
 const RegisterPage: FC = () => {
   const router = useRouter();
@@ -113,6 +113,32 @@ const RegisterPage: FC = () => {
           );
           setIsSubmitting(false);
         } else if (user) {
+          // Save user profile data to Firestore
+          const userData = {
+            name: formData.name,
+            email: formData.email,
+            role: 'user',
+            photoURL: null,
+          };
+          
+          const { error: profileError } = await createUserProfile(user.uid, userData);
+          
+          if (profileError) {
+            console.error('Error creating user profile:', profileError);
+            // Continue with redirect even if profile creation fails
+          }
+          
+          // Create default user settings
+          const { error: settingsError } = await createUserSettings(user.uid, {
+            id: user.uid,
+            userId: user.uid,
+          });
+          
+          if (settingsError) {
+            console.error('Error creating user settings:', settingsError);
+            // Continue with redirect even if settings creation fails
+          }
+          
           // Registration successful
           // Redirect to dashboard instead of onboarding
           router.push('/dashboard');
