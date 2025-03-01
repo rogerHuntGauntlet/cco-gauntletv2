@@ -5,6 +5,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { signIn } from '../../lib/firebase';
 import { VideoModal } from '../../components/ui/VideoModal';
+import { SparklesIcon } from '@heroicons/react/24/outline';
 
 const SignInPage: FC = () => {
   const router = useRouter();
@@ -101,150 +102,138 @@ const SignInPage: FC = () => {
         videoSrc="/hype-team-SBA-346755141.mp4"
       />
 
-      <div className="flex-1 flex flex-col md:flex-row">
-        {/* Left panel - Branding & Info */}
-        <div className="bg-gradient-to-br from-electric-indigo to-neon-teal md:w-1/2 p-12 flex flex-col justify-between">
-          <div>
-            <Link href="/landing" className="inline-flex items-center">
-              <span className="text-3xl font-bold text-white">CCO</span>
-            </Link>
-          </div>
-          
-          <div className="text-white">
-            <h1 className="text-3xl md:text-4xl font-bold mb-6">Welcome back!</h1>
-            <p className="text-xl opacity-90 mb-8">
-              Continue enhancing your creative flow with CCO.
-            </p>
-            
-            <div className="space-y-6">
-              <div className="flex items-start space-x-4">
-                <div className="bg-white bg-opacity-20 p-2 rounded-full">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="font-medium text-lg">Access your Chief Cognitive Officer</h3>
-                  <p className="opacity-80">All your knowledge and insights in one place</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start space-x-4">
-                <div className="bg-white bg-opacity-20 p-2 rounded-full">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="font-medium text-lg">Join meetings with confidence</h3>
-                  <p className="opacity-80">Get real-time assistance and automated documentation</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start space-x-4">
-                <div className="bg-white bg-opacity-20 p-2 rounded-full">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="font-medium text-lg">Connect with vibe coders</h3>
-                  <p className="opacity-80">Expand your network and find your perfect collaborators</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="text-white text-sm opacity-70">
-            © {new Date().getFullYear()} CCO. All rights reserved.
-          </div>
+      {/* Header */}
+      <header className="w-full px-4 py-6 flex justify-between items-center backdrop-blur-sm bg-white/80 dark:bg-obsidian/80 border-b border-gray-200 dark:border-stardust/20 z-10">
+        <div className="flex items-center">
+          <SparklesIcon className="h-8 w-8 text-electric-indigo" />
+          <span className="text-xl font-semibold ml-2 text-gray-900 dark:text-nebula-white">
+            <span className="text-electric-indigo">CCO</span> Portal
+          </span>
         </div>
-        
-        {/* Right panel - Sign In Form */}
-        <div className="w-full md:w-1/2 p-12 flex items-center justify-center">
-          <div className="w-full max-w-md">
-            <h2 className="text-2xl md:text-3xl font-bold text-midnight-blue dark:text-cosmic-latte mb-6">Sign in to your account</h2>
-            <p className="text-cosmic-grey dark:text-stardust mb-8">
-              Access your AI-powered Chief Cognitive Officer and tools.
-            </p>
-            
-            {/* MVP Client Message */}
-            <div className="mb-6 p-4 bg-electric-indigo bg-opacity-10 border border-electric-indigo border-opacity-50 rounded-md">
-              <h3 className="font-semibold text-electric-indigo mb-2">MVP Client Access Only</h3>
-              <p className="text-cosmic-grey dark:text-stardust">
-                Our state-of-the-art AI platform is currently available exclusively to MVP clients. 
-                Please <a href="https://x.com/LamarDealMaker" className="text-electric-indigo hover:underline">contact us</a> to learn how to become an MVP client and unlock the full potential of CCO.
-              </p>
-            </div>
-            
-            {errors.general && (
-              <div className="mb-6 p-4 bg-electric-crimson bg-opacity-10 border border-electric-crimson border-opacity-50 rounded-md">
-                <p className="text-electric-crimson">{errors.general}</p>
+        <button
+          onClick={() => setIsDarkMode(!isDarkMode)}
+          className="p-2 rounded-full text-gray-500 dark:text-stardust hover:bg-gray-100 dark:hover:bg-cosmic-grey transition-colors"
+          aria-label="Toggle dark mode"
+        >
+          {isDarkMode ? (
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          ) : (
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+          )}
+        </button>
+      </header>
+
+      <main className="flex-grow flex items-center justify-center p-4 sm:p-8">
+        <div className="w-full max-w-md">
+          <div className="bg-white dark:bg-cosmic-grey rounded-xl shadow-xl overflow-hidden">
+            <div className="p-8">
+              <div className="text-center mb-8">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-nebula-white mb-2">Welcome Back</h1>
+                <p className="text-gray-600 dark:text-stardust">Sign in to your CCO account</p>
               </div>
-            )}
-            
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-midnight-blue dark:text-cosmic-latte mb-1">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-3 bg-white dark:bg-cosmic-grey dark:bg-opacity-20 rounded-md border ${errors.email ? 'border-electric-crimson' : 'border-cosmic-grey dark:border-stardust border-opacity-30 dark:border-opacity-30'} text-midnight-blue dark:text-nebula-white placeholder-cosmic-grey dark:placeholder-stardust placeholder-opacity-70 dark:placeholder-opacity-70 focus:outline-none focus:border-electric-indigo transition-colors duration-300`}
-                  placeholder="john@example.com"
-                />
-                {errors.email && <p className="mt-1 text-sm text-electric-crimson">{errors.email}</p>}
-              </div>
-              
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label htmlFor="password" className="block text-sm font-medium text-midnight-blue dark:text-cosmic-latte">
-                    Password
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-nebula-white mb-1">
+                    Email Address
                   </label>
-                  <Link href="/landing/forgot-password" className="text-sm text-electric-indigo hover:underline">
-                    Forgot password?
-                  </Link>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-2 rounded-lg border bg-white dark:bg-obsidian dark:text-nebula-white ${
+                      errors.email
+                        ? 'border-electric-crimson focus:border-electric-crimson focus:ring-electric-crimson/50'
+                        : 'border-gray-300 dark:border-stardust/20 focus:border-electric-indigo focus:ring-electric-indigo/50'
+                    } focus:outline-none focus:ring-2 transition-colors`}
+                  />
+                  {errors.email && (
+                    <p className="mt-1 text-sm text-electric-crimson">{errors.email}</p>
+                  )}
                 </div>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-3 bg-white dark:bg-cosmic-grey dark:bg-opacity-20 rounded-md border ${errors.password ? 'border-electric-crimson' : 'border-cosmic-grey dark:border-stardust border-opacity-30 dark:border-opacity-30'} text-midnight-blue dark:text-nebula-white placeholder-cosmic-grey dark:placeholder-stardust placeholder-opacity-70 dark:placeholder-opacity-70 focus:outline-none focus:border-electric-indigo transition-colors duration-300`}
-                  placeholder="••••••••"
-                />
-                {errors.password && <p className="mt-1 text-sm text-electric-crimson">{errors.password}</p>}
-              </div>
-              
-              <div>
-                <button
-                  type="submit"
-                  className="w-full bg-electric-indigo hover:bg-opacity-90 text-nebula-white text-center px-4 py-3 rounded-md font-medium transition-all"
-                >
-                  Request MVP Access
-                </button>
-              </div>
-              
-              <div className="text-center mt-6">
-                <p className="text-cosmic-grey dark:text-stardust">
-                  Don't have an account?{' '}
-                  <Link
-                    href="/landing/register"
-                    className="text-electric-indigo hover:underline"
+
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-nebula-white">
+                      Password
+                    </label>
+                    <a href="#" className="text-sm text-electric-indigo hover:text-electric-indigo/80 transition-colors">
+                      Forgot password?
+                    </a>
+                  </div>
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    required
+                    value={formData.password}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-2 rounded-lg border bg-white dark:bg-obsidian dark:text-nebula-white ${
+                      errors.password
+                        ? 'border-electric-crimson focus:border-electric-crimson focus:ring-electric-crimson/50'
+                        : 'border-gray-300 dark:border-stardust/20 focus:border-electric-indigo focus:ring-electric-indigo/50'
+                    } focus:outline-none focus:ring-2 transition-colors`}
+                  />
+                  {errors.password && (
+                    <p className="mt-1 text-sm text-electric-crimson">{errors.password}</p>
+                  )}
+                </div>
+
+                {errors.general && (
+                  <div className="p-3 rounded-lg bg-electric-crimson/10 border border-electric-crimson/20 text-sm text-electric-crimson">
+                    {errors.general}
+                  </div>
+                )}
+
+                <div>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className={`w-full py-2.5 px-4 rounded-lg ${
+                      isSubmitting
+                        ? 'bg-electric-indigo/70 cursor-not-allowed'
+                        : 'bg-electric-indigo hover:bg-electric-indigo/90'
+                    } text-white font-medium focus:outline-none focus:ring-2 focus:ring-electric-indigo focus:ring-offset-2 dark:focus:ring-offset-cosmic-grey transition-colors`}
                   >
-                    Create an account
+                    {isSubmitting ? 'Signing in...' : 'Sign in'}
+                  </button>
+                </div>
+              </form>
+
+              <div className="mt-8 text-center">
+                <p className="text-sm text-gray-600 dark:text-stardust">
+                  Don't have an account?{' '}
+                  <Link href="/landing/register">
+                    <a className="text-electric-indigo hover:text-electric-indigo/80 font-medium transition-colors">
+                      Sign up
+                    </a>
                   </Link>
                 </p>
               </div>
-            </form>
+            </div>
+          </div>
+
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-500 dark:text-stardust/70">
+              By signing in, you agree to our{' '}
+              <a href="#" className="text-electric-indigo hover:text-electric-indigo/80 transition-colors">
+                Terms of Service
+              </a>{' '}
+              and{' '}
+              <a href="#" className="text-electric-indigo hover:text-electric-indigo/80 transition-colors">
+                Privacy Policy
+              </a>
+            </p>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };

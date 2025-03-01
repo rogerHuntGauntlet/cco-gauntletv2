@@ -4,7 +4,7 @@ import { SecondBrainInterview } from '../../../components/secondbrain/SecondBrai
 import { SecondBrain } from '../../../types';
 import { useAuth } from '../../../contexts/AuthContext';
 import { LoadingSpinner } from '../../../components/ui/LoadingSpinner';
-import { ChevronLeftIcon } from '@heroicons/react/24/outline';
+import { ChevronLeftIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { mockSecondBrains } from '../../../data/mockSecondBrains';
 
@@ -79,51 +79,137 @@ export default function SecondBrainDetailPage() {
     router.push('/dashboard/secondbrains');
   };
   
+  // Loading state with proper CCO aesthetic
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <LoadingSpinner size="lg" />
+      <div className="flex justify-center items-center min-h-screen bg-midnight-blue">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="absolute -inset-4 rounded-full bg-electric-indigo opacity-20 blur-xl animate-pulse"></div>
+            <LoadingSpinner size="lg" className="text-electric-indigo relative z-10" />
+          </div>
+          <p className="text-nebula-white font-medium text-sm tracking-wide">
+            Connecting to Chief Cognitive Officer...
+          </p>
+        </div>
       </div>
     );
   }
   
+  // Error state with proper branding
   if (error || !secondBrain) {
     return (
-      <div className="container mx-auto px-4 py-12 text-center">
-        <h2 className="text-2xl font-bold text-cco-neutral-900 mb-4">Error</h2>
-        <p className="text-cco-neutral-700 mb-6">{error || 'Chief Cognitive Officer not found'}</p>
-        <Link href="/dashboard/secondbrains">
-          <button className="text-cco-primary-600 hover:text-cco-primary-700 font-medium flex items-center justify-center">
-            <ChevronLeftIcon className="w-5 h-5 mr-1" />
-            Back to Chief Cognitive Officers
-          </button>
-        </Link>
-      </div>
-    );
-  }
-  
-  return (
-    <div className="container mx-auto h-[calc(100vh-80px)] px-4 py-6">
-      <div className="bg-cco-neutral-100 h-full rounded-xl overflow-hidden">
-        <div className="flex flex-col h-full">
-          <div className="p-4 bg-white border-b border-cco-neutral-200">
-            <Link href="/dashboard/secondbrains">
-              <button className="text-cco-neutral-700 hover:text-cco-primary-600 font-medium flex items-center">
-                <ChevronLeftIcon className="w-5 h-5 mr-1" />
-                Back to Chief Cognitive Officers
+      <div className="min-h-screen bg-obsidian py-16 px-4 sm:px-6 lg:px-8 flex flex-col justify-center">
+        <div className="max-w-md mx-auto rounded-lg overflow-hidden">
+          <div className="p-8 bg-cosmic-grey border-l-4 border-electric-crimson shadow-xl">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="rounded-full bg-electric-crimson/20 p-3">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-electric-crimson" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <h2 className="text-xl font-semibold text-nebula-white">Connection Error</h2>
+            </div>
+            
+            <p className="text-stardust mb-8">{error || 'Chief Cognitive Officer not found in the neural network'}</p>
+            
+            <Link href="/dashboard/secondbrains" className="inline-block">
+              <button className="h-10 px-5 rounded-md bg-electric-indigo hover:bg-electric-indigo/90 text-nebula-white transition-all duration-200 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-electric-indigo/50">
+                <ChevronLeftIcon className="w-5 h-5" />
+                <span>Return to CCO Directory</span>
               </button>
             </Link>
           </div>
-          
-          <div className="flex-1 overflow-hidden p-4">
-            <SecondBrainInterview 
-              secondBrain={secondBrain}
-              onHire={handleHire}
-              onClose={handleClose}
-            />
-          </div>
         </div>
       </div>
+    );
+  }
+  
+  // Main layout following the design guide
+  return (
+    <div className="min-h-screen bg-midnight-blue">
+      {/* Top nav bar */}
+      <header className="h-16 border-b border-stardust/20 bg-obsidian px-4 sm:px-6 lg:px-8">
+        <div className="h-full max-w-screen-2xl mx-auto flex items-center justify-between">
+          <Link href="/dashboard/secondbrains">
+            <button className="h-10 px-4 flex items-center gap-2 text-nebula-white hover:text-neon-teal focus:outline-none focus:text-neon-teal transition-colors duration-200">
+              <ChevronLeftIcon className="w-5 h-5" />
+              <span className="font-medium">Back to CCO Directory</span>
+            </button>
+          </Link>
+          
+          <div className="flex items-center gap-2">
+            <div className="relative h-9 w-9 flex items-center justify-center">
+              <div className="absolute inset-0 bg-electric-indigo opacity-20 rounded-full animate-pulse"></div>
+              <SparklesIcon className="h-5 w-5 text-electric-indigo relative z-10" />
+            </div>
+            <span className="font-semibold text-nebula-white hidden sm:block">
+              CCO <span className="text-electric-indigo">Interview</span> Portal
+            </span>
+          </div>
+        </div>
+      </header>
+      
+      {/* Main content area */}
+      <main className="py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-screen-xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            {/* CCO info sidebar */}
+            <div className="lg:col-span-3">
+              <div className="bg-cosmic-grey rounded-lg p-6 shadow-lg border border-stardust/10">
+                <div className="flex flex-col items-center sm:items-start lg:items-center">
+                  <div className="relative mb-4">
+                    <div className="w-20 h-20 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-full bg-gradient-to-br from-neon-teal to-electric-indigo flex items-center justify-center">
+                      <span className="text-nebula-white text-xl font-bold">
+                        {secondBrain.name.charAt(0)}
+                      </span>
+                    </div>
+                    <div className="absolute -bottom-1 -right-1 bg-electric-indigo rounded-full w-6 h-6 flex items-center justify-center">
+                      <SparklesIcon className="h-4 w-4 text-nebula-white" />
+                    </div>
+                  </div>
+                  
+                  <h1 className="text-xl font-semibold text-nebula-white text-center sm:text-left lg:text-center mb-2">{secondBrain.name}</h1>
+                  <p className="text-stardust text-sm mb-4 text-center sm:text-left lg:text-center">{secondBrain.status === 'available' ? 'Available for hire' : secondBrain.status === 'busy' ? 'Currently busy' : 'Temporarily unavailable'}</p>
+                  
+                  <div className="w-full border-t border-stardust/20 pt-4 mt-2">
+                    <h2 className="text-neon-teal text-sm uppercase font-medium tracking-wider mb-3">Expertise</h2>
+                    <div className="flex flex-wrap gap-2">
+                      {secondBrain.expertise.slice(0, 3).map((skill, i) => (
+                        <span key={i} className="text-xs px-2 py-1 rounded bg-electric-indigo/20 text-nebula-white">
+                          {skill}
+                        </span>
+                      ))}
+                      {secondBrain.expertise.length > 3 && (
+                        <span className="text-xs px-2 py-1 rounded bg-stardust/20 text-stardust">
+                          +{secondBrain.expertise.length - 3}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Main interview area */}
+            <div className="lg:col-span-9">
+              <div className="bg-cosmic-grey/80 backdrop-filter backdrop-blur-sm rounded-lg overflow-hidden border border-stardust/10 shadow-xl h-[calc(100vh-11rem)]">
+                <div className="flex flex-col h-full">
+                  <div className="flex-1 overflow-y-auto">
+                    <SecondBrainInterview 
+                      secondBrain={secondBrain}
+                      onHire={handleHire}
+                      onClose={handleClose}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+      </main>
     </div>
   );
 } 
