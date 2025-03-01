@@ -39,6 +39,7 @@ export function SecondBrainInterview({
   const [isLoading, setIsLoading] = useState(false);
   const [showHireConfirmation, setShowHireConfirmation] = useState(false);
   const [isHiring, setIsHiring] = useState(false);
+  const [messageCount, setMessageCount] = useState(0);
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   
   // Auto-scroll to the bottom when messages update
@@ -50,7 +51,7 @@ export function SecondBrainInterview({
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputValue.trim() || isLoading) return;
+    if (!inputValue.trim() || isLoading || messageCount >= 3) return;
     
     // Add user message
     const userMessage: SecondBrainMessage = {
@@ -64,6 +65,7 @@ export function SecondBrainInterview({
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
     setIsLoading(true);
+    setMessageCount(prev => prev + 1);
     
     try {
       // Simulate API call to get Chief Cognitive Officer response
@@ -246,21 +248,22 @@ export function SecondBrainInterview({
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Type your message..."
+              placeholder={messageCount >= 3 ? "Message limit reached" : "Type your message..."}
               className="flex-1 rounded-full border border-cco-neutral-300 px-4 py-2 focus:ring-cco-primary-500 focus:border-cco-primary-500 focus:outline-none"
-              disabled={isLoading}
+              disabled={isLoading || messageCount >= 3}
             />
             <button
               type="button"
               className="p-2 rounded-full text-cco-neutral-500 hover:text-cco-primary-600 hover:bg-cco-primary-50"
+              disabled={messageCount >= 3}
             >
               <MicrophoneIcon className="w-5 h-5" />
             </button>
             <button
               type="submit"
-              disabled={!inputValue.trim() || isLoading}
+              disabled={!inputValue.trim() || isLoading || messageCount >= 3}
               className={`p-2 rounded-full ${
-                !inputValue.trim() || isLoading
+                !inputValue.trim() || isLoading || messageCount >= 3
                   ? 'bg-cco-neutral-200 text-cco-neutral-500'
                   : 'bg-cco-primary-600 text-white hover:bg-cco-primary-700'
               }`}
@@ -268,6 +271,11 @@ export function SecondBrainInterview({
               <PaperAirplaneIcon className="w-5 h-5" />
             </button>
           </form>
+          {messageCount >= 3 && (
+            <p className="text-xs text-cco-neutral-500 mt-2 text-center">
+              You've reached the message limit. Please hire this Chief Cognitive Officer to continue the conversation.
+            </p>
+          )}
         </div>
       </div>
       

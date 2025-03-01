@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 import { register, createUserProfile, createUserSettings } from '../../lib/firebase';
+import { VideoModal } from '../../components/ui/VideoModal';
 
 const RegisterPage: FC = () => {
   const router = useRouter();
@@ -22,6 +23,7 @@ const RegisterPage: FC = () => {
   });
   const [generalError, setGeneralError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(true);
 
   // Check system preference on load
   useEffect(() => {
@@ -92,12 +94,16 @@ const RegisterPage: FC = () => {
     setErrors(newErrors);
     return isValid;
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Display MVP client message instead of attempting to register
-    setGeneralError('Registration is currently limited to MVP clients only. Please contact us to learn how to become an MVP client.');
+    setGeneralError('Registration is currently limited to MVP clients only. Please contact us at https://x.com/LamarDealMaker to learn how to become an MVP client.');
+  };
+
+  // Video modal handlers
+  const closeVideoModal = () => {
+    setIsVideoModalOpen(false);
   };
 
   return (
@@ -106,6 +112,13 @@ const RegisterPage: FC = () => {
         <title>Register - CCO</title>
         <meta name="description" content="Create your CCO account" />
       </Head>
+
+      {/* Video Modal */}
+      <VideoModal
+        isOpen={isVideoModalOpen}
+        onClose={closeVideoModal}
+        videoSrc="/hype-team-SBA-346755141.mp4"
+      />
 
       <div className="flex-1 flex flex-col md:flex-row">
         {/* Left panel - Branding & Info */}
@@ -179,10 +192,9 @@ const RegisterPage: FC = () => {
               <h3 className="font-semibold text-electric-indigo mb-2">MVP Client Access Only</h3>
               <p className="text-cosmic-grey dark:text-stardust">
                 Our state-of-the-art AI platform is currently available exclusively to MVP clients. 
-                Please contact us to learn how to become an MVP client and unlock the full potential of CCO.
+                Please <a href="https://x.com/LamarDealMaker" className="text-electric-indigo hover:underline">contact us</a> to learn how to become an MVP client and unlock the full potential of CCO.
               </p>
             </div>
-            
             {generalError && (
               <div className="mb-6 p-4 bg-electric-crimson bg-opacity-10 border border-electric-crimson border-opacity-50 rounded-md">
                 <p className="text-electric-crimson">{generalError}</p>

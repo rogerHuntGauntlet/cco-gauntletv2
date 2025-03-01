@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 import { signIn } from '../../lib/firebase';
+import { VideoModal } from '../../components/ui/VideoModal';
 
 const SignInPage: FC = () => {
   const router = useRouter();
@@ -18,6 +19,7 @@ const SignInPage: FC = () => {
     general: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(true);
 
   // Check system preference on load
   useEffect(() => {
@@ -80,12 +82,24 @@ const SignInPage: FC = () => {
     }));
   };
 
+  // Video modal handlers
+  const closeVideoModal = () => {
+    setIsVideoModalOpen(false);
+  };
+
   return (
     <div className="bg-white dark:bg-midnight-blue min-h-screen flex flex-col transition-colors duration-300">
       <Head>
         <title>Sign In - CCO</title>
         <meta name="description" content="Sign in to your CCO account" />
       </Head>
+
+      {/* Video Modal */}
+      <VideoModal
+        isOpen={isVideoModalOpen}
+        onClose={closeVideoModal}
+        videoSrc="/hype-team-SBA-346755141.mp4"
+      />
 
       <div className="flex-1 flex flex-col md:flex-row">
         {/* Left panel - Branding & Info */}
