@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs
 import { initializeApp, getApps } from "firebase/app";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
-import { getFirestore, collection, doc, setDoc, getDoc, updateDoc, query, where, getDocs, deleteDoc } from "firebase/firestore";
+import { getFirestore, collection, doc, setDoc, getDoc, updateDoc, query, where, getDocs, deleteDoc, writeBatch } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { UserSettings } from "../types";
 
@@ -387,6 +387,63 @@ export const createNotification = async (notificationData: any) => {
     return { data: { id: docRef.id, ...notificationData }, error: null };
   } catch (error: any) {
     console.error("Error creating notification:", error);
+    return { data: null, error: error.message };
+  }
+};
+
+export const updateNotification = async (notificationId: string, updateData: any) => {
+  try {
+    const notificationRef = doc(db, "notifications", notificationId);
+    await updateDoc(notificationRef, {
+      ...updateData,
+      updatedAt: new Date(),
+    });
+    
+    return { data: { id: notificationId, ...updateData }, error: null };
+  } catch (error: any) {
+    console.error("Error updating notification:", error);
+    return { data: null, error: error.message };
+  }
+};
+
+export const deleteNotification = async (notificationId: string) => {
+  try {
+    await deleteDoc(doc(db, "notifications", notificationId));
+    return { data: { id: notificationId }, error: null };
+  } catch (error: any) {
+    console.error("Error deleting notification:", error);
+    return { data: null, error: error.message };
+  }
+};
+
+export const markAllNotificationsAsRead = async (userId: string) => {
+  try {
+    const notificationsRef = collection(db, "notifications");
+    const q = query(
+      notificationsRef, 
+      where("userId", "==", userId),
+      where("isRead", "==", false)
+    );
+    
+    const querySnapshot = await getDocs(q);
+    
+    // Create a batch to perform multiple updates at once
+    const batch = writeBatch(db);
+    
+    querySnapshot.docs.forEach((doc) => {
+      const notificationRef = doc.ref;
+      batch.update(notificationRef, { 
+        isRead: true,
+        updatedAt: new Date()
+      });
+    });
+    
+    // Commit the batch
+    await batch.commit();
+    
+    return { data: { success: true }, error: null };
+  } catch (error: any) {
+    console.error("Error marking all notifications as read:", error);
     return { data: null, error: error.message };
   }
 };

@@ -187,11 +187,13 @@ export interface UserSettings {
 
 export interface Notification {
   id: string;
+  userId: string;
   title: string;
   message: string;
   type: 'meeting' | 'document' | 'action' | 'project' | 'system';
   isRead: boolean;
   createdAt: string;
+  updatedAt?: string;
   link?: string;
   relatedItemId?: string;
   relatedItemType?: 'meeting' | 'document' | 'project' | 'action';
