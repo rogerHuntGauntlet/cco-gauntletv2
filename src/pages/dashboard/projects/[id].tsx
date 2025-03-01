@@ -22,8 +22,7 @@ import {
 import { Button } from '../../../components/ui/Button';
 import { Card } from '../../../components/ui/Card';
 import { getAvatarUrl } from '../../../utils/avatarUtils';
-import { getProjectById, updateProject, deleteProject, getDocumentsByUserId } from '../../../lib/firebase';
-import { useAuth } from '../../../contexts/AuthContext';
+import { getProjectById, updateProject, deleteProject } from '../../../lib/firebase';
 
 // Define project types (same as in the dashboard)
 interface Project {
@@ -57,91 +56,7 @@ interface TeamMember {
   avatar: string;
 }
 
-// Mock team members data (same as in the dashboard)
-const mockTeamMembers = [
-  { id: 'u1', name: 'Alex Johnson', role: 'Project Manager', avatar: 'https://i.pravatar.cc/150?img=68' },
-  { id: 'u2', name: 'Sarah Williams', role: 'Designer', avatar: 'https://i.pravatar.cc/150?img=47' },
-  { id: 'u3', name: 'Michael Chen', role: 'Developer', avatar: 'https://i.pravatar.cc/150?img=11' },
-  { id: 'u4', name: 'Emily Davis', role: 'Content Writer', avatar: 'https://i.pravatar.cc/150?img=23' },
-  { id: 'u5', name: 'James Wilson', role: 'QA Engineer', avatar: 'https://i.pravatar.cc/150?img=59' }
-];
-
-// Mock projects data (same as in the dashboard)
-const mockProjects: Project[] = [
-  {
-    id: 'p1',
-    name: 'Website Redesign',
-    description: 'Modernize the company website with new branding and improved UX.',
-    status: 'active',
-    startDate: new Date(new Date().getTime() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-    dueDate: new Date(new Date().getTime() + 60 * 24 * 60 * 60 * 1000).toISOString(),
-    progress: 35,
-    teamMembers: [mockTeamMembers[0], mockTeamMembers[1], mockTeamMembers[2]],
-    tags: ['design', 'development', 'branding'],
-    clientName: 'Acme Corp',
-    priority: 'high',
-    userId: 'user1'
-  },
-  {
-    id: 'p2',
-    name: 'Mobile App Development',
-    description: 'Create a native mobile app for iOS and Android platforms.',
-    status: 'planning',
-    startDate: new Date(new Date().getTime() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-    dueDate: new Date(new Date().getTime() + 120 * 24 * 60 * 60 * 1000).toISOString(),
-    progress: 10,
-    teamMembers: [mockTeamMembers[0], mockTeamMembers[2], mockTeamMembers[4]],
-    tags: ['mobile', 'development', 'app'],
-    clientName: 'TechStart Inc',
-    priority: 'medium',
-    userId: 'user1'
-  },
-  {
-    id: 'p3',
-    name: 'Content Marketing Campaign',
-    description: 'Develop and execute a comprehensive content marketing strategy.',
-    status: 'active',
-    startDate: new Date(new Date().getTime() - 45 * 24 * 60 * 60 * 1000).toISOString(),
-    dueDate: new Date(new Date().getTime() + 15 * 24 * 60 * 60 * 1000).toISOString(),
-    progress: 65,
-    teamMembers: [mockTeamMembers[0], mockTeamMembers[3]],
-    tags: ['marketing', 'content', 'social'],
-    clientName: 'Global Retail',
-    priority: 'high',
-    userId: 'user1'
-  },
-  {
-    id: 'p4',
-    name: 'E-commerce Platform Integration',
-    description: 'Integrate payment gateways and shipping providers with the e-commerce platform.',
-    status: 'on-hold',
-    startDate: new Date(new Date().getTime() - 60 * 24 * 60 * 60 * 1000).toISOString(),
-    dueDate: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-    progress: 40,
-    teamMembers: [mockTeamMembers[0], mockTeamMembers[2], mockTeamMembers[4]],
-    tags: ['e-commerce', 'integration', 'development'],
-    clientName: 'ShopNow Ltd',
-    priority: 'medium',
-    userId: 'user1'
-  },
-  {
-    id: 'p5',
-    name: 'Annual Report Design',
-    description: 'Design and layout the company\'s annual financial and impact report.',
-    status: 'completed',
-    startDate: new Date(new Date().getTime() - 90 * 24 * 60 * 60 * 1000).toISOString(),
-    dueDate: new Date(new Date().getTime() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-    completedDate: new Date(new Date().getTime() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-    progress: 100,
-    teamMembers: [mockTeamMembers[1], mockTeamMembers[3]],
-    tags: ['design', 'report', 'finance'],
-    clientName: 'Internal',
-    priority: 'low',
-    userId: 'user1'
-  }
-];
-
-// Mock project documents
+// Project document interface
 interface ProjectDocument {
   id: string;
   name: string;
@@ -150,18 +65,19 @@ interface ProjectDocument {
   url: string;
 }
 
-const mockDocuments: ProjectDocument[] = [
-  { id: 'd1', name: 'Project Brief', type: 'PDF', lastUpdated: '2023-06-15', url: '#' },
-  { id: 'd2', name: 'Design Mockups', type: 'Figma', lastUpdated: '2023-07-02', url: '#' },
-  { id: 'd3', name: 'Content Strategy', type: 'DOCX', lastUpdated: '2023-06-28', url: '#' },
-  { id: 'd4', name: 'Technical Specifications', type: 'PDF', lastUpdated: '2023-06-20', url: '#' },
-  { id: 'd5', name: 'User Research', type: 'PPTX', lastUpdated: '2023-06-10', url: '#' }
+// Sample documents (would be replaced with real data in production)
+const sampleDocuments: ProjectDocument[] = [
+  { id: 'd1', name: 'Project Brief', type: 'PDF', lastUpdated: new Date().toISOString().split('T')[0], url: '#' },
+  { id: 'd2', name: 'Design Mockups', type: 'Figma', lastUpdated: new Date().toISOString().split('T')[0], url: '#' },
+  { id: 'd3', name: 'Technical Specifications', type: 'PDF', lastUpdated: new Date().toISOString().split('T')[0], url: '#' }
 ];
 
 const ProjectDetailsPage: React.FC = () => {
   const router = useRouter();
   const { id } = router.query;
-  const { currentUser } = useAuth();
+  
+  // Add debugging log
+  console.log("ProjectDetailsPage rendering with query ID:", id);
   
   const [project, setProject] = useState<Project | null>(null);
   const [documents, setDocuments] = useState<ProjectDocument[]>([]);
@@ -173,57 +89,71 @@ const ProjectDetailsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
+  // Add mounted ref to prevent setState after unmount
+  const mounted = useRef(true);
+  useEffect(() => {
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+  
   // Fetch project data from Firebase
   useEffect(() => {
     const fetchProjectData = async () => {
-      if (!id || typeof id !== 'string') return;
+      // Don't fetch until router is ready and id is available
+      if (!router.isReady) return;
       
-      setLoading(true);
-      setError(null);
+      if (!id || typeof id !== 'string') {
+        console.error("Invalid project ID:", id);
+        setError("Invalid project ID");
+        setLoading(false);
+        return;
+      }
+      
+      if (mounted.current) {
+        setLoading(true);
+        setError(null);
+      }
       
       try {
-        // Fetch project details
+        // Fetch project details from Firebase - this doesn't require auth
         const { data, error } = await getProjectById(id);
         
         if (error) {
-          setError(error);
+          console.error("Firebase error:", error);
+          setError("Project not found. Error: " + error);
           setLoading(false);
           return;
         }
         
         if (!data) {
+          console.warn("No project data returned from Firebase");
           setError("Project not found");
           setLoading(false);
           return;
         }
         
         // Set the project data
-        setProject(data as Project);
-        
-        // Check if the current user has access to this project
-        if (currentUser && data.userId !== currentUser.uid) {
-          setError("You don't have permission to view this project");
+        console.log("Firebase project data:", data);
+        if (mounted.current) {
+          setProject(data as Project);
         }
         
-        // Fetch related documents
-        if (currentUser) {
-          const docsResponse = await getDocumentsByUserId(currentUser.uid);
-          if (docsResponse.data) {
-            // Filter documents that might be related to this project
-            // In a real app, you would have a proper relationship between projects and documents
-            setDocuments(docsResponse.data.slice(0, 3));
-          }
-        }
+        // In a production app, you would fetch real documents related to this project
+        // For now, we'll use sample document data
+        setDocuments(sampleDocuments);
       } catch (err: any) {
         console.error("Error fetching project:", err);
         setError("Failed to load project. Please try again.");
       } finally {
-        setLoading(false);
+        if (mounted.current) {
+          setLoading(false);
+        }
       }
     };
     
     fetchProjectData();
-  }, [id, currentUser]);
+  }, [id, router.isReady]);
   
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -302,7 +232,7 @@ const ProjectDetailsPage: React.FC = () => {
     : null;
   
   const handleChangeStatus = (newStatus: 'active' | 'completed' | 'on-hold' | 'planning') => {
-    if (project) {
+    if (project && mounted.current) {
       // Update loading state
       setLoading(true);
       
@@ -347,7 +277,9 @@ const ProjectDetailsPage: React.FC = () => {
           setProject(prev => prev ? { ...prev, status: prev.status } : null);
         })
         .finally(() => {
-          setLoading(false);
+          if (mounted.current) {
+            setLoading(false);
+          }
           
           // Auto-hide notification after 3 seconds
           setTimeout(() => {
@@ -358,9 +290,9 @@ const ProjectDetailsPage: React.FC = () => {
   };
   
   const handleShareProject = () => {
-    // Create the shareable link using window.location.origin
+    // Create the shareable link using window.location.origin - no auth needed here
     const origin = window.location.origin;
-    const shareableLink = `${origin}/shared-project/${project.id}`;
+    const shareableLink = `${origin}/project/${project.id}`;
     
     // Copy to clipboard
     navigator.clipboard.writeText(shareableLink)

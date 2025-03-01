@@ -61,7 +61,7 @@ const LandingPage: FC = () => {
       <Head>
         <title>CCO - Your AI-Powered Cognitive Officer</title>
         <meta name="description" content="Eliminate administrative overhead and stay in your coding flow. Let CCO handle your meetings, documentation, and project kickoffs." />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/Untitled design.png" />
         {/* Import Inter font */}
         <link 
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" 

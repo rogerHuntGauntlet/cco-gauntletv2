@@ -1,6 +1,7 @@
 import React from 'react';
 import type { FC } from 'react';
 import Link from 'next/link';
+import RoundedIcon from '../../../components/ui/RoundedIcon';
 
 const Footer: FC = () => {
   return (
@@ -9,7 +10,7 @@ const Footer: FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 pb-12 border-b border-cosmic-grey dark:border-stardust border-opacity-10 dark:border-opacity-10">
           <div className="col-span-1 md:col-span-1">
             <Link href="/" className="inline-flex items-center">
-              <img src="/assets/images/logo-icon.svg" alt="CCO Logo" className="h-9" />
+              <RoundedIcon size="lg" className="h-9 w-9" />
               <span className="ml-3 text-2xl font-bold bg-gradient-to-r from-electric-indigo to-neon-teal bg-clip-text text-transparent">CCO</span>
             </Link>
             <p className="mt-6 text-cosmic-grey dark:text-stardust">

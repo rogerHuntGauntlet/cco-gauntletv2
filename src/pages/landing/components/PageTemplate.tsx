@@ -2,6 +2,7 @@ import React from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import Footer from './Footer';
+import RoundedIcon from '../../../components/ui/RoundedIcon';
 
 interface PageTemplateProps {
   title: string;
@@ -20,7 +21,7 @@ const PageTemplate: React.FC<PageTemplateProps> = ({ title, description, childre
       <header className="sticky top-0 z-30 bg-white dark:bg-midnight-blue border-b border-cosmic-grey dark:border-stardust border-opacity-10 dark:border-opacity-10 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-6 md:px-12 h-20 flex items-center justify-between">
           <Link href="/" className="inline-flex items-center">
-            <img src="/assets/images/logo-icon.svg" alt="CCO Logo" className="h-8" />
+            <RoundedIcon size="md" className="h-8 w-8" />
             <span className="ml-3 text-2xl font-bold bg-gradient-to-r from-electric-indigo to-neon-teal bg-clip-text text-transparent">CCO</span>
           </Link>
           
