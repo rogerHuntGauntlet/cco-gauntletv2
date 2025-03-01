@@ -32,7 +32,7 @@ const OnboardingInnerContent: FC = () => {
     dataPrivacy: 'private',
     aiSuggestions: true,
   });
-  const totalSteps = 5; // Updated total steps to include voice interaction
+  const totalSteps = 4; // Updated to remove voice interaction step
 
   // Check system preference and user data on load
   useEffect(() => {
@@ -112,12 +112,6 @@ const OnboardingInnerContent: FC = () => {
   };
 
   const handleSkip = () => {
-    // If on the voice interaction step, just move to the introduction step
-    if (currentStep === 1) {
-      handleContinue();
-      return;
-    }
-    
     // Create empty second brain without data sources
     const updatedUserData = {
       ...userData,
@@ -131,8 +125,8 @@ const OnboardingInnerContent: FC = () => {
     router.push('/dashboard'); // Redirect to dashboard
   };
 
-  // Step label names updated to include voice interaction
-  const stepLabels = ['Voice', 'Introduction', 'Data Sources', 'Customize', 'Finish'];
+  // Step label names updated to remove voice interaction
+  const stepLabels = ['Introduction', 'Data Sources', 'Customize', 'Finish'];
   
   const dataSources: DataSource[] = [
     {
@@ -254,22 +248,13 @@ const OnboardingInnerContent: FC = () => {
           {currentStep === 1 ? (
             <div className="text-center mb-12">
               <h1 className="text-3xl md:text-4xl font-bold text-midnight-blue dark:text-cosmic-latte mb-4">
-                Let's Start the Conversation
-              </h1>
-              <p className="text-xl text-cosmic-grey dark:text-stardust max-w-2xl mx-auto">
-                Tell me about your first project to help me understand your needs better.
-              </p>
-            </div>
-          ) : currentStep === 2 ? (
-            <div className="text-center mb-12">
-              <h1 className="text-3xl md:text-4xl font-bold text-midnight-blue dark:text-cosmic-latte mb-4">
                 Create Your Second Brain
               </h1>
               <p className="text-xl text-cosmic-grey dark:text-stardust max-w-2xl mx-auto">
                 Import your data from various platforms to build a personalized knowledge base that will power your CCO experience.
               </p>
             </div>
-          ) : currentStep === 3 ? (
+          ) : currentStep === 2 ? (
             <div className="text-center mb-12">
               <h1 className="text-3xl md:text-4xl font-bold text-midnight-blue dark:text-cosmic-latte mb-4">
                 Connect Your Data Sources
@@ -278,7 +263,7 @@ const OnboardingInnerContent: FC = () => {
                 Select the platforms you'd like to connect to build your second brain knowledge base.
               </p>
             </div>
-          ) : currentStep === 4 ? (
+          ) : currentStep === 3 ? (
             <div className="text-center mb-12">
               <h1 className="text-3xl md:text-4xl font-bold text-midnight-blue dark:text-cosmic-latte mb-4">
                 Customize Your Experience
@@ -300,23 +285,11 @@ const OnboardingInnerContent: FC = () => {
           
           {/* Step Content */}
           {currentStep === 1 ? (
-            <VoiceInteractionStep 
-              onContinue={() => {
-                // Store what the user said and continue
-                const transcript = document.querySelector('.whitespace-pre-wrap')?.textContent || '';
-                if (transcript && transcript !== 'Click "Start Recording" to tell me about your first project.') {
-                  setUserProject(transcript);
-                }
-                handleContinue();
-              }} 
-              onSkip={handleSkip} 
-            />
-          ) : currentStep === 2 ? (
             <IntroductionStep 
               onContinue={handleContinue} 
               onSkip={handleSkip} 
             />
-          ) : currentStep === 3 ? (
+          ) : currentStep === 2 ? (
             <DataSourcesStep 
               dataSources={dataSources}
               selectedSources={selectedSources}
@@ -326,7 +299,7 @@ const OnboardingInnerContent: FC = () => {
               onSkip={handleSkip}
               isProcessing={isProcessing}
             />
-          ) : currentStep === 4 ? (
+          ) : currentStep === 3 ? (
             <CustomizeStep 
               preferences={preferences}
               setPreferences={setPreferences}
