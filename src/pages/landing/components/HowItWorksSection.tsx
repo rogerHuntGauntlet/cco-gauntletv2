@@ -56,7 +56,7 @@ const HowItWorksSection: FC = () => {
           {features.map((feature) => (
             <div 
               key={feature.id} 
-              className="bg-white dark:bg-midnight-blue p-8 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+              className="flex flex-col bg-white dark:bg-midnight-blue p-8 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 w-full"
             >
               <div className="mb-4 p-3 rounded-full bg-nebula-white dark:bg-obsidian inline-block">
                 {feature.icon}
