@@ -144,6 +144,11 @@ export interface IntegrationEdge {
 export interface UserSettings {
   id: string;
   userId: string;
+  profile: {
+    name: string;
+    email: string;
+    avatar?: string;
+  };
   emailNotifications: {
     meetings: boolean;
     documents: boolean;
@@ -163,6 +168,12 @@ export interface UserSettings {
   privacy: {
     shareUsageData: boolean;
     allowCookies: boolean;
+  };
+  documentPreferences: {
+    defaultFormat: 'doc' | 'spreadsheet' | 'presentation' | 'pdf' | 'markdown';
+    showMarkdown: boolean;
+    autoSaveInterval: number; // in minutes
+    defaultTags: string[];
   };
   integration: {
     connectedServices: {

@@ -14,7 +14,7 @@ import {
 import { MeetingCard } from '../../../components/meetings/MeetingCard';
 import { Button } from '../../../components/ui/Button';
 import { Card } from '../../../components/ui/Card';
-import { Meeting, User } from '../../../types';
+import { Meeting } from '../../../types';
 import { useAuth } from '../../../contexts/AuthContext';
 import { getMeetingsByUserId, createMeeting } from '../../../lib/firebase';
 import { 
@@ -28,7 +28,7 @@ import {
 import { CreateMeetingForm } from '../../../components/meetings/CreateMeetingForm';
 
 const MeetingsPage: React.FC = () => {
-  const { user } = useAuth();
+  const { currentUser } = useAuth();
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -44,11 +44,14 @@ const MeetingsPage: React.FC = () => {
   // Fetch meetings from Firestore
   useEffect(() => {
     async function fetchMeetings() {
-      if (!user) return;
+      if (!currentUser) {
+        setLoading(false);
+        return;
+      }
 
       try {
         setLoading(true);
-        const fetchedMeetings = await getMeetingsByUserId(user.uid);
+        const fetchedMeetings = await getMeetingsByUserId(currentUser.uid);
         setMeetings(fetchedMeetings);
         setError(null);
       } catch (err) {
@@ -60,11 +63,15 @@ const MeetingsPage: React.FC = () => {
     }
 
     fetchMeetings();
-  }, [user]);
+  }, [currentUser]);
 
   // Filter meetings to show only upcoming ones (scheduled status)
-  const upcomingMeetings = meetings.filter(meeting => meeting.status === 'scheduled');
-  const pastMeetings = meetings.filter(meeting => meeting.status !== 'scheduled');
+  const upcomingMeetings = meetings && Array.isArray(meetings) 
+    ? meetings.filter(meeting => meeting.status === 'scheduled')
+    : [];
+  const pastMeetings = meetings && Array.isArray(meetings)
+    ? meetings.filter(meeting => meeting.status !== 'scheduled')
+    : [];
 
   const handleConnectCalendar = async () => {
     setIsConnecting(true);
@@ -160,7 +167,7 @@ const MeetingsPage: React.FC = () => {
   };
   
   const handleSaveMeeting = async (meetingData: Partial<Meeting>) => {
-    if (!user) return;
+    if (!currentUser) return;
     
     try {
       // Create a new meeting in Firestore
@@ -169,22 +176,27 @@ const MeetingsPage: React.FC = () => {
         date: meetingData.date || new Date().toISOString(),
         duration: meetingData.duration || 30,
         participants: meetingData.participants || [{
-          id: user.uid,
-          name: user.displayName || 'User',
-          email: user.email || '',
+          id: currentUser.uid,
+          name: currentUser.displayName || 'User',
+          email: currentUser.email || '',
           role: 'Organizer',
-          avatar: user.photoURL || ''
+          avatar: currentUser.photoURL || ''
         }],
         projectId: meetingData.projectId || '',
         status: 'scheduled',
         summary: meetingData.summary || '',
         actionItems: [],
         documents: [],
-        userId: user.uid
+        userId: currentUser.uid
       });
       
       // Add the new meeting to the list
-      setMeetings(prevMeetings => [newMeeting, ...prevMeetings]);
+      setMeetings(prevMeetings => {
+        if (!prevMeetings || !Array.isArray(prevMeetings)) {
+          return [newMeeting];
+        }
+        return [newMeeting, ...prevMeetings];
+      });
       
       // Close the form
       setShowCreateForm(false);
@@ -214,7 +226,7 @@ const MeetingsPage: React.FC = () => {
             onClick={() => {
               setLoading(true);
               setError(null);
-              getMeetingsByUserId(user?.uid || '')
+              getMeetingsByUserId(currentUser?.uid || '')
                 .then(meetings => {
                   setMeetings(meetings);
                   setLoading(false);
@@ -237,12 +249,12 @@ const MeetingsPage: React.FC = () => {
         <CreateMeetingForm 
           onSubmit={handleSaveMeeting}
           onCancel={handleCancelCreate}
-          currentUser={user ? {
-            id: user.uid,
-            name: user.displayName || 'User',
-            email: user.email || '',
+          currentUser={currentUser ? {
+            id: currentUser.uid,
+            name: currentUser.displayName || 'User',
+            email: currentUser.email || '',
             role: 'Organizer',
-            avatar: user.photoURL || ''
+            avatar: currentUser.photoURL || ''
           } : undefined}
         />
       );

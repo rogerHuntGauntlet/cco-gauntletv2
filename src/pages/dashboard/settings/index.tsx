@@ -13,12 +13,14 @@ import {
   EyeIcon,
   ShieldCheckIcon,
   ArrowPathIcon,
+  DocumentTextIcon,
 } from '@heroicons/react/24/outline';
 import ProtectedRoute from '../../../components/ProtectedRoute';
 
 const TABS = [
   { id: 'profile', name: 'Profile', icon: UserIcon },
   { id: 'notifications', name: 'Notifications', icon: BellIcon },
+  { id: 'documents', name: 'Documents', icon: DocumentTextIcon },
   { id: 'appearance', name: 'Appearance', icon: SunIcon },
   { id: 'accessibility', name: 'Accessibility', icon: EyeIcon },
   { id: 'privacy', name: 'Privacy', icon: ShieldCheckIcon },
@@ -29,6 +31,11 @@ const TABS = [
 const defaultSettings: UserSettings = {
   id: '',
   userId: '',
+  profile: {
+    name: '',
+    email: '',
+    avatar: '',
+  },
   emailNotifications: {
     meetings: true,
     documents: true,
@@ -48,6 +55,12 @@ const defaultSettings: UserSettings = {
   privacy: {
     shareUsageData: true,
     allowCookies: true,
+  },
+  documentPreferences: {
+    defaultFormat: 'doc',
+    showMarkdown: true,
+    autoSaveInterval: 5,
+    defaultTags: [],
   },
   integration: {
     connectedServices: [
@@ -73,8 +86,24 @@ const defaultSettings: UserSettings = {
 const SettingsContent: React.FC = () => {
   const { currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState<string>('profile');
-  const [settings, setSettings] = useState<UserSettings>(defaultSettings);
-  const [originalSettings, setOriginalSettings] = useState<UserSettings>(defaultSettings);
+  const [settings, setSettings] = useState<UserSettings>({
+    ...defaultSettings,
+    documentPreferences: {
+      defaultFormat: 'doc',
+      showMarkdown: true,
+      autoSaveInterval: 5,
+      defaultTags: [],
+    }
+  });
+  const [originalSettings, setOriginalSettings] = useState<UserSettings>({
+    ...defaultSettings,
+    documentPreferences: {
+      defaultFormat: 'doc',
+      showMarkdown: true,
+      autoSaveInterval: 5,
+      defaultTags: [],
+    }
+  });
   const [isDirty, setIsDirty] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -97,8 +126,41 @@ const SettingsContent: React.FC = () => {
         }
         
         if (data) {
-          setSettings(data);
-          setOriginalSettings(data);
+          // Ensure required nested objects exist
+          const updatedData = {
+            ...data,
+            profile: data.profile || {
+              name: '',
+              email: '',
+              avatar: '',
+            },
+            emailNotifications: data.emailNotifications || {
+              meetings: true,
+              documents: true,
+              actionItems: true,
+              projectUpdates: false,
+            },
+            accessibility: data.accessibility || {
+              highContrast: false,
+              largeText: false,
+              reduceMotion: false,
+            },
+            privacy: data.privacy || {
+              shareUsageData: true,
+              allowCookies: true,
+            },
+            documentPreferences: data.documentPreferences || {
+              defaultFormat: 'doc',
+              showMarkdown: true,
+              autoSaveInterval: 5,
+              defaultTags: [],
+            },
+            integration: data.integration || {
+              connectedServices: [],
+            }
+          };
+          setSettings(updatedData);
+          setOriginalSettings(updatedData);
         } else {
           // If no settings exist, create default settings
           const { data: newData, error: createError } = await createUserSettings(
@@ -139,11 +201,14 @@ const SettingsContent: React.FC = () => {
   ) => {
     setSettings((prev) => {
       // If the section is a nested object
-      if (typeof prev[section] === 'object' && !Array.isArray(prev[section])) {
+      if (typeof prev[section] === 'object' || prev[section] === undefined) {
+        // Initialize the section if it doesn't exist
+        const currentSection = prev[section] || {};
+        
         return {
           ...prev,
           [section]: {
-            ...prev[section],
+            ...currentSection,
             [key]: value,
           },
         };
@@ -278,8 +343,8 @@ const SettingsContent: React.FC = () => {
                         id="name"
                         className="mt-1 block w-full rounded-md border-cco-neutral-300 shadow-sm focus:border-cco-primary-500 focus:ring-cco-primary-500 sm:text-sm"
                         placeholder="John Doe"
-                        value="Alex Johnson"
-                        onChange={() => setIsDirty(true)}
+                        value={settings.profile?.name || ''}
+                        onChange={(e) => handleInputChange('profile', 'name', e.target.value)}
                       />
                     </div>
                     <div>
@@ -295,8 +360,8 @@ const SettingsContent: React.FC = () => {
                         id="email"
                         className="mt-1 block w-full rounded-md border-cco-neutral-300 shadow-sm focus:border-cco-primary-500 focus:ring-cco-primary-500 sm:text-sm"
                         placeholder="john.doe@example.com"
-                        value="alex@vibecoder.dev"
-                        onChange={() => setIsDirty(true)}
+                        value={settings.profile?.email || ''}
+                        onChange={(e) => handleInputChange('profile', 'email', e.target.value)}
                       />
                     </div>
                     <div>
@@ -309,7 +374,7 @@ const SettingsContent: React.FC = () => {
                       <div className="mt-1 flex items-center space-x-5">
                         <img
                           className="h-16 w-16 rounded-full"
-                          src="https://i.pravatar.cc/150?img=68"
+                          src={settings.profile?.avatar || "https://i.pravatar.cc/150?img=68"}
                           alt="User avatar"
                         />
                         <Button variant="secondary" size="sm">
@@ -330,23 +395,17 @@ const SettingsContent: React.FC = () => {
                     <div className="flex items-start">
                       <div className="flex h-5 items-center">
                         <input
-                          id="meetings"
-                          name="meetings"
+                          id="notifyMeetings"
+                          name="notifyMeetings"
                           type="checkbox"
-                          checked={settings.emailNotifications.meetings}
-                          onChange={(e) =>
-                            handleInputChange(
-                              'emailNotifications',
-                              'meetings',
-                              e.target.checked
-                            )
-                          }
                           className="h-4 w-4 rounded border-cco-neutral-300 text-cco-primary-600 focus:ring-cco-primary-500"
+                          checked={settings.emailNotifications?.meetings ?? true}
+                          onChange={(e) => handleInputChange('emailNotifications', 'meetings', e.target.checked)}
                         />
                       </div>
                       <div className="ml-3 text-sm">
                         <label
-                          htmlFor="meetings"
+                          htmlFor="notifyMeetings"
                           className="font-medium text-cco-neutral-700"
                         >
                           Meeting updates
@@ -360,23 +419,17 @@ const SettingsContent: React.FC = () => {
                     <div className="flex items-start">
                       <div className="flex h-5 items-center">
                         <input
-                          id="documents"
-                          name="documents"
+                          id="notifyDocuments"
+                          name="notifyDocuments"
                           type="checkbox"
-                          checked={settings.emailNotifications.documents}
-                          onChange={(e) =>
-                            handleInputChange(
-                              'emailNotifications',
-                              'documents',
-                              e.target.checked
-                            )
-                          }
                           className="h-4 w-4 rounded border-cco-neutral-300 text-cco-primary-600 focus:ring-cco-primary-500"
+                          checked={settings.emailNotifications?.documents ?? true}
+                          onChange={(e) => handleInputChange('emailNotifications', 'documents', e.target.checked)}
                         />
                       </div>
                       <div className="ml-3 text-sm">
                         <label
-                          htmlFor="documents"
+                          htmlFor="notifyDocuments"
                           className="font-medium text-cco-neutral-700"
                         >
                           Document changes
@@ -390,23 +443,17 @@ const SettingsContent: React.FC = () => {
                     <div className="flex items-start">
                       <div className="flex h-5 items-center">
                         <input
-                          id="actionItems"
-                          name="actionItems"
+                          id="notifyActionItems"
+                          name="notifyActionItems"
                           type="checkbox"
-                          checked={settings.emailNotifications.actionItems}
-                          onChange={(e) =>
-                            handleInputChange(
-                              'emailNotifications',
-                              'actionItems',
-                              e.target.checked
-                            )
-                          }
                           className="h-4 w-4 rounded border-cco-neutral-300 text-cco-primary-600 focus:ring-cco-primary-500"
+                          checked={settings.emailNotifications?.actionItems ?? true}
+                          onChange={(e) => handleInputChange('emailNotifications', 'actionItems', e.target.checked)}
                         />
                       </div>
                       <div className="ml-3 text-sm">
                         <label
-                          htmlFor="actionItems"
+                          htmlFor="notifyActionItems"
                           className="font-medium text-cco-neutral-700"
                         >
                           Action items
@@ -420,23 +467,17 @@ const SettingsContent: React.FC = () => {
                     <div className="flex items-start">
                       <div className="flex h-5 items-center">
                         <input
-                          id="projectUpdates"
-                          name="projectUpdates"
+                          id="notifyProjectUpdates"
+                          name="notifyProjectUpdates"
                           type="checkbox"
-                          checked={settings.emailNotifications.projectUpdates}
-                          onChange={(e) =>
-                            handleInputChange(
-                              'emailNotifications',
-                              'projectUpdates',
-                              e.target.checked
-                            )
-                          }
                           className="h-4 w-4 rounded border-cco-neutral-300 text-cco-primary-600 focus:ring-cco-primary-500"
+                          checked={settings.emailNotifications?.projectUpdates ?? true}
+                          onChange={(e) => handleInputChange('emailNotifications', 'projectUpdates', e.target.checked)}
                         />
                       </div>
                       <div className="ml-3 text-sm">
                         <label
-                          htmlFor="projectUpdates"
+                          htmlFor="notifyProjectUpdates"
                           className="font-medium text-cco-neutral-700"
                         >
                           Project updates
@@ -444,6 +485,146 @@ const SettingsContent: React.FC = () => {
                         <p className="text-cco-neutral-500">
                           Get notified about project status changes and major updates.
                         </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'documents' && (
+                <div>
+                  <h3 className="text-lg font-medium leading-6 text-cco-neutral-900 mb-6">
+                    Document Preferences
+                  </h3>
+                  <div className="space-y-6">
+                    <div>
+                      <label
+                        htmlFor="defaultFormat"
+                        className="block text-sm font-medium text-cco-neutral-700"
+                      >
+                        Default Document Format
+                      </label>
+                      <select
+                        id="defaultFormat"
+                        name="defaultFormat"
+                        className="mt-1 block w-full rounded-md border-cco-neutral-300 shadow-sm focus:border-cco-primary-500 focus:ring-cco-primary-500 sm:text-sm"
+                        value={settings.documentPreferences?.defaultFormat || 'doc'}
+                        onChange={(e) =>
+                          handleInputChange('documentPreferences', 'defaultFormat', e.target.value)
+                        }
+                      >
+                        <option value="doc">Document</option>
+                        <option value="spreadsheet">Spreadsheet</option>
+                        <option value="presentation">Presentation</option>
+                        <option value="pdf">PDF</option>
+                        <option value="markdown">Markdown</option>
+                      </select>
+                    </div>
+                    <div className="flex items-start">
+                      <div className="flex h-5 items-center">
+                        <input
+                          id="showMarkdown"
+                          name="showMarkdown"
+                          type="checkbox"
+                          className="h-4 w-4 rounded border-cco-neutral-300 text-cco-primary-600 focus:ring-cco-primary-500"
+                          checked={settings.documentPreferences?.showMarkdown ?? true}
+                          onChange={(e) =>
+                            handleInputChange('documentPreferences', 'showMarkdown', e.target.checked)
+                          }
+                        />
+                      </div>
+                      <div className="ml-3 text-sm">
+                        <label htmlFor="showMarkdown" className="font-medium text-cco-neutral-700">
+                          Show Markdown Documents
+                        </label>
+                        <p className="text-cco-neutral-500">
+                          Show markdown documents in your document library and enable creating markdown files
+                        </p>
+                      </div>
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="autoSaveInterval"
+                        className="block text-sm font-medium text-cco-neutral-700"
+                      >
+                        Auto-save Interval (minutes)
+                      </label>
+                      <input
+                        type="number"
+                        id="autoSaveInterval"
+                        name="autoSaveInterval"
+                        className="mt-1 block w-32 rounded-md border-cco-neutral-300 shadow-sm focus:border-cco-primary-500 focus:ring-cco-primary-500 sm:text-sm"
+                        min="1"
+                        max="60"
+                        value={settings.documentPreferences?.autoSaveInterval ?? 5}
+                        onChange={(e) =>
+                          handleInputChange('documentPreferences', 'autoSaveInterval', parseInt(e.target.value, 10))
+                        }
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="defaultTags" className="block text-sm font-medium text-cco-neutral-700">
+                        Default Tags
+                      </label>
+                      <div className="mt-1">
+                        <div className="flex flex-wrap gap-2 mb-2">
+                          {settings.documentPreferences?.defaultTags?.map((tag, index) => (
+                            <span
+                              key={index}
+                              className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-cco-primary-100 text-cco-primary-800"
+                            >
+                              {tag}
+                              <button
+                                type="button"
+                                className="ml-1.5 inline-flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full text-cco-primary-600 hover:bg-cco-primary-200 hover:text-cco-primary-500 focus:bg-cco-primary-500 focus:text-white focus:outline-none"
+                                onClick={() => {
+                                  const newTags = [...(settings.documentPreferences?.defaultTags || [])];
+                                  newTags.splice(index, 1);
+                                  handleInputChange('documentPreferences', 'defaultTags', newTags);
+                                }}
+                              >
+                                <span className="sr-only">Remove tag</span>
+                                &times;
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                        <div className="flex">
+                          <input
+                            type="text"
+                            id="newTag"
+                            className="block w-full rounded-l-md border-cco-neutral-300 shadow-sm focus:border-cco-primary-500 focus:ring-cco-primary-500 sm:text-sm"
+                            placeholder="Add a tag"
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                                e.preventDefault();
+                                const newTag = e.currentTarget.value.trim();
+                                const currentTags = settings.documentPreferences?.defaultTags || [];
+                                if (!currentTags.includes(newTag)) {
+                                  handleInputChange('documentPreferences', 'defaultTags', [...currentTags, newTag]);
+                                }
+                                e.currentTarget.value = '';
+                              }
+                            }}
+                          />
+                          <Button
+                            onClick={(e) => {
+                              const input = document.getElementById('newTag') as HTMLInputElement;
+                              const newTag = input.value.trim();
+                              if (newTag) {
+                                const currentTags = settings.documentPreferences?.defaultTags || [];
+                                if (!currentTags.includes(newTag)) {
+                                  handleInputChange('documentPreferences', 'defaultTags', [...currentTags, newTag]);
+                                }
+                                input.value = '';
+                              }
+                            }}
+                            variant="default"
+                            className="rounded-l-none"
+                          >
+                            Add
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -467,10 +648,14 @@ const SettingsContent: React.FC = () => {
                         id="theme"
                         name="theme"
                         className="mt-1 block w-full rounded-md border-cco-neutral-300 shadow-sm focus:border-cco-primary-500 focus:ring-cco-primary-500 sm:text-sm"
-                        value={settings.theme}
-                        onChange={(e) =>
-                          handleInputChange('theme', 'theme', e.target.value)
-                        }
+                        value={settings.theme || 'system'}
+                        onChange={(e) => {
+                          setSettings(prev => ({
+                            ...prev,
+                            theme: e.target.value as 'light' | 'dark' | 'system'
+                          }));
+                          setIsDirty(true);
+                        }}
                       >
                         <option value="light">Light</option>
                         <option value="dark">Dark</option>
@@ -488,16 +673,21 @@ const SettingsContent: React.FC = () => {
                         id="language"
                         name="language"
                         className="mt-1 block w-full rounded-md border-cco-neutral-300 shadow-sm focus:border-cco-primary-500 focus:ring-cco-primary-500 sm:text-sm"
-                        value={settings.language}
-                        onChange={(e) =>
-                          handleInputChange('language', 'language', e.target.value)
-                        }
+                        value={settings.language || 'English'}
+                        onChange={(e) => {
+                          setSettings(prev => ({
+                            ...prev,
+                            language: e.target.value
+                          }));
+                          setIsDirty(true);
+                        }}
                       >
                         <option value="English">English</option>
                         <option value="Spanish">Spanish</option>
                         <option value="French">French</option>
                         <option value="German">German</option>
                         <option value="Japanese">Japanese</option>
+                        <option value="Chinese">Chinese</option>
                       </select>
                     </div>
                     <div>
@@ -511,10 +701,14 @@ const SettingsContent: React.FC = () => {
                         id="timezone"
                         name="timezone"
                         className="mt-1 block w-full rounded-md border-cco-neutral-300 shadow-sm focus:border-cco-primary-500 focus:ring-cco-primary-500 sm:text-sm"
-                        value={settings.timezone}
-                        onChange={(e) =>
-                          handleInputChange('timezone', 'timezone', e.target.value)
-                        }
+                        value={settings.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone}
+                        onChange={(e) => {
+                          setSettings(prev => ({
+                            ...prev,
+                            timezone: e.target.value
+                          }));
+                          setIsDirty(true);
+                        }}
                       >
                         <option value="America/New_York">Eastern Time (ET)</option>
                         <option value="America/Chicago">Central Time (CT)</option>
@@ -536,10 +730,14 @@ const SettingsContent: React.FC = () => {
                         id="dateFormat"
                         name="dateFormat"
                         className="mt-1 block w-full rounded-md border-cco-neutral-300 shadow-sm focus:border-cco-primary-500 focus:ring-cco-primary-500 sm:text-sm"
-                        value={settings.dateFormat}
-                        onChange={(e) =>
-                          handleInputChange('dateFormat', 'dateFormat', e.target.value)
-                        }
+                        value={settings.dateFormat || 'MM/DD/YYYY'}
+                        onChange={(e) => {
+                          setSettings(prev => ({
+                            ...prev,
+                            dateFormat: e.target.value as 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD'
+                          }));
+                          setIsDirty(true);
+                        }}
                       >
                         <option value="MM/DD/YYYY">MM/DD/YYYY</option>
                         <option value="DD/MM/YYYY">DD/MM/YYYY</option>
@@ -557,13 +755,17 @@ const SettingsContent: React.FC = () => {
                         id="timeFormat"
                         name="timeFormat"
                         className="mt-1 block w-full rounded-md border-cco-neutral-300 shadow-sm focus:border-cco-primary-500 focus:ring-cco-primary-500 sm:text-sm"
-                        value={settings.timeFormat}
-                        onChange={(e) =>
-                          handleInputChange('timeFormat', 'timeFormat', e.target.value)
-                        }
+                        value={settings.timeFormat || '12h'}
+                        onChange={(e) => {
+                          setSettings(prev => ({
+                            ...prev,
+                            timeFormat: e.target.value as '12h' | '24h'
+                          }));
+                          setIsDirty(true);
+                        }}
                       >
-                        <option value="12h">12-hour (1:30 PM)</option>
-                        <option value="24h">24-hour (13:30)</option>
+                        <option value="12h">12-hour</option>
+                        <option value="24h">24-hour</option>
                       </select>
                     </div>
                   </div>
@@ -582,15 +784,9 @@ const SettingsContent: React.FC = () => {
                           id="highContrast"
                           name="highContrast"
                           type="checkbox"
-                          checked={settings.accessibility.highContrast}
-                          onChange={(e) =>
-                            handleInputChange(
-                              'accessibility',
-                              'highContrast',
-                              e.target.checked
-                            )
-                          }
                           className="h-4 w-4 rounded border-cco-neutral-300 text-cco-primary-600 focus:ring-cco-primary-500"
+                          checked={settings.accessibility?.highContrast ?? false}
+                          onChange={(e) => handleInputChange('accessibility', 'highContrast', e.target.checked)}
                         />
                       </div>
                       <div className="ml-3 text-sm">
@@ -611,15 +807,9 @@ const SettingsContent: React.FC = () => {
                           id="largeText"
                           name="largeText"
                           type="checkbox"
-                          checked={settings.accessibility.largeText}
-                          onChange={(e) =>
-                            handleInputChange(
-                              'accessibility',
-                              'largeText',
-                              e.target.checked
-                            )
-                          }
                           className="h-4 w-4 rounded border-cco-neutral-300 text-cco-primary-600 focus:ring-cco-primary-500"
+                          checked={settings.accessibility?.largeText ?? false}
+                          onChange={(e) => handleInputChange('accessibility', 'largeText', e.target.checked)}
                         />
                       </div>
                       <div className="ml-3 text-sm">
@@ -640,15 +830,9 @@ const SettingsContent: React.FC = () => {
                           id="reduceMotion"
                           name="reduceMotion"
                           type="checkbox"
-                          checked={settings.accessibility.reduceMotion}
-                          onChange={(e) =>
-                            handleInputChange(
-                              'accessibility',
-                              'reduceMotion',
-                              e.target.checked
-                            )
-                          }
                           className="h-4 w-4 rounded border-cco-neutral-300 text-cco-primary-600 focus:ring-cco-primary-500"
+                          checked={settings.accessibility?.reduceMotion ?? false}
+                          onChange={(e) => handleInputChange('accessibility', 'reduceMotion', e.target.checked)}
                         />
                       </div>
                       <div className="ml-3 text-sm">
@@ -679,15 +863,9 @@ const SettingsContent: React.FC = () => {
                           id="shareUsageData"
                           name="shareUsageData"
                           type="checkbox"
-                          checked={settings.privacy.shareUsageData}
-                          onChange={(e) =>
-                            handleInputChange(
-                              'privacy',
-                              'shareUsageData',
-                              e.target.checked
-                            )
-                          }
                           className="h-4 w-4 rounded border-cco-neutral-300 text-cco-primary-600 focus:ring-cco-primary-500"
+                          checked={settings.privacy?.shareUsageData ?? true}
+                          onChange={(e) => handleInputChange('privacy', 'shareUsageData', e.target.checked)}
                         />
                       </div>
                       <div className="ml-3 text-sm">
@@ -708,15 +886,9 @@ const SettingsContent: React.FC = () => {
                           id="allowCookies"
                           name="allowCookies"
                           type="checkbox"
-                          checked={settings.privacy.allowCookies}
-                          onChange={(e) =>
-                            handleInputChange(
-                              'privacy',
-                              'allowCookies',
-                              e.target.checked
-                            )
-                          }
                           className="h-4 w-4 rounded border-cco-neutral-300 text-cco-primary-600 focus:ring-cco-primary-500"
+                          checked={settings.privacy?.allowCookies ?? true}
+                          onChange={(e) => handleInputChange('privacy', 'allowCookies', e.target.checked)}
                         />
                       </div>
                       <div className="ml-3 text-sm">
