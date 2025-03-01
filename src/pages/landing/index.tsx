@@ -2,63 +2,83 @@ import React, { useState, useEffect } from 'react';
 import type { FC } from 'react';
 import Head from 'next/head';
 import HeroSection from './components/HeroSection';
-import FeaturesSection from './components/FeaturesSection';
 import HowItWorksSection from './components/HowItWorksSection';
 import CallToAction from './components/CallToAction';
 import Footer from './components/Footer';
 
 const LandingPage: FC = () => {
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   
-  // Check system preference on load
+  // Check for dark mode preference on component mount
   useEffect(() => {
-    // Check if user has a saved preference
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      setIsDarkMode(savedTheme === 'dark');
-      document.documentElement.classList.toggle('dark', savedTheme === 'dark');
-    } else {
-      // If no saved preference, use system preference
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setIsDarkMode(prefersDark);
-      document.documentElement.classList.toggle('dark', prefersDark);
-    }
-
-    // Listen for changes in system preference
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e: MediaQueryListEvent) => {
-      // Only apply system preference if user hasn't set a preference
-      if (!localStorage.getItem('theme')) {
-        setIsDarkMode(e.matches);
-        document.documentElement.classList.toggle('dark', e.matches);
+    if (typeof window !== 'undefined') {
+      // Check localStorage first
+      const storedTheme = localStorage.getItem('theme');
+      
+      if (storedTheme === 'dark') {
+        setIsDarkMode(true);
+        document.documentElement.classList.add('dark');
+      } else if (storedTheme === 'light') {
+        setIsDarkMode(false);
+        document.documentElement.classList.remove('dark');
+      } else {
+        // If no stored preference, check system preference
+        const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        setIsDarkMode(systemPrefersDark);
+        
+        if (systemPrefersDark) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+        
+        // Store the initial preference
+        localStorage.setItem('theme', systemPrefersDark ? 'dark' : 'light');
       }
-    };
-
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
+    }
   }, []);
-
-  // Toggle theme function
-  const toggleTheme = () => {
-    const newMode = !isDarkMode;
-    setIsDarkMode(newMode);
-    document.documentElement.classList.toggle('dark', newMode);
-    localStorage.setItem('theme', newMode ? 'dark' : 'light');
+  
+  // Toggle dark mode
+  const toggleDarkMode = () => {
+    const newDarkMode = !isDarkMode;
+    setIsDarkMode(newDarkMode);
+    
+    if (newDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+    
+    // Log to ensure the toggle is working
+    console.log('Dark mode toggled:', newDarkMode, 'Class on html:', document.documentElement.classList.contains('dark'));
   };
 
   return (
     <div className="bg-white dark:bg-midnight-blue min-h-screen text-midnight-blue dark:text-nebula-white transition-colors duration-300">
       <Head>
-        <title>CCO - Chief Cognitive Officer</title>
-        <meta name="description" content="AI-powered productivity platform for vibe coders - eliminating administrative overhead and enhancing developer flow" />
+        <title>CCO - Your AI-Powered Cognitive Officer</title>
+        <meta name="description" content="Eliminate administrative overhead and stay in your coding flow. Let CCO handle your meetings, documentation, and project kickoffs." />
         <link rel="icon" href="/favicon.ico" />
+        {/* Import Inter font */}
+        <link 
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" 
+          rel="stylesheet"
+        />
+        {/* Import JetBrains Mono font */}
+        <link 
+          href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" 
+          rel="stylesheet"
+        />
       </Head>
       
       {/* Theme toggle button */}
       <button 
-        aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-        className="fixed top-6 right-6 z-50 p-2 rounded-full bg-cosmic-grey dark:bg-nebula-white bg-opacity-20 dark:bg-opacity-20 transition-colors duration-300"
-        onClick={toggleTheme}
+        onClick={toggleDarkMode} 
+        className="fixed z-50 bottom-6 right-6 p-3 rounded-full bg-white dark:bg-midnight-blue shadow-lg transition-colors duration-300"
+        aria-label="Toggle dark mode"
       >
         {isDarkMode ? (
           <svg className="w-6 h-6 text-nebula-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -72,13 +92,12 @@ const LandingPage: FC = () => {
       </button>
 
       <main>
-        <HeroSection isDarkMode={isDarkMode} />
-        <FeaturesSection isDarkMode={isDarkMode} />
-        <HowItWorksSection isDarkMode={isDarkMode} />
-        <CallToAction isDarkMode={isDarkMode} />
+        <HeroSection />
+        <HowItWorksSection />
+        <CallToAction />
       </main>
 
-      <Footer isDarkMode={isDarkMode} />
+      <Footer />
     </div>
   );
 };

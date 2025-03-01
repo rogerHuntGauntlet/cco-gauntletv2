@@ -140,8 +140,8 @@ const RegisterPage: FC = () => {
           }
           
           // Registration successful
-          // Redirect to dashboard instead of onboarding
-          router.push('/dashboard');
+          // Redirect to onboarding page instead of dashboard
+          router.push('/landing/onboarding');
         }
       } catch (err) {
         console.error('Registration error:', err);
