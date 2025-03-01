@@ -19,10 +19,13 @@ import { notifications } from '../../utils/mockData';
 import { logOut } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 
+// Define a type for Heroicon components
+type HeroIcon = React.ComponentType<React.ComponentProps<'svg'>>;
+
 interface NavItem {
   name: string;
   href: string;
-  icon: React.ElementType;
+  icon: HeroIcon;
 }
 
 const navigation: NavItem[] = [

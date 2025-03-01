@@ -30,7 +30,7 @@ export async function safeGenerateObject<T extends z.ZodType>({
     const result = await generateText({
       model,
       system,
-      prompt: `${prompt}\n\nYou must respond with a valid JSON object that matches this schema: ${JSON.stringify(schema.shape)}\n\nDo not include any text before or after the JSON object. Only respond with the JSON object.`,
+      prompt: `${prompt}\n\nYou must respond with a valid JSON object.\n\nDo not include any text before or after the JSON object. Only respond with the JSON object.`,
       abortSignal,
     });
 

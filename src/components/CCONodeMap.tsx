@@ -108,7 +108,7 @@ const CCONodeMap: React.FC<{
     setNodes([ccoNode, ...serviceNodes]);
     
     // Create edges from each service to CCO
-    const serviceEdges: Edge[] = serviceNodes.map((node) => ({
+    const serviceEdges = serviceNodes.map((node) => ({
       id: `${node.id}-to-cco`,
       source: node.id,
       target: 'cco',
@@ -116,7 +116,7 @@ const CCONodeMap: React.FC<{
       animated: true,
       data: {
         type: 'document',
-      } as AnimatedEdgeData,
+      } as Record<string, unknown>,
       markerEnd: {
         type: MarkerType.ArrowClosed,
         width: 20,
@@ -141,7 +141,7 @@ const CCONodeMap: React.FC<{
           ...connection,
           type: 'animated',
           animated: true,
-          data: { type: 'document' } as AnimatedEdgeData,
+          data: { type: 'document' } as Record<string, unknown>,
           markerEnd: {
             type: MarkerType.ArrowClosed,
             width: 20,
