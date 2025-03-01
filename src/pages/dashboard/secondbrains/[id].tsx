@@ -153,14 +153,52 @@ export default function SecondBrainDetailPage() {
       {/* Main content area */}
       <main className="py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-screen-xl mx-auto">
+          {/* Mobile layout - Info card on top, chat below */}
+          <div className="block lg:hidden mb-6">
+            <div className="bg-cosmic-grey rounded-lg p-6 shadow-lg border border-stardust/10">
+              <div className="flex flex-col items-center">
+                <div className="relative mb-4">
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-neon-teal to-electric-indigo flex items-center justify-center">
+                    <span className="text-nebula-white text-xl font-bold">
+                      {secondBrain.name.charAt(0)}
+                    </span>
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 bg-electric-indigo rounded-full w-6 h-6 flex items-center justify-center">
+                    <SparklesIcon className="h-4 w-4 text-nebula-white" />
+                  </div>
+                </div>
+                
+                <h1 className="text-xl font-semibold text-nebula-white text-center mb-2">{secondBrain.name}</h1>
+                <p className="text-stardust text-sm mb-4 text-center">{secondBrain.status === 'available' ? 'Available for hire' : secondBrain.status === 'busy' ? 'Currently busy' : 'Temporarily unavailable'}</p>
+                
+                <div className="w-full border-t border-stardust/20 pt-4 mt-2">
+                  <h2 className="text-neon-teal text-sm uppercase font-medium tracking-wider mb-3">Expertise</h2>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {secondBrain.expertise.slice(0, 3).map((skill, i) => (
+                      <span key={i} className="text-xs px-2 py-1 rounded bg-electric-indigo/20 text-nebula-white">
+                        {skill}
+                      </span>
+                    ))}
+                    {secondBrain.expertise.length > 3 && (
+                      <span className="text-xs px-2 py-1 rounded bg-stardust/20 text-stardust">
+                        +{secondBrain.expertise.length - 3}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop grid layout - Side by side */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            {/* CCO info sidebar */}
-            <div className="lg:col-span-3">
+            {/* CCO info sidebar - Only visible on desktop */}
+            <div className="hidden lg:block lg:col-span-3">
               <div className="bg-cosmic-grey rounded-lg p-6 shadow-lg border border-stardust/10">
-                <div className="flex flex-col items-center sm:items-start lg:items-center">
+                <div className="flex flex-col items-center">
                   <div className="relative mb-4">
-                    <div className="w-20 h-20 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-full bg-gradient-to-br from-neon-teal to-electric-indigo flex items-center justify-center">
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-neon-teal to-electric-indigo flex items-center justify-center">
                       <span className="text-nebula-white text-xl font-bold">
                         {secondBrain.name.charAt(0)}
                       </span>
@@ -170,12 +208,12 @@ export default function SecondBrainDetailPage() {
                     </div>
                   </div>
                   
-                  <h1 className="text-xl font-semibold text-nebula-white text-center sm:text-left lg:text-center mb-2">{secondBrain.name}</h1>
-                  <p className="text-stardust text-sm mb-4 text-center sm:text-left lg:text-center">{secondBrain.status === 'available' ? 'Available for hire' : secondBrain.status === 'busy' ? 'Currently busy' : 'Temporarily unavailable'}</p>
+                  <h1 className="text-xl font-semibold text-nebula-white text-center mb-2">{secondBrain.name}</h1>
+                  <p className="text-stardust text-sm mb-4 text-center">{secondBrain.status === 'available' ? 'Available for hire' : secondBrain.status === 'busy' ? 'Currently busy' : 'Temporarily unavailable'}</p>
                   
                   <div className="w-full border-t border-stardust/20 pt-4 mt-2">
                     <h2 className="text-neon-teal text-sm uppercase font-medium tracking-wider mb-3">Expertise</h2>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap justify-center gap-2">
                       {secondBrain.expertise.slice(0, 3).map((skill, i) => (
                         <span key={i} className="text-xs px-2 py-1 rounded bg-electric-indigo/20 text-nebula-white">
                           {skill}
@@ -192,9 +230,9 @@ export default function SecondBrainDetailPage() {
               </div>
             </div>
             
-            {/* Main interview area */}
+            {/* Main interview area - Adjusted height for mobile */}
             <div className="lg:col-span-9">
-              <div className="bg-cosmic-grey/80 backdrop-filter backdrop-blur-sm rounded-lg overflow-hidden border border-stardust/10 shadow-xl h-[calc(100vh-11rem)]">
+              <div className="bg-cosmic-grey/80 backdrop-filter backdrop-blur-sm rounded-lg overflow-hidden border border-stardust/10 shadow-xl h-[calc(100vh-24rem)] sm:h-[calc(100vh-18rem)] md:h-[calc(100vh-14rem)] lg:h-[calc(100vh-11rem)]">
                 <div className="flex flex-col h-full">
                   <div className="flex-1 overflow-y-auto">
                     <SecondBrainInterview 
