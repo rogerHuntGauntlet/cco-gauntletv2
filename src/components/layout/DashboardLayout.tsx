@@ -13,7 +13,8 @@ import {
   Bars3Icon,
   XMarkIcon,
   CircleStackIcon,
-  SparklesIcon
+  SparklesIcon,
+  GiftIcon
 } from '@heroicons/react/24/outline';
 import VibeChatPanel from '../ui/VibeChatPanel';
 import RoundedIcon from '../ui/RoundedIcon';
@@ -43,6 +44,112 @@ interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
+// Special Offer Modal Component
+const SpecialOfferModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 overflow-y-auto">
+      <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+        <div className="fixed inset-0 transition-opacity" aria-hidden="true">
+          <div className="absolute inset-0 bg-black opacity-50"></div>
+        </div>
+
+        {/* Modal Content */}
+        <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+          <div className="relative">
+            {/* Close button */}
+            <button 
+              onClick={onClose}
+              className="absolute top-3 right-3 text-cco-neutral-500 hover:text-cco-neutral-700 z-10"
+            >
+              <XMarkIcon className="w-6 h-6" />
+            </button>
+
+            {/* Sparkly Header */}
+            <div className="bg-gradient-to-r from-purple-500 via-pink-500 to-cco-accent-500 p-6 text-white relative overflow-hidden">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-full h-full flex">
+                  {Array.from({ length: 20 }).map((_, i) => (
+                    <div 
+                      key={i}
+                      className="absolute rounded-full bg-white" 
+                      style={{
+                        width: `${Math.random() * 10 + 3}px`,
+                        height: `${Math.random() * 10 + 3}px`,
+                        top: `${Math.random() * 100}%`,
+                        left: `${Math.random() * 100}%`,
+                        opacity: Math.random() * 0.5 + 0.1,
+                        animation: `pulse ${Math.random() * 3 + 2}s infinite ${Math.random() * 2}s`
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+              
+              <div className="relative">
+                <h3 className="text-2xl font-bold mb-2">Limited Time Special Offer!</h3>
+                <p className="text-white text-opacity-90">Act fast! Our MVP packages are going quickly!</p>
+              </div>
+            </div>
+
+            {/* Offer Content */}
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Tier 1 */}
+                <div className="bg-gradient-to-r from-yellow-100 to-yellow-200 p-4 rounded-lg border border-yellow-300 relative overflow-hidden h-full">
+                  <div className="absolute top-0 right-0 bg-yellow-500 text-white px-2 py-1 text-xs font-bold">
+                    EXCLUSIVE
+                  </div>
+                  <h4 className="font-bold text-lg mb-1">First 5 People</h4>
+                  <p className="text-yellow-800 text-xl font-bold">FREE MVP Development</p>
+                  <div className="mt-2 text-sm text-yellow-700">Only a few spots left!</div>
+                </div>
+
+                {/* Tier 2 */}
+                <div className="bg-gradient-to-r from-blue-100 to-blue-200 p-4 rounded-lg border border-blue-300 h-full">
+                  <h4 className="font-bold text-lg mb-1">Next 5 People</h4>
+                  <p className="text-blue-800 text-xl font-bold">$500 for MVP Development</p>
+                  <div className="mt-2 text-sm text-blue-700">Limited availability!</div>
+                </div>
+
+                {/* Tier 3 */}
+                <div className="bg-gradient-to-r from-green-100 to-green-200 p-4 rounded-lg border border-green-300 h-full">
+                  <h4 className="font-bold text-lg mb-1">Next 10 People</h4>
+                  <p className="text-green-800 text-xl font-bold">$2,000 for MVP Development</p>
+                  <div className="mt-2 text-sm text-green-700">Incredible value!</div>
+                </div>
+
+                {/* Tier 4 */}
+                <div className="bg-gradient-to-r from-purple-100 to-purple-200 p-4 rounded-lg border border-purple-300 h-full">
+                  <h4 className="font-bold text-lg mb-1">Next 30 People</h4>
+                  <p className="text-purple-800 text-xl font-bold">$15,000 for MVP Development</p>
+                  <div className="mt-2 text-sm text-purple-700">Standard pricing</div>
+                </div>
+              </div>
+
+              {/* Contact Button */}
+              <div className="pt-6">
+                <a 
+                  href="https://x.com/LamarDealMaker/status/1895533619428618386" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="block w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-4 rounded-lg text-center transition-all transform hover:scale-105 shadow-lg"
+                >
+                  Contact Us on Twitter to Claim Your Offer!
+                </a>
+                <p className="text-center mt-3 text-sm text-cco-neutral-500">
+                  Click the button above to message us and secure your spot!
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -50,6 +157,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [isSigningOut, setIsSigningOut] = useState(false);
   const { currentUser, userProfile } = useAuth();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [showSpecialOfferModal, setShowSpecialOfferModal] = useState(false);
   
   // Check if user has upgraded (paid property exists)
   const isUpgraded = userProfile && 'paid' in userProfile;
@@ -179,7 +287,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </div>
 
       {/* VIBE Chat Panel */}
-      <VibeChatPanel isOpen={vibeMode} onClose={() => setVibeMode(false)} />
+      {vibeMode && <VibeChatPanel isOpen={vibeMode} onClose={toggleVibeMode} />}
 
       {/* Main content */}
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -193,6 +301,24 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </button>
           
           <div className="ml-auto flex items-center space-x-4">
+            {/* Special Offer Button */}
+            <button 
+              onClick={() => setShowSpecialOfferModal(true)}
+              className="p-1 rounded-md text-cco-neutral-700 hover:bg-cco-neutral-100 relative group transition-all duration-300 hover:scale-110"
+            >
+              <div className="relative">
+                <GiftIcon className="w-6 h-6 text-cco-accent-500 animate-pulse" />
+                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cco-accent-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-cco-accent-500"></span>
+                </span>
+              </div>
+              <span className="sr-only">Special Offer</span>
+              <span className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 w-max px-2 py-1 bg-cco-neutral-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                Special Offer
+              </span>
+            </button>
+            
             {/* VIBE Button */}
             <button 
               onClick={toggleVibeMode}
@@ -286,6 +412,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           {children}
         </main>
       </div>
+
+      <SpecialOfferModal 
+        isOpen={showSpecialOfferModal} 
+        onClose={() => setShowSpecialOfferModal(false)} 
+      />
     </div>
   );
 } 
