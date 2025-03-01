@@ -24,6 +24,7 @@ import { useRouter } from 'next/router';
 import { useAuth } from '../../../contexts/AuthContext';
 import { getProjectsByUserId, createProject, updateProject, deleteProject } from '../../../lib/firebase';
 import { Project as ProjectType } from '../../../types';
+import { getAvatarUrl } from '../../../utils/avatarUtils';
 
 // Define project types
 interface Project {
@@ -762,7 +763,7 @@ Please generate the code for the main interface components.`;
                 {project.teamMembers.slice(0, 3).map((member, index) => (
                   <img 
                     key={member.id} 
-                    src={member.avatar} 
+                    src={getAvatarUrl(member.avatar, member.name)} 
                     alt={member.name} 
                     className="w-7 h-7 rounded-full border-2 border-white"
                     title={member.name}

@@ -20,6 +20,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { Button } from '../../../components/ui/Button';
 import { Card } from '../../../components/ui/Card';
+import { getAvatarUrl } from '../../../utils/avatarUtils';
 
 // Define project types (same as in the dashboard)
 interface Project {
@@ -457,7 +458,7 @@ const ProjectDetailsPage: React.FC = () => {
                   {project.teamMembers.map(member => (
                     <div key={member.id} className="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg">
                       <img 
-                        src={member.avatar} 
+                        src={getAvatarUrl(member.avatar, member.name)} 
                         alt={member.name} 
                         className="h-12 w-12 rounded-full object-cover" 
                       />

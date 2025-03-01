@@ -22,6 +22,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { getAvatarUrl } from '../../utils/avatarUtils';
 
 // Define project types (same as in the dashboard)
 interface Project {
@@ -660,7 +661,7 @@ const SharedProjectPage: React.FC = () => {
                 {project.teamMembers.map(member => (
                   <div key={member.id} className="tooltip" title={`${member.name} - ${member.role}`}>
                     <img 
-                      src={member.avatar} 
+                      src={getAvatarUrl(member.avatar, member.name)} 
                       alt={member.name} 
                       className={`w-8 h-8 rounded-full border-2 ${theme === 'dark' ? 'border-[#2a355e]' : 'border-gray-200'}`}
                     />

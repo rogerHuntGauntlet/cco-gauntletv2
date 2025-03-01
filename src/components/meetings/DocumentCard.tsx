@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import { DocumentTextIcon, ClockIcon, TagIcon } from '@heroicons/react/24/outline';
 import { Card } from '../ui/Card';
 import { Document } from '../../types';
@@ -26,8 +26,10 @@ const documentTypeNames = {
 };
 
 export function DocumentCard({ document }: DocumentCardProps) {
-  const updatedDate = new Date(document.updatedAt);
-  const formattedDate = format(updatedDate, 'MMM d, yyyy');
+  const updatedDate = document.updatedAt ? new Date(document.updatedAt) : null;
+  const formattedDate = updatedDate && isValid(updatedDate) 
+    ? format(updatedDate, 'MMM d, yyyy')
+    : 'Date unavailable';
   
   const statusColors = {
     draft: 'bg-yellow-100 text-yellow-800',
@@ -48,7 +50,7 @@ export function DocumentCard({ document }: DocumentCardProps) {
                 {documentTypeNames[document.type]}
               </span>
               <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[document.status]}`}>
-                {document.status.charAt(0).toUpperCase() + document.status.slice(1)}
+                {document.status ? document.status.charAt(0).toUpperCase() + document.status.slice(1) : 'Draft'}
               </span>
             </div>
             <h3 className="text-lg font-semibold mt-1 truncate text-cco-neutral-900">{document.title}</h3>
