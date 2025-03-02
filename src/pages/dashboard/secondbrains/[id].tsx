@@ -232,7 +232,7 @@ export default function SecondBrainDetailPage() {
             
             {/* Main interview area - Adjusted height for mobile */}
             <div className="lg:col-span-9">
-              <div className="bg-cosmic-grey/80 backdrop-filter backdrop-blur-sm rounded-lg overflow-hidden border border-stardust/10 shadow-xl h-[calc(100vh-24rem)] sm:h-[calc(100vh-18rem)] md:h-[calc(100vh-14rem)] lg:h-[calc(100vh-11rem)]">
+              <div className="bg-cosmic-grey/80 backdrop-filter backdrop-blur-sm rounded-lg overflow-hidden border border-stardust/10 shadow-xl h-[calc(100vh-16rem)] sm:h-[calc(100vh-16rem)] md:h-[calc(100vh-14rem)] lg:h-[calc(100vh-11rem)]">
                 <div className="flex flex-col h-full">
                   <div className="flex-1 overflow-y-auto">
                     <SecondBrainInterview 
