@@ -6,29 +6,32 @@ import Link from 'next/link';
 export default function Home() {
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
+  // Safe client-side detection that won't cause hydration issues
   useEffect(() => {
-    // Check if the user is on a mobile device
-    const checkMobile = () => {
-      const mobileBreakpoint = 768; // Common mobile breakpoint
-      setIsMobile(window.innerWidth < mobileBreakpoint);
-    };
+    setIsClient(true);
+    
+    // Check if mobile and set state once
+    const userAgent = window.navigator.userAgent;
+    const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+    setIsMobile(mobileRegex.test(userAgent));
+  }, []);
 
-    // Initial check
-    checkMobile();
-
-    // Add resize listener
-    window.addEventListener('resize', checkMobile);
-
-    // Redirect to dashboard only on desktop
-    if (!isMobile) {
+  // Separate effect for redirection logic
+  useEffect(() => {
+    // Only run on client side and when isMobile has been determined
+    if (isClient && !isMobile) {
       router.push('/dashboard');
     }
+  }, [isClient, isMobile, router]);
 
-    // Cleanup
-    return () => window.removeEventListener('resize', checkMobile);
-  }, [router, isMobile]);
+  // Don't render anything during server-side rendering to prevent hydration issues
+  if (!isClient) {
+    return null;
+  }
 
+  // Mobile view
   if (isMobile) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-cco-neutral-50 p-6">
@@ -57,7 +60,7 @@ export default function Home() {
     );
   }
 
-  // Loading state for desktop (while redirecting)
+  // Desktop loading view
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-cco-neutral-50">
       <Head>
