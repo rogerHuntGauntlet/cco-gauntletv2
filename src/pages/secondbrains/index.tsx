@@ -40,9 +40,7 @@ export default function SecondBrainsPage() {
       
       <header className="sticky top-0 z-30 bg-white dark:bg-midnight-blue border-b border-cosmic-grey dark:border-stardust border-opacity-10 dark:border-opacity-10 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-6 md:px-12 h-20 flex items-center justify-between">
-          <Link href="/landing" className="inline-flex items-center">
-            <span className="ml-3 text-2xl font-bold bg-gradient-to-r from-electric-indigo to-neon-teal bg-clip-text text-transparent">CCO</span>
-          </Link>
+          
           
           <div className="flex items-center space-x-6">
             <Link 

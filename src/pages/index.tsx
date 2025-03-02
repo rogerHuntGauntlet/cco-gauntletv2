@@ -53,7 +53,7 @@ export default function Home() {
             Your AI-powered assistant for software development and creative collaboration.
           </p>
           <Link href="/secondbrains" className="px-8 py-4 bg-cco-primary-600 text-white rounded-lg font-medium text-lg shadow-lg hover:bg-cco-primary-700 transition-colors">
-            Go to Second Brains
+            Find a COO
           </Link>
         </main>
       </div>
