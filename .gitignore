@@ -33,4 +33,28 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts 
+next-env.d.ts
+
+# Sensitive files
+**/api-key.json
+**/crypto_keys.js
+**/jwt_to_keys.js
+**/node_keys.js
+**/generate_secret*
+**/get_sign_verify*
+.env
+.env.local
+.env.*.local
+
+# Keys and secrets
+*.pem
+*.key
+*_key.*
+*_keys.*
+*.keystore
+*.jks
+*.p12
+*.pfx
+*.cer
+*.der
+*.crt 
