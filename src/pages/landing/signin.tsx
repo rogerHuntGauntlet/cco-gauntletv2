@@ -75,11 +75,28 @@ const SignInPage: FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Display MVP client message instead of attempting to sign in
-    setErrors((prev) => ({ 
-      ...prev, 
-      general: 'Access to our platform is currently limited to MVP clients only. Please contact us at https://x.com/LamarDealMaker to learn how to become an MVP client.' 
-    }));
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    setErrors({ email: '', password: '', general: '' });
+
+    try {
+      const result = await signIn(formData.email, formData.password);
+      if (result.user) {
+        // Successful sign-in
+        router.push('/dashboard'); // Redirect to dashboard or home page
+      }
+    } catch (error) {
+      console.error('Sign-in error:', error);
+      setErrors(prev => ({
+        ...prev,
+        general: 'Invalid email or password. Please try again.'
+      }));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Video modal handlers
@@ -200,14 +217,49 @@ const SignInPage: FC = () => {
                 {errors.email && <p className="mt-1 text-sm text-electric-crimson">{errors.email}</p>}
               </div>
               
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-midnight-blue dark:text-cosmic-latte mb-1">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-3 bg-white dark:bg-cosmic-grey dark:bg-opacity-20 rounded-md border ${errors.password ? 'border-electric-crimson' : 'border-cosmic-grey dark:border-stardust border-opacity-30 dark:border-opacity-30'} text-midnight-blue dark:text-nebula-white placeholder-cosmic-grey dark:placeholder-stardust placeholder-opacity-70 dark:placeholder-opacity-70 focus:outline-none focus:border-electric-indigo transition-colors duration-300`}
+                  placeholder="••••••••"
+                />
+                {errors.password && <p className="mt-1 text-sm text-electric-crimson">{errors.password}</p>}
+              </div>
               
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <input
+                    id="remember-me"
+                    name="remember-me"
+                    type="checkbox"
+                    className="h-4 w-4 text-electric-indigo focus:ring-electric-indigo border-cosmic-grey dark:border-stardust rounded"
+                  />
+                  <label htmlFor="remember-me" className="ml-2 block text-sm text-cosmic-grey dark:text-stardust">
+                    Remember me
+                  </label>
+                </div>
+
+                <div className="text-sm">
+                  <Link href="/landing/forgot-password" className="text-electric-indigo hover:underline">
+                    Forgot your password?
+                  </Link>
+                </div>
+              </div>
               
               <div>
                 <button
                   type="submit"
-                  className="w-full bg-electric-indigo hover:bg-opacity-90 text-nebula-white text-center px-4 py-3 rounded-md font-medium transition-all"
+                  disabled={isSubmitting}
+                  className={`w-full bg-electric-indigo hover:bg-opacity-90 text-nebula-white text-center px-4 py-3 rounded-md font-medium transition-all ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
                 >
-                  Request MVP Access
+                  {isSubmitting ? 'Signing in...' : 'Sign in'}
                 </button>
               </div>
               

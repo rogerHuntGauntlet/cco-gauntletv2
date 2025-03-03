@@ -7,6 +7,7 @@ import { LoadingSpinner } from '../../../components/ui/LoadingSpinner';
 import { ChevronLeftIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { mockSecondBrains } from '../../../data/mockSecondBrains';
+import { ContactHeader } from '../../../components/common/ContactHeader';
 
 export default function SecondBrainDetailPage() {
   const router = useRouter();
@@ -128,6 +129,7 @@ export default function SecondBrainDetailPage() {
   // Main layout following the design guide
   return (
     <div className="min-h-screen bg-midnight-blue">
+      <ContactHeader className="bg-obsidian border-b border-stardust/20" />
       {/* Top nav bar */}
       <header className="h-16 border-b border-stardust/20 bg-obsidian px-4 sm:px-6 lg:px-8">
         <div className="h-full max-w-screen-2xl mx-auto flex items-center justify-between">

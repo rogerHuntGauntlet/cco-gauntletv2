@@ -94,11 +94,81 @@ const RegisterPage: FC = () => {
     setErrors(newErrors);
     return isValid;
   };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Display MVP client message instead of attempting to register
-    setGeneralError('Registration is currently limited to MVP clients only. Please contact us at https://x.com/LamarDealMaker to learn how to become an MVP client.');
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    setGeneralError('');
+
+    try {
+      // Register the user
+      const userCredential = await register(formData.email, formData.password);
+      
+      if (userCredential.user) {
+        // Create user profile
+        await createUserProfile(userCredential.user.uid, {
+          name: formData.name,
+          email: formData.email,
+          createdAt: new Date().toISOString(),
+        });
+
+        // Create user settings with defaults
+        await createUserSettings(userCredential.user.uid, {
+          id: userCredential.user.uid,
+          userId: userCredential.user.uid,
+          profile: {
+            name: formData.name,
+            email: formData.email,
+          },
+          emailNotifications: {
+            meetings: true,
+            documents: true,
+            actionItems: true,
+            projectUpdates: false,
+          },
+          theme: isDarkMode ? 'dark' : 'system',
+          language: 'English',
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          dateFormat: 'MM/DD/YYYY',
+          timeFormat: '12h',
+          accessibility: {
+            highContrast: false,
+            largeText: false,
+            reduceMotion: false,
+          },
+          privacy: {
+            shareUsageData: true,
+            allowCookies: true,
+          },
+          documentPreferences: {
+            defaultFormat: 'doc',
+            showMarkdown: true,
+            autoSaveInterval: 5,
+            defaultTags: [],
+          },
+          integration: {
+            connectedServices: [],
+          }
+        });
+
+        // Redirect to onboarding or dashboard
+        router.push('/onboarding');
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      setGeneralError(
+        error.code === 'auth/email-already-in-use'
+          ? 'An account with this email already exists.'
+          : 'An error occurred during registration. Please try again.'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Video modal handlers
@@ -234,15 +304,64 @@ const RegisterPage: FC = () => {
                 {errors.email && <p className="mt-1 text-sm text-electric-crimson">{errors.email}</p>}
               </div>
               
-              
-            
-              
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-midnight-blue dark:text-cosmic-latte mb-1">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-3 bg-white dark:bg-cosmic-grey dark:bg-opacity-20 rounded-md border ${errors.password ? 'border-electric-crimson' : 'border-cosmic-grey dark:border-stardust border-opacity-30 dark:border-opacity-30'} text-midnight-blue dark:text-nebula-white placeholder-cosmic-grey dark:placeholder-stardust placeholder-opacity-70 dark:placeholder-opacity-70 focus:outline-none focus:border-electric-indigo transition-colors duration-300`}
+                  placeholder="••••••••"
+                />
+                {errors.password && <p className="mt-1 text-sm text-electric-crimson">{errors.password}</p>}
+              </div>
+
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-midnight-blue dark:text-cosmic-latte mb-1">
+                  Confirm Password
+                </label>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-3 bg-white dark:bg-cosmic-grey dark:bg-opacity-20 rounded-md border ${errors.confirmPassword ? 'border-electric-crimson' : 'border-cosmic-grey dark:border-stardust border-opacity-30 dark:border-opacity-30'} text-midnight-blue dark:text-nebula-white placeholder-cosmic-grey dark:placeholder-stardust placeholder-opacity-70 dark:placeholder-opacity-70 focus:outline-none focus:border-electric-indigo transition-colors duration-300`}
+                  placeholder="••••••••"
+                />
+                {errors.confirmPassword && <p className="mt-1 text-sm text-electric-crimson">{errors.confirmPassword}</p>}
+              </div>
+
+              <div className="flex items-center">
+                <input
+                  id="terms"
+                  name="terms"
+                  type="checkbox"
+                  className="h-4 w-4 text-electric-indigo focus:ring-electric-indigo border-cosmic-grey dark:border-stardust rounded"
+                />
+                <label htmlFor="terms" className="ml-2 block text-sm text-cosmic-grey dark:text-stardust">
+                  I agree to the{' '}
+                  <Link href="/terms" className="text-electric-indigo hover:underline">
+                    Terms of Service
+                  </Link>{' '}
+                  and{' '}
+                  <Link href="/privacy" className="text-electric-indigo hover:underline">
+                    Privacy Policy
+                  </Link>
+                </label>
+              </div>
+
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full bg-electric-indigo hover:bg-opacity-90 text-nebula-white text-center px-4 py-3 rounded-md font-medium transition-all"
+                  disabled={isSubmitting}
+                  className={`w-full bg-electric-indigo hover:bg-opacity-90 text-nebula-white text-center px-4 py-3 rounded-md font-medium transition-all ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
                 >
-                  Request MVP Access
+                  {isSubmitting ? 'Creating account...' : 'Create account'}
                 </button>
               </div>
               

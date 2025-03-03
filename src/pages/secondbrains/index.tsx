@@ -5,6 +5,7 @@ import { SecondBrainList } from '../../components/secondbrain/SecondBrainList';
 import { SecondBrain } from '../../types';
 import { BookOpenIcon } from '@heroicons/react/24/outline';
 import { mockSecondBrains } from '../../data/mockSecondBrains';
+import { ContactHeader } from '../../components/common/ContactHeader';
 
 export default function SecondBrainsPage() {
   const [secondBrains, setSecondBrains] = useState<SecondBrain[]>([]);
@@ -30,6 +31,7 @@ export default function SecondBrainsPage() {
   
   return (
     <div className="min-h-screen bg-white dark:bg-midnight-blue">
+      <ContactHeader className="dark:bg-cosmic-grey dark:bg-opacity-10" />
       <Head>
         <title>Chief Cognitive Officer Marketplace | CCO VibeCoder Platform</title>
         <meta
