@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card } from '../ui/Card';
-import { Button } from '../ui/Button';
+import { Card } from '../../components/ui/Card';
+import { Button } from '../../components/ui/Button';
 import Link from 'next/link';
 import { SecondBrain } from '../../types';
 import { StarIcon, ChartBarIcon, BriefcaseIcon } from '@heroicons/react/24/outline';
