@@ -183,13 +183,13 @@ const PrivacyPage = () => {
         <div className="mt-12 p-6 bg-white dark:bg-obsidian rounded-lg">
           <h3 className="text-midnight-blue dark:text-cosmic-latte">Additional Resources</h3>
           <div className="flex flex-col md:flex-row gap-4 mt-4">
-            <Link href="/landing/terms" className="text-electric-indigo hover:underline">
+            <Link href="/legal/terms" className="text-electric-indigo hover:underline">
               Terms of Service
             </Link>
-            <Link href="/landing/cookies" className="text-electric-indigo hover:underline">
+            <Link href="/legal/cookies" className="text-electric-indigo hover:underline">
               Cookie Policy
             </Link>
-            <Link href="/landing/contact" className="text-electric-indigo hover:underline">
+            <Link href="/contact" className="text-electric-indigo hover:underline">
               Contact Us
             </Link>
           </div>

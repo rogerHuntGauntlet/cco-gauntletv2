@@ -274,7 +274,7 @@ const ChangelogPage = () => {
                 Check out our product roadmap to see what features we're working on next.
               </p>
             </div>
-            <Link href="/landing/roadmap" className="inline-block bg-white text-electric-indigo px-6 py-3 rounded-md font-medium hover:bg-opacity-90 transition-all whitespace-nowrap">
+            <Link href="/company/roadmap" className="inline-block bg-white text-electric-indigo px-6 py-3 rounded-md font-medium hover:bg-opacity-90 transition-all whitespace-nowrap">
               View Roadmap
             </Link>
           </div>

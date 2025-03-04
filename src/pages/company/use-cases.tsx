@@ -143,10 +143,10 @@ const UseCasesPage = () => {
             Join innovative vibe coders already using CCO Platform to eliminate administrative overhead and maximize their creative potential.
           </p>
           <div className="flex justify-center gap-4">
-            <a href="/landing/pricing" className="px-6 py-3 bg-white dark:bg-cosmic-latte text-cosmic-blue hover:bg-gray-100 dark:hover:bg-cosmic-latte/90 rounded-md font-medium transition-colors">
+            <a href="/contact/pricing" className="px-6 py-3 bg-white dark:bg-cosmic-latte text-cosmic-blue hover:bg-gray-100 dark:hover:bg-cosmic-latte/90 rounded-md font-medium transition-colors">
               View Pricing
             </a>
-            <a href="/landing/contact" className="px-6 py-3 bg-transparent border border-white dark:border-cosmic-latte text-white dark:text-cosmic-latte hover:bg-cosmic-indigo-light dark:hover:bg-cosmic-indigo-light/30 rounded-md font-medium transition-colors">
+            <a href="/contact" className="px-6 py-3 bg-transparent border border-white dark:border-cosmic-latte text-white dark:text-cosmic-latte hover:bg-cosmic-indigo-light dark:hover:bg-cosmic-indigo-light/30 rounded-md font-medium transition-colors">
               Contact Sales
             </a>
           </div>

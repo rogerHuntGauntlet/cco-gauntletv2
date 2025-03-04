@@ -41,30 +41,30 @@ const Footer: FC = () => {
           <div className="col-span-1">
             <h3 className="text-lg font-medium text-midnight-blue dark:text-cosmic-latte mb-6">Product</h3>
             <ul className="space-y-4">
-              <li><Link href="/landing/features" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo transition-colors">Features</Link></li>
-              <li><Link href="/landing/use-cases" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo transition-colors">Use Cases</Link></li>
-              <li><Link href="/landing/pricing" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo transition-colors">Pricing</Link></li>
-              <li><Link href="/landing/roadmap" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo transition-colors">Roadmap</Link></li>
+              <li><Link href="/company/features" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo transition-colors">Features</Link></li>
+              <li><Link href="/company/use-cases" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo transition-colors">Use Cases</Link></li>
+              <li><Link href="/contact/pricing" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo transition-colors">Pricing</Link></li>
+              <li><Link href="/company/roadmap" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo transition-colors">Roadmap</Link></li>
             </ul>
           </div>
           
           <div className="col-span-1">
             <h3 className="text-lg font-medium text-midnight-blue dark:text-cosmic-latte mb-6">Company</h3>
             <ul className="space-y-4">
-              <li><Link href="/landing/about" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo transition-colors">About</Link></li>
-              <li><Link href="/landing/blog" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo transition-colors">Blog</Link></li>
-              <li><Link href="/landing/careers" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo transition-colors">Careers</Link></li>
-              <li><Link href="/landing/contact" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo transition-colors">Contact</Link></li>
+              <li><Link href="/company/about" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo transition-colors">About</Link></li>
+              <li><Link href="/company/blog" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo transition-colors">Blog</Link></li>
+              <li><Link href="/contact/careers" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo transition-colors">Careers</Link></li>
+              <li><Link href="/contact" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo transition-colors">Contact</Link></li>
             </ul>
           </div>
           
           <div className="col-span-1">
             <h3 className="text-lg font-medium text-midnight-blue dark:text-cosmic-latte mb-6">Resources</h3>
             <ul className="space-y-4">
-              <li><Link href="/landing/documentation" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo transition-colors">Documentation</Link></li>
-              <li><Link href="/landing/support" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo transition-colors">Support</Link></li>
-              <li><Link href="/landing/community" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo transition-colors">Community</Link></li>
-              <li><Link href="/landing/changelog" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo transition-colors">Changelog</Link></li>
+              <li><Link href="/company/documentation" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo transition-colors">Documentation</Link></li>
+              <li><Link href="/contact/support" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo transition-colors">Support</Link></li>
+              <li><Link href="/community" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo transition-colors">Community</Link></li>
+              <li><Link href="/company/changelog" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo transition-colors">Changelog</Link></li>
             </ul>
           </div>
         </div>
@@ -74,13 +74,13 @@ const Footer: FC = () => {
             © 2023 CCO. All rights reserved.
           </p>
           <div className="mt-4 md:mt-0 flex space-x-6">
-            <Link href="/landing/privacy" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo text-sm transition-colors">
+            <Link href="/legal/privacy" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo text-sm transition-colors">
               Privacy Policy
             </Link>
-            <Link href="/landing/terms" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo text-sm transition-colors">
+            <Link href="/legal/terms" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo text-sm transition-colors">
               Terms of Service
             </Link>
-            <Link href="/landing/cookies" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo text-sm transition-colors">
+            <Link href="/legal/cookies" className="text-cosmic-grey dark:text-stardust hover:text-electric-indigo dark:hover:text-electric-indigo text-sm transition-colors">
               Cookie Policy
             </Link>
           </div>

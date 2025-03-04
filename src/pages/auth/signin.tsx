@@ -197,7 +197,7 @@ const SignInPage: FC = () => {
         {/* Left panel - Branding & Info */}
         <div className="bg-gradient-to-br from-electric-indigo to-neon-teal md:w-1/2 p-12 flex flex-col justify-between">
           <div>
-            <Link href="/landing" className="inline-flex items-center">
+            <Link href="/" className="inline-flex items-center">
               <span className="text-3xl font-bold text-white">CCO</span>
             </Link>
           </div>
@@ -390,7 +390,7 @@ const SignInPage: FC = () => {
                 </div>
 
                 <div className="text-sm">
-                  <Link href="/landing/forgot-password" className="text-electric-indigo hover:underline">
+                  <Link href="/auth/forgot-password" className="text-electric-indigo hover:underline">
                     Forgot your password?
                   </Link>
                 </div>

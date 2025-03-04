@@ -139,6 +139,9 @@ export const signInWithGoogle = async () => {
 
 export const signInWithTwitter = async () => {
   try {
+    // Clear any existing auth state first
+    await signOut(auth);
+    
     const result = await signInWithPopup(auth, twitterProvider);
     const user = result.user;
     
@@ -149,25 +152,75 @@ export const signInWithTwitter = async () => {
       // Create user profile if it doesn't exist
       await createUserProfile(user.uid, {
         name: user.displayName || 'Twitter User',
-        email: user.email,
-        photoURL: user.photoURL,
+        email: user.email || '',
+        photoURL: user.photoURL || null,
         role: 'user',
+        createdAt: new Date(),
+        updatedAt: new Date()
       });
       
       // Create default user settings
       await createUserSettings(user.uid, {
+        userId: user.uid,
         profile: {
           name: user.displayName || 'Twitter User',
           email: user.email || '',
           avatar: user.photoURL || '',
         },
+        emailNotifications: {
+          meetings: true,
+          documents: true,
+          actionItems: true,
+          projectUpdates: true,
+        },
+        theme: 'dark',
+        language: 'en',
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        dateFormat: 'MM/DD/YYYY',
+        timeFormat: '12h',
+        accessibility: {
+          highContrast: false,
+          largeText: false,
+          reduceMotion: false,
+        },
+        privacy: {
+          shareUsageData: true,
+          allowCookies: true,
+        },
+        documentPreferences: {
+          defaultFormat: 'markdown',
+          showMarkdown: true,
+          autoSaveInterval: 5,
+          defaultTags: [],
+        },
+        integration: {
+          connectedServices: [],
+        }
       });
     }
     
     return { user, error: null };
   } catch (error: any) {
-    console.error("Twitter auth error:", error);
-    return { user: null, error: error.message };
+    console.error('Twitter auth error:', error);
+    
+    // Extract error code and message
+    const errorCode = error.code || 'unknown-error';
+    const errorMessage = error.message || 'An unknown error occurred';
+    
+    // Log detailed error information
+    console.log('Error details:', {
+      code: errorCode,
+      message: errorMessage,
+      credential: error.credential,
+      email: error.email,
+      phoneNumber: error.phoneNumber
+    });
+    
+    return { 
+      user: null, 
+      error: errorCode,
+      details: errorMessage
+    };
   }
 };
 

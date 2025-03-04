@@ -128,7 +128,7 @@ const SupportPage = () => {
               <p className="text-cosmic-grey dark:text-nebula-white mb-4">
                 Our comprehensive documentation covers everything from getting started to advanced usage and API reference.
               </p>
-              <Link href="/landing/documentation" className="inline-block text-electric-indigo font-medium hover:underline">
+              <Link href="/company/documentation" className="inline-block text-electric-indigo font-medium hover:underline">
                 Browse Documentation →
               </Link>
             </div>
@@ -147,7 +147,7 @@ const SupportPage = () => {
               <p className="text-cosmic-grey dark:text-nebula-white mb-4">
                 Find answers to frequently asked questions about CCO, from account management to troubleshooting common issues.
               </p>
-              <Link href="/landing/documentation#faq" className="inline-block text-electric-indigo font-medium hover:underline">
+              <Link href="/company/documentation#faq" className="inline-block text-electric-indigo font-medium hover:underline">
                 View FAQ →
               </Link>
             </div>
@@ -166,7 +166,7 @@ const SupportPage = () => {
               <p className="text-cosmic-grey dark:text-nebula-white mb-4">
                 Join our community of developers to ask questions, share tips, and connect with other CCO users.
               </p>
-              <Link href="/landing/community" className="inline-block text-electric-indigo font-medium hover:underline">
+              <Link href="/community" className="inline-block text-electric-indigo font-medium hover:underline">
                 Join Community →
               </Link>
             </div>
@@ -351,7 +351,7 @@ const SupportPage = () => {
           <p className="mb-6 opacity-90 max-w-2xl mx-auto">
             Check out our comprehensive FAQ section for quick answers to common questions about CCO features, account management, and troubleshooting.
           </p>
-          <Link href="/landing/documentation#faq" className="inline-block bg-white text-electric-indigo px-6 py-3 rounded-md font-medium hover:bg-opacity-90 transition-all">
+          <Link href="/company/documentation#faq" className="inline-block bg-white text-electric-indigo px-6 py-3 rounded-md font-medium hover:bg-opacity-90 transition-all">
             View FAQ
           </Link>
         </div>

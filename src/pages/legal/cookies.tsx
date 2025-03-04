@@ -26,7 +26,7 @@ const CookiesPage = () => {
         <section>
           <h2>Introduction</h2>
           <p>
-            This Cookie Policy explains how Chief Cognitive Officer ("CCO", "we", "us", or "our") uses cookies and similar technologies on our websites, applications, and other online products and services (collectively, the "Services"). This Cookie Policy should be read together with our <Link href="/landing/privacy" className="text-electric-indigo hover:underline">Privacy Policy</Link> and <Link href="/landing/terms" className="text-electric-indigo hover:underline">Terms of Service</Link>.
+            This Cookie Policy explains how Chief Cognitive Officer ("CCO", "we", "us", or "our") uses cookies and similar technologies on our websites, applications, and other online products and services (collectively, the "Services"). This Cookie Policy should be read together with our <Link href="/legal/privacy" className="text-electric-indigo hover:underline">Privacy Policy</Link> and <Link href="/legal/terms" className="text-electric-indigo hover:underline">Terms of Service</Link>.
           </p>
           <p>
             By using our Services, you agree to our use of cookies as described in this Cookie Policy. If you do not accept the use of cookies, please disable them as described below, but note that this may affect your experience on our Services.
@@ -174,13 +174,13 @@ const CookiesPage = () => {
         <div className="mt-12 p-6 bg-white dark:bg-obsidian rounded-lg">
           <h3 className="text-midnight-blue dark:text-cosmic-latte">Additional Resources</h3>
           <div className="flex flex-col md:flex-row gap-4 mt-4">
-            <Link href="/landing/privacy" className="text-electric-indigo hover:underline">
+            <Link href="/legal/privacy" className="text-electric-indigo hover:underline">
               Privacy Policy
             </Link>
-            <Link href="/landing/terms" className="text-electric-indigo hover:underline">
+            <Link href="/legal/terms" className="text-electric-indigo hover:underline">
               Terms of Service
             </Link>
-            <Link href="/landing/contact" className="text-electric-indigo hover:underline">
+            <Link href="/contact" className="text-electric-indigo hover:underline">
               Contact Us
             </Link>
           </div>

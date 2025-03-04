@@ -161,7 +161,7 @@ const CareersPage = () => {
                       </span>
                     </div>
                   </div>
-                  <Link href={`/landing/careers/${job.id}`} className="mt-4 md:mt-0 inline-block bg-gradient-to-r from-electric-indigo to-neon-teal text-white px-6 py-2 rounded-md font-medium hover:opacity-90 transition-all">
+                  <Link href={`/contact/careers/${job.id}`} className="mt-4 md:mt-0 inline-block bg-gradient-to-r from-electric-indigo to-neon-teal text-white px-6 py-2 rounded-md font-medium hover:opacity-90 transition-all">
                     Apply Now
                   </Link>
                 </div>
@@ -215,7 +215,7 @@ const CareersPage = () => {
             <p className="mb-6 opacity-90">
               We're always looking for talented individuals who are passionate about our mission. If you think you'd be a great fit for CCO but don't see a relevant opening, we'd still love to hear from you.
             </p>
-            <Link href="/landing/contact" className="inline-block bg-white text-electric-indigo px-6 py-3 rounded-md font-medium hover:bg-opacity-90 transition-all">
+            <Link href="/contact" className="inline-block bg-white text-electric-indigo px-6 py-3 rounded-md font-medium hover:bg-opacity-90 transition-all">
               Get in Touch
             </Link>
           </div>

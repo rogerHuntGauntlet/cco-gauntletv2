@@ -117,7 +117,7 @@ const BlogPage = () => {
                   {featuredPost.date} · {featuredPost.readTime}
                 </div>
               </div>
-              <Link href={`/landing/blog/${featuredPost.slug}`} className="inline-block bg-gradient-to-r from-electric-indigo to-neon-teal text-white px-6 py-3 rounded-md font-medium hover:opacity-90 transition-all">
+              <Link href={`/company/blog/${featuredPost.slug}`} className="inline-block bg-gradient-to-r from-electric-indigo to-neon-teal text-white px-6 py-3 rounded-md font-medium hover:opacity-90 transition-all">
                 Read Article
               </Link>
             </div>
@@ -156,7 +156,7 @@ const BlogPage = () => {
                     <div className="text-cosmic-grey dark:text-nebula-white text-xs">{post.date} · {post.readTime}</div>
                   </div>
                 </div>
-                <Link href={`/landing/blog/${post.slug}`} className="text-electric-indigo font-medium hover:underline">
+                <Link href={`/company/blog/${post.slug}`} className="text-electric-indigo font-medium hover:underline">
                   Read More →
                 </Link>
               </div>

@@ -161,7 +161,7 @@ const AboutPage = () => {
           <p className="text-white opacity-90">
             We'd love to chat about how CCO can transform your development workflow and preserve your coding flow.
           </p>
-          <a href="/landing/contact" className="inline-block mt-4 bg-white text-electric-indigo px-6 py-3 rounded-md font-medium hover:bg-opacity-90 transition-all">
+          <a href="/contact" className="inline-block mt-4 bg-white text-electric-indigo px-6 py-3 rounded-md font-medium hover:bg-opacity-90 transition-all">
             Contact Us
           </a>
         </div>

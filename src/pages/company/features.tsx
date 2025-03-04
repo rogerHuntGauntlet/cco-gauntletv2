@@ -345,7 +345,7 @@ const FeaturesPage = () => {
           <p className="text-white dark:text-cosmic-latte dark:text-opacity-95 max-w-2xl mx-auto my-4">
             Join the community of vibe coders who are using the CCO Platform to stay in their creative flow state and deliver exceptional work.
           </p>
-          <a href="/landing/pricing" className="inline-block mt-4 bg-white dark:bg-cosmic-latte text-electric-indigo dark:text-electric-indigo px-6 py-3 rounded-md font-medium hover:bg-opacity-90 dark:hover:bg-opacity-90 transition-all">
+          <a href="/contact/pricing" className="inline-block mt-4 bg-white dark:bg-cosmic-latte text-electric-indigo dark:text-electric-indigo px-6 py-3 rounded-md font-medium hover:bg-opacity-90 dark:hover:bg-opacity-90 transition-all">
             Sign Up for CCO
           </a>
         </div>

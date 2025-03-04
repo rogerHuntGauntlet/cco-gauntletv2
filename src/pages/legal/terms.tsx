@@ -132,7 +132,7 @@ const TermsPage = () => {
         <section>
           <h2>7. Privacy</h2>
           <p>
-            Your privacy is important to us. Our <Link href="/landing/privacy" className="text-electric-indigo hover:underline">Privacy Policy</Link> explains how we collect, use, and disclose information about you in connection with your use of the Services. By using the Services, you consent to our collection, use, and disclosure of information as described in our Privacy Policy.
+            Your privacy is important to us. Our <Link href="/legal/privacy" className="text-electric-indigo hover:underline">Privacy Policy</Link> explains how we collect, use, and disclose information about you in connection with your use of the Services. By using the Services, you consent to our collection, use, and disclosure of information as described in our Privacy Policy.
           </p>
         </section>
 
@@ -210,13 +210,13 @@ const TermsPage = () => {
         <div className="mt-12 p-6 bg-white dark:bg-obsidian rounded-lg">
           <h3 className="text-midnight-blue dark:text-cosmic-latte">Additional Resources</h3>
           <div className="flex flex-col md:flex-row gap-4 mt-4">
-            <Link href="/landing/privacy" className="text-electric-indigo hover:underline">
+            <Link href="/legal/privacy" className="text-electric-indigo hover:underline">
               Privacy Policy
             </Link>
-            <Link href="/landing/cookies" className="text-electric-indigo hover:underline">
+            <Link href="/legal/cookies" className="text-electric-indigo hover:underline">
               Cookie Policy
             </Link>
-            <Link href="/landing/contact" className="text-electric-indigo hover:underline">
+            <Link href="/contact" className="text-electric-indigo hover:underline">
               Contact Us
             </Link>
           </div>

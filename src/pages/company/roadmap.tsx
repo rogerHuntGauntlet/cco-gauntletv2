@@ -165,10 +165,10 @@ const RoadmapPage = () => {
           </p>
           
           <div className="mt-6 flex flex-col sm:flex-row gap-4">
-            <a href="/landing/contact" className="bg-gradient-to-r from-electric-indigo to-neon-teal text-white px-6 py-3 rounded-md font-medium hover:opacity-90 transition-all text-center">
+            <a href="/contact" className="bg-gradient-to-r from-electric-indigo to-neon-teal text-white px-6 py-3 rounded-md font-medium hover:opacity-90 transition-all text-center">
               Request a Feature
             </a>
-            <a href="/landing/community" className="bg-white dark:bg-obsidian border border-electric-indigo text-electric-indigo px-6 py-3 rounded-md font-medium hover:bg-electric-indigo hover:text-white transition-all text-center">
+            <a href="/community" className="bg-white dark:bg-obsidian border border-electric-indigo text-electric-indigo px-6 py-3 rounded-md font-medium hover:bg-electric-indigo hover:text-white transition-all text-center">
               Join Our Community
             </a>
           </div>

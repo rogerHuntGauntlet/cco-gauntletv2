@@ -119,7 +119,7 @@ const PricingPage = () => {
             </div>
             
             <p className="text-center text-cosmic-grey dark:text-stardust text-sm mt-6">
-              Need a custom solution? <a href="/landing/contact" className="text-electric-indigo hover:underline">Contact our sales team</a>
+              Need a custom solution? <a href="/contact" className="text-electric-indigo hover:underline">Contact our sales team</a>
             </p>
           </div>
         </div>
@@ -172,7 +172,7 @@ const PricingPage = () => {
             <a href="#" className="inline-block bg-white dark:bg-cosmic-latte text-electric-indigo hover:bg-opacity-90 dark:hover:bg-opacity-90 px-6 py-3 rounded-md font-medium transition-all text-center">
               Get Started Now
             </a>
-            <a href="/landing/contact" className="inline-block border border-white dark:border-cosmic-latte text-white dark:text-cosmic-latte hover:bg-cosmic-indigo-light/30 px-6 py-3 rounded-md font-medium transition-all text-center">
+            <a href="/contact" className="inline-block border border-white dark:border-cosmic-latte text-white dark:text-cosmic-latte hover:bg-cosmic-indigo-light/30 px-6 py-3 rounded-md font-medium transition-all">
               Schedule a Demo
             </a>
           </div>

@@ -13,7 +13,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   useEffect(() => {
     // If not loading and no user is logged in, redirect to landing page
     if (!loading && !currentUser) {
-      router.push('/landing');
+      router.push('/');
     }
   }, [currentUser, loading, router]);
 

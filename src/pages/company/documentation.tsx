@@ -283,7 +283,7 @@ const DocumentationPage = () => {
                 <h3 className="text-sm font-medium text-midnight-blue dark:text-cosmic-latte uppercase tracking-wider mb-3">Resources</h3>
                 <ul className="space-y-2">
                   <li>
-                    <a href="/landing/community" className="text-cosmic-grey dark:text-nebula-white hover:text-electric-indigo dark:hover:text-electric-indigo text-sm flex items-center">
+                    <a href="/community" className="text-cosmic-grey dark:text-nebula-white hover:text-electric-indigo dark:hover:text-electric-indigo text-sm flex items-center">
                       <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                       </svg>
@@ -299,7 +299,7 @@ const DocumentationPage = () => {
                     </a>
                   </li>
                   <li>
-                    <a href="/landing/changelog" className="text-cosmic-grey dark:text-nebula-white hover:text-electric-indigo dark:hover:text-electric-indigo text-sm flex items-center">
+                    <a href="/company/changelog" className="text-cosmic-grey dark:text-nebula-white hover:text-electric-indigo dark:hover:text-electric-indigo text-sm flex items-center">
                       <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
@@ -307,7 +307,7 @@ const DocumentationPage = () => {
                     </a>
                   </li>
                   <li>
-                    <a href="/landing/support" className="text-cosmic-grey dark:text-nebula-white hover:text-electric-indigo dark:hover:text-electric-indigo text-sm flex items-center">
+                    <a href="/contact/support" className="text-cosmic-grey dark:text-nebula-white hover:text-electric-indigo dark:hover:text-electric-indigo text-sm flex items-center">
                       <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
                       </svg>
@@ -359,7 +359,7 @@ const DocumentationPage = () => {
                   </button>
                 </div>
                 <p className="mt-4 text-sm text-cosmic-grey dark:text-stardust">
-                  Have suggestions for improving this documentation? <a href="/landing/contact" className="text-electric-indigo hover:underline">Let us know</a>.
+                  Have suggestions for improving this documentation? <a href="/contact" className="text-electric-indigo hover:underline">Let us know</a>.
                 </p>
               </div>
             </div>
@@ -374,10 +374,10 @@ const DocumentationPage = () => {
               Our support team is ready to assist you with any questions or issues you may have about using CCO.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link href="/landing/support" className="bg-white text-electric-indigo px-6 py-3 rounded-md font-medium hover:bg-opacity-90 transition-all">
+              <Link href="/contact/support" className="bg-white text-electric-indigo px-6 py-3 rounded-md font-medium hover:bg-opacity-90 transition-all">
                 Contact Support
               </Link>
-              <Link href="/landing/community" className="bg-transparent border border-white text-white px-6 py-3 rounded-md font-medium hover:bg-white hover:bg-opacity-10 transition-all">
+              <Link href="/community" className="bg-transparent border border-white text-white px-6 py-3 rounded-md font-medium hover:bg-white hover:bg-opacity-10 transition-all">
                 Join Community
               </Link>
             </div>
