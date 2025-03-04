@@ -195,7 +195,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         console.error('Error signing out:', error);
         alert('Failed to sign out. Please try again.');
       } else {
-        router.push('/landing/signin');
+        router.push('/auth/signin');
       }
     } catch (err) {
       console.error('Error signing out:', err);

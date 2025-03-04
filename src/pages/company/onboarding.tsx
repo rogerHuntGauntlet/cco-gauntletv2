@@ -55,10 +55,10 @@ const OnboardingInnerContent: FC = () => {
       if (parsedUserData.isAuthenticated) {
         setUserData(parsedUserData);
       } else {
-        router.push('/landing/signin');
+        router.push('/auth/signin');
       }
     } else {
-      router.push('/landing/signin');
+      router.push('/auth/signin');
     }
   }, [router]);
 

@@ -46,7 +46,7 @@ export default function SecondBrainsPage() {
           
           <div className="flex items-center space-x-6">
             <Link 
-              href="/landing/signin" 
+              href="/auth/signin" 
               className="bg-gradient-to-r from-electric-indigo to-neon-teal text-white px-6 py-2 rounded-md font-medium hover:from-electric-indigo/90 hover:to-neon-teal/90 transition-all"
             >
               Build Your Chief Cognitive Officer
@@ -99,7 +99,7 @@ export default function SecondBrainsPage() {
               Contact us to learn how to become an MVP client and unlock the full potential of CCO.
             </p>
             <Link 
-              href="/landing/signin" 
+              href="/auth/signin" 
               className="inline-block bg-white text-electric-indigo px-6 py-3 rounded-md font-medium hover:bg-opacity-90 transition-all"
             >
               Learn More

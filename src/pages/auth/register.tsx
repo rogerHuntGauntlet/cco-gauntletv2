@@ -506,7 +506,7 @@ const RegisterPage: FC = () => {
                 <p className="text-cosmic-grey dark:text-stardust">
                   Already have an account?{' '}
                   <Link
-                    href="/landing/signin"
+                    href="/auth/signin"
                     className="text-electric-indigo hover:underline"
                   >
                     Sign in

@@ -410,7 +410,7 @@ const SignInPage: FC = () => {
                 <p className="text-cosmic-grey dark:text-stardust">
                   Don't have an account?{' '}
                   <Link
-                    href="/landing/register"
+                    href="/auth/register"
                     className="text-electric-indigo hover:underline"
                   >
                     Create an account

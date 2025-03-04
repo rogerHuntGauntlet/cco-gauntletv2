@@ -179,7 +179,7 @@ const RoadmapPage = () => {
           <p className="text-white opacity-90">
             Start using CCO today and be part of our journey to transform developer workflows.
           </p>
-          <a href="/landing/register" className="inline-block mt-4 bg-white text-electric-indigo px-6 py-3 rounded-md font-medium hover:bg-opacity-90 transition-all">
+          <a href="/auth/register" className="inline-block mt-4 bg-white text-electric-indigo px-6 py-3 rounded-md font-medium hover:bg-opacity-90 transition-all">
             Sign Up for Free
           </a>
         </div>
