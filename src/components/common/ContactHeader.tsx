@@ -78,7 +78,7 @@ export const ContactHeader: React.FC<ContactHeaderProps> = ({ className = '' }) 
 
             {/* Sign in/Register Button */}
             <Link
-              href="/auth"
+              href="/auth/signin"
               className="inline-flex items-center px-6 py-2 border border-electric-indigo text-sm font-medium rounded-md shadow-sm text-electric-indigo hover:bg-electric-indigo hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-electric-indigo transition-colors duration-200"
             >
               Sign in / Register
