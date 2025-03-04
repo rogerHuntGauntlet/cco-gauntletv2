@@ -1,7 +1,7 @@
 import React from 'react';
 import type { FC } from 'react';
 import Link from 'next/link';
-import RoundedIcon from '../../../components/ui/RoundedIcon';
+import RoundedIcon from '../../components/ui/RoundedIcon';
 
 const Footer: FC = () => {
   return (

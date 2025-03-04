@@ -1,5 +1,5 @@
 import React from 'react';
-import PageTemplate from './page-template';
+import PageTemplate from '../company/page-template';
 import Link from 'next/link';
 
 const CookiesPage = () => {

@@ -3,7 +3,7 @@ import type { FC } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
-import ProtectedRoute from '../../components/ProtectedRoute';
+import ProtectedRoute from '../../components/common/ProtectedRoute';
 import { useAuth } from '../../contexts/AuthContext';
 
 // Import components
@@ -16,7 +16,7 @@ import {
   VoiceInteractionStep,
   DataSource,
   Preferences
-} from './components';
+} from '../components';
 
 const OnboardingInnerContent: FC = () => {
   const router = useRouter();

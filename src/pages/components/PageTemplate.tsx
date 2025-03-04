@@ -2,7 +2,7 @@ import React from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import Footer from './Footer';
-import RoundedIcon from '../../../components/ui/RoundedIcon';
+import RoundedIcon from '../../components/ui/RoundedIcon';
 
 interface PageTemplateProps {
   title: string;

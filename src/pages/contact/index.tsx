@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import PageTemplate from './components/PageTemplate';
+import PageTemplate from '../components/PageTemplate';
 
 // Contact page component
 // Added for landing-page-updates branch to create PR
