@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { SecondBrainInterview } from '../../features/secondbrain/SecondBrainInterview';
+import { SecondBrainInterview } from '../../features/secondbrain';
 import { SecondBrain } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
