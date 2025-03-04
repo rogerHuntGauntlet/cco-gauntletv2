@@ -552,22 +552,12 @@ export default function MyCOOPage() {
       
       <DashboardLayout>
         <div className="space-y-4">
-            <motion.div 
-              className="bg-white rounded-xl p-4 shadow"
-              initial={{ y: -20 }}
-              animate={{ y: 0 }}
-            >
-             
-              <p className="mt-2 text-gray-600 leading-relaxed">
-                Connect and manage your external data sources here. Your Chief Cognitive Officer can analyze and chat with documents from Google Drive, Dropbox, and other connected services, helping you extract insights and information efficiently.
-              </p>
-            </motion.div>
-
+         
           {/* Main content area with flex layout */}
           <div className="flex gap-4">
             {/* Knowledge Graph (Middle) */}
-            <div className="flex-1 bg-white rounded-xl p-6 shadow-sm border border-gray-50">
-              <div className="flex items-center justify-between mb-4">
+            <div className="flex-1 bg-white rounded-xl overflow-hidden shadow-sm border border-gray-50">
+              <div className="flex items-center justify-between p-4 bg-white border-b border-gray-100">
                 <h2 className="text-lg font-semibold text-gray-900">Knowledge Graph</h2>
                 <div className="flex space-x-2">
                   <button className="text-sm text-gray-600 flex items-center px-3 py-1.5 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
@@ -581,7 +571,7 @@ export default function MyCOOPage() {
                 </div>
               </div>
               
-              <div className="h-[calc(100vh-350px)] bg-gray-50 rounded-lg p-2 border border-gray-100 overflow-hidden">
+              <div className="h-[calc(100vh-350px)] overflow-hidden">
                 {/* Replace the old NodeMap with our new CCONodeMap */}
                 <CCONodeMap 
                   connectedServices={connectedServices}
@@ -589,7 +579,7 @@ export default function MyCOOPage() {
                   showOnlyLogos={true}
                 />
               </div>
-              <p className="text-xs text-gray-500 mt-3 italic">
+              <p className="text-xs text-gray-500 p-3 bg-white border-t border-gray-100 italic">
                 This visualization shows how your data sources are connected. Click on any node to explore its contents.
               </p>
             </div>

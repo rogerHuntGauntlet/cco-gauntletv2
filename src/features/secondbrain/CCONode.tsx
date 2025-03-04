@@ -22,34 +22,34 @@ const nodeStyles: Record<NodeType, {
   iconColor: string;
 }> = {
   cco: { 
-    background: 'linear-gradient(135deg, #1a1a1a, #333333)', 
-    borderColor: '#4d4d4d',
+    background: 'transparent', 
+    borderColor: 'rgba(255, 255, 255, 0.2)',
     textColor: '#ffffff',
     iconColor: '#ffffff'
   },
   data: { 
-    background: 'linear-gradient(135deg, #2563eb, #3b82f6)', 
+    background: 'rgba(255, 255, 255, 0.9)', 
     borderColor: '#60a5fa',
-    textColor: '#ffffff',
-    iconColor: '#ffffff'
+    textColor: '#1a1a1a',
+    iconColor: '#1a1a1a'
   },
   analytics: { 
-    background: 'linear-gradient(135deg, #059669, #10b981)', 
+    background: 'rgba(255, 255, 255, 0.9)', 
     borderColor: '#34d399',
-    textColor: '#ffffff',
-    iconColor: '#ffffff'
+    textColor: '#1a1a1a',
+    iconColor: '#1a1a1a'
   },
   ai: { 
-    background: 'linear-gradient(135deg, #7c3aed, #8b5cf6)', 
+    background: 'rgba(255, 255, 255, 0.9)', 
     borderColor: '#a78bfa',
-    textColor: '#ffffff',
-    iconColor: '#ffffff'
+    textColor: '#1a1a1a',
+    iconColor: '#1a1a1a'
   },
   integration: { 
-    background: 'linear-gradient(135deg, #db2777, #ec4899)', 
+    background: 'rgba(255, 255, 255, 0.9)', 
     borderColor: '#f472b6',
-    textColor: '#ffffff',
-    iconColor: '#ffffff'
+    textColor: '#1a1a1a',
+    iconColor: '#1a1a1a'
   }
 };
 
@@ -65,17 +65,17 @@ const CCONode = ({ data, selected }: CCONodeProps) => {
   
   // Determine node appearance based on type
   const isCCO = type === 'cco';
-  const nodeSize = isCCO ? 'w-36 h-36' : 'w-28 h-28';
+  const nodeSize = isCCO ? 'w-40 h-40' : 'w-28 h-28';
   
   return (
     <div
-      className={`${nodeSize} rounded-full flex flex-col items-center justify-center shadow-lg transition-all duration-300 ${
+      className={`${nodeSize} rounded-full flex flex-col items-center justify-center transition-all duration-300 ${
         selected ? 'ring-4 ring-white ring-opacity-60' : ''
       }`}
       style={{ 
         background: styles.background,
-        border: `2px solid ${styles.borderColor}`,
-        filter: 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3))'
+        border: isCCO ? 'none' : `2px solid ${styles.borderColor}`,
+        filter: isCCO ? 'none' : 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2))'
       }}
     >
       {/* Handles */}
@@ -84,22 +84,22 @@ const CCONode = ({ data, selected }: CCONodeProps) => {
           <Handle 
             type="target" 
             position={Position.Top} 
-            className="!bg-white !w-3 !h-3 !border-2" 
+            className="!bg-white !w-3 !h-3 !border-2 !opacity-70" 
           />
           <Handle 
             type="target" 
             position={Position.Right} 
-            className="!bg-white !w-3 !h-3 !border-2" 
+            className="!bg-white !w-3 !h-3 !border-2 !opacity-70" 
           />
           <Handle 
             type="target" 
             position={Position.Bottom} 
-            className="!bg-white !w-3 !h-3 !border-2" 
+            className="!bg-white !w-3 !h-3 !border-2 !opacity-70" 
           />
           <Handle 
             type="target" 
             position={Position.Left} 
-            className="!bg-white !w-3 !h-3 !border-2" 
+            className="!bg-white !w-3 !h-3 !border-2 !opacity-70" 
           />
         </>
       ) : (
@@ -112,12 +112,12 @@ const CCONode = ({ data, selected }: CCONodeProps) => {
       
       {/* Icon */}
       <div 
-        className={`${isCCO ? 'w-16 h-16' : 'w-12 h-12'} flex items-center justify-center ${!showOnlyLogos ? 'mb-2' : ''}`}
-        style={{ color: styles.iconColor }}
+        className={`${isCCO ? 'w-24 h-24' : 'w-16 h-16'} flex items-center justify-center ${!showOnlyLogos ? 'mb-2' : ''}`}
       >
         {React.isValidElement(icon) ? 
           React.cloneElement(icon as React.ReactElement, { 
-            className: `${isCCO ? 'w-12 h-12' : 'w-8 h-8'} ${(icon as React.ReactElement).props.className || ''}` 
+            className: `${(icon as React.ReactElement).props.className || ''}`,
+            size: isCCO ? 'lg' : 'md'
           }) : 
           <CogIcon className="w-8 h-8" />
         }
@@ -125,7 +125,7 @@ const CCONode = ({ data, selected }: CCONodeProps) => {
       
       {/* Label - only show if showOnlyLogos is false */}
       {!showOnlyLogos && (
-        <div className="flex flex-col items-center text-center px-2">
+        <div className="flex flex-col items-center text-center px-2 mt-2">
           <span 
             className={`${isCCO ? 'text-lg font-bold' : 'text-sm font-medium'} leading-tight`}
             style={{ color: styles.textColor }}

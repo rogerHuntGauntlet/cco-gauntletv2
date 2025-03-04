@@ -18,10 +18,10 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import { CogIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon } from '@heroicons/react/24/outline';
 import CCONode, { CCONodeData, NodeType } from './CCONode';
 import AnimatedEdge, { AnimatedEdgeData } from './AnimatedEdge';
-import BrainCardLogo from './BrainCardLogo';
+import BrainCardLogo from '../../components/ui/BrainCardLogo';
 
 // Define node types for React Flow
 const nodeTypes = {
@@ -38,7 +38,7 @@ const getNodeColor = (node: Node) => {
   const data = node.data as unknown as CCONodeData;
   switch (data.type) {
     case 'cco':
-      return '#1a1a1a';
+      return 'rgba(26, 26, 26, 0.7)';
     case 'data':
       return '#3B82F6';
     case 'analytics':
@@ -52,14 +52,16 @@ const getNodeColor = (node: Node) => {
   }
 };
 
-// Service icon mapping - using our new logo for all services
+// Service icon mapping with BrainCardLogo as fallback
 const serviceIcons: Record<string, React.ReactNode> = {
-  'google-drive': <BrainCardLogo size="lg" />,
-  'dropbox': <BrainCardLogo size="lg" />,
-  'templates': <BrainCardLogo size="lg" />,
-  'notion': <BrainCardLogo size="lg" />,
-  'salesforce': <BrainCardLogo size="lg" />,
-  'onedrive': <BrainCardLogo size="lg" />,
+  'google-drive': <div className="bg-blue-500 rounded-lg p-1 w-full h-full"><BrainCardLogo size="md" /></div>,
+  'dropbox': <div className="bg-indigo-500 rounded-lg p-1 w-full h-full"><BrainCardLogo size="md" /></div>,
+  'templates': <div className="bg-purple-500 rounded-lg p-1 w-full h-full"><BrainCardLogo size="md" /></div>,
+  'notion': <div className="bg-gray-800 rounded-lg p-1 w-full h-full"><BrainCardLogo size="md" /></div>,
+  'salesforce': <div className="bg-blue-600 rounded-lg p-1 w-full h-full"><BrainCardLogo size="md" /></div>,
+  'onedrive': <div className="bg-blue-700 rounded-lg p-1 w-full h-full"><BrainCardLogo size="md" /></div>,
+  // Fallback to BrainCardLogo if no specific icon is available
+  'default': <div className="bg-gray-600 rounded-lg p-1 w-full h-full"><BrainCardLogo size="md" /></div>
 };
 
 // Main component
@@ -83,7 +85,7 @@ const CCONodeMap: React.FC<{
       data: {
         type: 'cco' as NodeType,
         label: 'Chief Cognitive Officer',
-        icon: <CogIcon />,
+        icon: <BrainCardLogo size="lg" />,
         showOnlyLogos: showOnlyLogos
       },
     };
@@ -102,7 +104,7 @@ const CCONodeMap: React.FC<{
         data: {
           type: 'data' as NodeType,
           label: service.name,
-          icon: serviceIcons[service.id] || <BrainCardLogo size="lg" />,
+          icon: serviceIcons[service.id] || serviceIcons['default'],
           showOnlyLogos: showOnlyLogos
         },
       };
@@ -168,7 +170,7 @@ const CCONodeMap: React.FC<{
   );
 
   return (
-    <div className="w-full h-full bg-white">
+    <div className="w-full h-full bg-gradient-to-br from-slate-900 to-slate-800">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -186,13 +188,13 @@ const CCONodeMap: React.FC<{
         fitView
         fitViewOptions={{ padding: 0.2 }}
         defaultEdgeOptions={{ type: 'animated' }}
-        className="bg-slate-50"
+        className="bg-slate-900"
       >
         <Background 
           variant={BackgroundVariant.Dots} 
           gap={20} 
           size={1} 
-          color="#e2e8f0" 
+          color="rgba(255, 255, 255, 0.05)" 
         />
         <Controls 
           position="bottom-right" 
@@ -201,15 +203,15 @@ const CCONodeMap: React.FC<{
         />
         <MiniMap 
           nodeColor={getNodeColor}
-          maskColor="rgba(226, 232, 240, 0.3)"
+          maskColor="rgba(15, 23, 42, 0.7)"
           className="shadow-lg rounded-lg overflow-hidden"
           position="top-right"
           pannable
           zoomable
         />
-        <Panel position="top-right" className="p-2 bg-white shadow-md rounded-lg mr-14 mt-2">
-          <div className="flex items-center text-xs text-gray-500">
-            <SparklesIcon className="w-4 h-4 mr-1 text-indigo-500" />
+        <Panel position="top-right" className="p-2 bg-white/10 backdrop-blur-sm shadow-md rounded-lg mr-14 mt-2">
+          <div className="flex items-center text-xs text-white/70">
+            <SparklesIcon className="w-4 h-4 mr-1 text-cyan-400" />
             <span>Drag nodes to reposition connections</span>
           </div>
         </Panel>

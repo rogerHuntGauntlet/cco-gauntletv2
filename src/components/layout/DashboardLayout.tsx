@@ -266,27 +266,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
           {/* User section */}
           <div className="p-4 border-t border-cco-neutral-200">
-            <div className="flex items-center space-x-3 p-2">
-              <div className="flex-shrink-0">
-                <img
-                  className="w-10 h-10 rounded-full"
-                  src="https://i.pravatar.cc/150?img=68"
-                  alt="User avatar"
-                />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-cco-neutral-900">
-                  {currentUser?.displayName || 'User'}
-                </p>
-                <p className="text-xs text-cco-neutral-700">
-                  {currentUser?.email || 'user@example.com'}
-                </p>
-              </div>
-            </div>
             <button 
               onClick={handleSignOut}
               disabled={isSigningOut}
-              className="mt-3 flex items-center w-full px-4 py-2 text-sm text-cco-neutral-700 rounded-md hover:bg-cco-neutral-100 transition-colors"
+              className="flex items-center w-full px-4 py-2 text-sm text-cco-neutral-700 rounded-md hover:bg-cco-neutral-100 transition-colors"
             >
               <ArrowRightOnRectangleIcon className="w-5 h-5 mr-3 text-cco-neutral-700" />
               {isSigningOut ? 'Signing out...' : 'Sign out'}
