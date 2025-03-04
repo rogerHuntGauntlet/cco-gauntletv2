@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { SecondBrain } from '../../types';
 import { SecondBrainCard } from './SecondBrainCard';
 import { MagnifyingGlassIcon, AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline';
-import { LoadingSpinner } from '../ui/LoadingSpinner';
+import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 
 interface SecondBrainListProps {
   secondBrains: SecondBrain[];

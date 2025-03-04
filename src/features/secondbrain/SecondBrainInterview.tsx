@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SecondBrain, SecondBrainMessage } from '../../types';
-import { Button } from '../ui/Button';
-import { Modal } from '../ui/Modal';
+import { Button } from '../../components/ui/Button';
+import { Modal } from '../../components/ui/Modal';
 import { 
   PaperAirplaneIcon, 
   MicrophoneIcon, 

@@ -8,6 +8,7 @@ import {
 import { Notification } from '../../types';
 import { NotificationItem } from './NotificationItem';
 import { Button } from '../ui/Button';
+import { format } from 'date-fns';
 
 interface NotificationsListProps {
   notifications: Notification[];
