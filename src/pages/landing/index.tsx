@@ -76,9 +76,9 @@ const LandingPage: FC = () => {
     return (
       <div className="bg-white dark:bg-midnight-blue min-h-screen flex flex-col items-center justify-center p-6">
         <Head>
-          <title>CCO - Your AI-Powered Cognitive Officer</title>
+          <title>CCO - Hire an Cognitive Officer</title>
           <meta name="description" content="Eliminate administrative overhead and stay in your coding flow. Let CCO handle your meetings, documentation, and project kickoffs." />
-          <link rel="icon" href="/assets/icons/favicon.png" />
+          <link rel="icon" href="/branding/favicons/favicon-32x32.png" />
           <link 
             href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" 
             rel="stylesheet"
@@ -90,16 +90,20 @@ const LandingPage: FC = () => {
         </Head>
         
         <div className="w-20 h-20 bg-gradient-to-br from-electric-indigo to-neon-teal rounded-xl flex items-center justify-center text-white font-bold text-2xl mb-6">
-          CCO
+          <img 
+            src="/branding/ui/logo-marketing.png"
+            alt="CCO Logo"
+            className="w-16 h-16 object-contain"
+          />
         </div>
         <h1 className="text-4xl font-bold mb-4 text-midnight-blue dark:text-nebula-white text-center">
           Welcome to CCO VibeCoder
         </h1>
         <p className="text-lg text-cosmic-grey dark:text-digital-lavender mb-10 max-w-md text-center">
-          Your AI-powered assistant for software development and creative collaboration.
+          An assistant for software development and creative collaboration.
         </p>
         <Link href="/secondbrains" className="px-8 py-4 bg-electric-indigo text-white rounded-lg font-medium text-lg shadow-lg hover:bg-opacity-90 transition-colors">
-          Go to Second Brains
+          Go to the CCO Marketplace
         </Link>
       </div>
     );
@@ -109,9 +113,9 @@ const LandingPage: FC = () => {
   return (
     <div className="bg-white dark:bg-midnight-blue min-h-screen text-midnight-blue dark:text-nebula-white transition-colors duration-300">
       <Head>
-        <title>CCO - Your AI-Powered Cognitive Officer</title>
+        <title>CCO - Hire an Cognitive Officer</title>
         <meta name="description" content="Eliminate administrative overhead and stay in your coding flow. Let CCO handle your meetings, documentation, and project kickoffs." />
-        <link rel="icon" href="/assets/icons/favicon.png" />
+        <link rel="icon" href="/branding/favicons/favicon-32x32.png" />
         {/* Import Inter font */}
         <link 
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" 

@@ -7,7 +7,7 @@ const BlogPage = () => {
   const blogPosts = [
     {
       id: 1,
-      title: 'Introducing CCO: Your AI-Powered Cognitive Officer',
+      title: 'Introducing CCO: Hire an Cognitive Officer',
       slug: 'introducing-cco',
       excerpt: 'Learn how CCO is revolutionizing the way developers handle meetings, documentation, and project kickoffs.',
       date: 'April 15, 2025',

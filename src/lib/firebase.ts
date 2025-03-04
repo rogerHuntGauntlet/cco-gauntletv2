@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs
 import { initializeApp, getApps } from "firebase/app";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GithubAuthProvider, GoogleAuthProvider, TwitterAuthProvider, signInWithPopup } from "firebase/auth";
 import { getFirestore, collection, doc, setDoc, getDoc, updateDoc, query, where, getDocs, deleteDoc, writeBatch } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { UserSettings } from "../types";
@@ -28,6 +28,9 @@ if (!getApps().length) {
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
+const githubProvider = new GithubAuthProvider();
+const googleProvider = new GoogleAuthProvider();
+const twitterProvider = new TwitterAuthProvider();
 
 // Auth functions
 export const signIn = async (email: string, password: string) => {
@@ -63,6 +66,108 @@ export const logOut = async () => {
     return { error: null };
   } catch (error: any) {
     return { error: error.message };
+  }
+};
+
+export const signInWithGithub = async () => {
+  try {
+    const result = await signInWithPopup(auth, githubProvider);
+    const user = result.user;
+    
+    // Check if user profile exists
+    const { data: profile } = await getUserProfile(user.uid);
+    
+    if (!profile) {
+      // Create user profile if it doesn't exist
+      await createUserProfile(user.uid, {
+        name: user.displayName || 'GitHub User',
+        email: user.email,
+        photoURL: user.photoURL,
+        role: 'user',
+      });
+      
+      // Create default user settings
+      await createUserSettings(user.uid, {
+        profile: {
+          name: user.displayName || 'GitHub User',
+          email: user.email || '',
+          avatar: user.photoURL || '',
+        },
+      });
+    }
+    
+    return { user, error: null };
+  } catch (error: any) {
+    console.error("GitHub auth error:", error);
+    return { user: null, error: error.message };
+  }
+};
+
+export const signInWithGoogle = async () => {
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    const user = result.user;
+    
+    // Check if user profile exists
+    const { data: profile } = await getUserProfile(user.uid);
+    
+    if (!profile) {
+      // Create user profile if it doesn't exist
+      await createUserProfile(user.uid, {
+        name: user.displayName || 'Google User',
+        email: user.email,
+        photoURL: user.photoURL,
+        role: 'user',
+      });
+      
+      // Create default user settings
+      await createUserSettings(user.uid, {
+        profile: {
+          name: user.displayName || 'Google User',
+          email: user.email || '',
+          avatar: user.photoURL || '',
+        },
+      });
+    }
+    
+    return { user, error: null };
+  } catch (error: any) {
+    console.error("Google auth error:", error);
+    return { user: null, error: error.message };
+  }
+};
+
+export const signInWithTwitter = async () => {
+  try {
+    const result = await signInWithPopup(auth, twitterProvider);
+    const user = result.user;
+    
+    // Check if user profile exists
+    const { data: profile } = await getUserProfile(user.uid);
+    
+    if (!profile) {
+      // Create user profile if it doesn't exist
+      await createUserProfile(user.uid, {
+        name: user.displayName || 'Twitter User',
+        email: user.email,
+        photoURL: user.photoURL,
+        role: 'user',
+      });
+      
+      // Create default user settings
+      await createUserSettings(user.uid, {
+        profile: {
+          name: user.displayName || 'Twitter User',
+          email: user.email || '',
+          avatar: user.photoURL || '',
+        },
+      });
+    }
+    
+    return { user, error: null };
+  } catch (error: any) {
+    console.error("Twitter auth error:", error);
+    return { user: null, error: error.message };
   }
 };
 

@@ -11,16 +11,16 @@ const BrainCardLogo: React.FC<BrainCardLogoProps> = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   
-  // Size mappings
+  // Size mappings with corresponding logo files
   const sizeClasses = {
-    sm: 'w-6 h-6',
-    md: 'w-10 h-10',
-    lg: 'w-16 h-16'
+    sm: { class: 'w-6 h-6', logo: '/branding/ui/logo-nav-small.png' },
+    md: { class: 'w-10 h-10', logo: '/branding/ui/logo-nav.png' },
+    lg: { class: 'w-16 h-16', logo: '/branding/ui/logo-marketing.png' }
   };
 
   return (
     <div 
-      className={`relative flex items-center justify-center bg-slate-800 rounded-lg overflow-hidden ${sizeClasses[size]} ${className} transform ${isHovered ? 'scale-110' : ''}`}
+      className={`relative flex items-center justify-center bg-slate-800 rounded-lg overflow-hidden ${sizeClasses[size].class} ${className} transform ${isHovered ? 'scale-110' : ''}`}
       style={{ 
         boxShadow: isHovered 
           ? '0 0 18px rgba(0, 255, 255, 0.7), 0 0 6px rgba(0, 200, 255, 0.9) inset' 
@@ -33,8 +33,8 @@ const BrainCardLogo: React.FC<BrainCardLogoProps> = ({
     >
       <div className={`absolute inset-0 bg-gradient-to-br ${isHovered ? 'from-cyan-400/40 to-blue-500/40' : 'from-cyan-500/30 to-blue-600/30'}`} />
       <img 
-        src="/assets/icons/brain-card-rounded.png"
-        alt="CCO Brain Card Logo" 
+        src={sizeClasses[size].logo}
+        alt="CCO Logo" 
         className="w-full h-full object-contain p-1 z-10"
         style={{ 
           filter: isHovered 

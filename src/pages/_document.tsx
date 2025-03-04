@@ -8,12 +8,18 @@ class MyDocument extends Document {
           <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
           <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jetbrains-mono@1.0.6/css/jetbrains-mono.min.css" />
           
-          {/* Favicon */}
-          <link rel="icon" href="/assets/icons/favicon.png" />
-          <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/brain-card-32.png" />
-          <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/brain-card-16.png" />
-          <link rel="icon" type="image/png" sizes="48x48" href="/assets/icons/brain-card-48.png" />
-          <link rel="icon" type="image/png" sizes="512x512" href="/assets/icons/brain-card-optimized.png" />
+          {/* Favicons */}
+          <link rel="icon" type="image/png" sizes="16x16" href="/branding/favicons/favicon-16x16.png" />
+          <link rel="icon" type="image/png" sizes="32x32" href="/branding/favicons/favicon-32x32.png" />
+          <link rel="icon" type="image/png" sizes="48x48" href="/branding/favicons/favicon-48x48.png" />
+          <link rel="apple-touch-icon" sizes="180x180" href="/branding/favicons/apple-touch-icon.png" />
+          <link rel="icon" type="image/png" sizes="192x192" href="/branding/favicons/android-chrome-192x192.png" />
+          <link rel="icon" type="image/png" sizes="512x512" href="/branding/favicons/android-chrome-512x512.png" />
+          
+          {/* Open Graph */}
+          <meta property="og:image" content="/branding/social/logo-og-image.png" />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
         </Head>
         <body>
           {/* Script to prevent flash of wrong theme */}

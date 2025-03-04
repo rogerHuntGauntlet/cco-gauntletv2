@@ -10,7 +10,7 @@ const HeroSection: FC = () => {
           {/* Text content - optimized for mobile first */}
           <div className="w-full lg:w-1/2 text-center lg:text-left">
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold text-midnight-blue dark:text-cosmic-latte mb-4 sm:mb-6 leading-tight">
-              Your AI-Powered <span className="text-electric-indigo">Cognitive Officer</span>
+              Hire an <span className="text-electric-indigo">Cognitive Officer</span>
             </h1>
             <p className="text-lg sm:text-xl text-cosmic-grey dark:text-nebula-white mb-6 sm:mb-8 max-w-lg mx-auto lg:mx-0">
               Eliminate administrative overhead and stay in your coding flow. Let CCO handle your meetings, documentation, and project kickoffs.
