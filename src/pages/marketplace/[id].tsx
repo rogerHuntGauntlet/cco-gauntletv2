@@ -77,7 +77,7 @@ export default function SecondBrainDetailPage() {
   };
   
   const handleClose = () => {
-    router.push('/dashboard/marketplace');
+    router.push('//marketplace');
   };
   
   // Loading state with proper CCO aesthetic
@@ -114,7 +114,7 @@ export default function SecondBrainDetailPage() {
             
             <p className="text-stardust mb-8">{error || 'Chief Cognitive Officer not found in the neural network'}</p>
             
-            <Link href="/dashboard/marketplace" className="inline-block">
+            <Link href="//marketplace" className="inline-block">
               <button className="h-10 px-5 rounded-md bg-electric-indigo hover:bg-electric-indigo/90 text-nebula-white transition-all duration-200 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-electric-indigo/50">
                 <ChevronLeftIcon className="w-5 h-5" />
                 <span>Return to CCO Directory</span>
@@ -133,7 +133,7 @@ export default function SecondBrainDetailPage() {
       {/* Top nav bar */}
       <header className="h-16 border-b border-stardust/20 bg-obsidian px-4 sm:px-6 lg:px-8">
         <div className="h-full max-w-screen-2xl mx-auto flex items-center justify-between">
-          <Link href="/dashboard/marketplace">
+          <Link href="//marketplace">
             <button className="h-10 px-4 flex items-center gap-2 text-nebula-white hover:text-neon-teal focus:outline-none focus:text-neon-teal transition-colors duration-200">
               <ChevronLeftIcon className="w-5 h-5" />
               <span className="font-medium">Back to CCO Directory</span>

@@ -14,7 +14,8 @@ import {
   XMarkIcon,
   CircleStackIcon,
   SparklesIcon,
-  GiftIcon
+  GiftIcon,
+  ShoppingBagIcon
 } from '@heroicons/react/24/outline';
 import VibeChatPanel from '../ui/VibeChatPanel';
 import RoundedIcon from '../ui/RoundedIcon';
@@ -110,19 +111,22 @@ const SpecialOfferModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =
                 </div>
 
                 {/* Tier 2 */}
-                <div className="bg-gradient-to-r from-blue-100 to-blue-200 p-4 rounded-lg border border-blue-300 h-full">
-                  <h4 className="font-bold text-lg mb-1">Next 5 People</h4>
-                  <p className="text-blue-800 text-xl font-bold">$500 for MVP Development</p>
-                  <div className="mt-2 text-sm text-blue-700">
-                    <span className="font-bold">Only 3 spots left!</span> Going fast!
+                <div className="bg-gradient-to-r from-blue-100 to-blue-200 p-4 rounded-lg border border-blue-300 h-full opacity-75">
+                  <div className="absolute top-0 right-0 bg-red-500 text-white px-2 py-1 text-xs font-bold">
+                    SOLD OUT
                   </div>
+                  <h4 className="font-bold text-lg mb-1 line-through">Next 5 People</h4>
+                  <p className="text-blue-800 text-xl font-bold line-through">$500 for MVP Development</p>
+                  <div className="mt-2 text-sm text-red-700 font-semibold">All spots claimed!</div>
                 </div>
 
                 {/* Tier 3 */}
                 <div className="bg-gradient-to-r from-green-100 to-green-200 p-4 rounded-lg border border-green-300 h-full">
                   <h4 className="font-bold text-lg mb-1">Next 10 People</h4>
                   <p className="text-green-800 text-xl font-bold">$2,000 for MVP Development</p>
-                  <div className="mt-2 text-sm text-green-700">Incredible value!</div>
+                  <div className="mt-2 text-sm text-green-700">
+                    <span className="font-bold">Only 4 spots left!</span> Going fast!
+                  </div>
                 </div>
 
                 {/* Tier 4 */}
@@ -306,6 +310,18 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </button>
           
           <div className="ml-auto flex items-center space-x-4">
+            {/* CCO Marketplace Link */}
+            <Link 
+              href="/marketplace" 
+              className="p-1 rounded-md text-cco-neutral-700 hover:bg-cco-neutral-100 relative group transition-all duration-300"
+            >
+              <ShoppingBagIcon className="w-6 h-6 text-cco-primary-600" />
+              <span className="sr-only">CCO Marketplace</span>
+              <span className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 w-max px-2 py-1 bg-cco-neutral-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                CCO Marketplace
+              </span>
+            </Link>
+            
             {/* Special Offer Button */}
             <button 
               onClick={() => setShowSpecialOfferModal(true)}
@@ -391,7 +407,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     </div>
                   )}
                 </div>
-             
+               
               </button>
               
               {userMenuOpen && (

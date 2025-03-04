@@ -517,82 +517,6 @@ const ConnectServiceModal: React.FC<{
   );
 };
 
-// Update ConnectedDevices component
-const ConnectedDevices: React.FC = () => {
-  const [selectedService, setSelectedService] = useState<string | null>(null);
-  const [showConnectModal, setShowConnectModal] = useState(false);
-
-  const connectedServices = [
-    {
-      id: 'google-drive',
-      name: 'Google Drive',
-      icon: <BrainCardLogo size="sm" />,
-      status: 'Connected'
-    },
-    {
-      id: 'dropbox',
-      name: 'Dropbox',
-      icon: <BrainCardLogo size="sm" />,
-      status: 'Connected'
-    },
-    {
-      id: 'templates',
-      name: 'Templates',
-      icon: <BrainCardLogo size="sm" />,
-      status: 'Connected'
-    }
-  ];
-
-  return (
-    <>
-      <div className="bg-white rounded-xl px-6 py-4 shadow-sm mb-4">
-        <div className="flex items-center space-x-6">
-          <h2 className="text-lg font-semibold text-gray-900 shrink-0">Connected Services</h2>
-          
-          <div className="flex items-center gap-3 flex-grow">
-            {connectedServices.map((service) => (
-              <div
-                key={service.id}
-                className="flex items-center bg-gray-50 rounded-lg px-3 py-1.5 border border-gray-100 cursor-pointer hover:bg-gray-100 transition-colors"
-                onClick={() => setSelectedService(service.id)}
-              >
-                <div className="flex-shrink-0 w-7 h-7 flex items-center justify-center bg-white rounded-md shadow-sm">
-                  {service.icon}
-                </div>
-                {service.id === 'templates' && (
-                  <span className="text-sm text-gray-700 ml-2">{service.name}</span>
-                )}
-                <CheckCircleIcon className="w-3.5 h-3.5 text-green-500 ml-2" />
-              </div>
-            ))}
-          </div>
-
-          <button 
-            onClick={() => setShowConnectModal(true)}
-            className="flex items-center px-3 py-1.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 shrink-0"
-          >
-            <PlusCircleIcon className="w-5 h-5" />
-            <span className="ml-1 text-sm">Connect</span>
-          </button>
-        </div>
-      </div>
-
-      {selectedService && (
-        <FileModal
-          serviceId={selectedService}
-          isOpen={true}
-          onClose={() => setSelectedService(null)}
-        />
-      )}
-
-      <ConnectServiceModal
-        isOpen={showConnectModal}
-        onClose={() => setShowConnectModal(false)}
-      />
-    </>
-  );
-};
-
 // Import our new CCONodeMap component
 import dynamic from 'next/dynamic';
 
@@ -605,6 +529,7 @@ const CCONodeMap = dynamic(
 // Main page component
 export default function MyCOOPage() {
   const [selectedService, setSelectedService] = useState<string | null>(null);
+  const [showConnectModal, setShowConnectModal] = useState(false);
   
   // List of connected services - this is the same data used in ConnectedDevices
   const connectedServices = [
@@ -632,42 +557,104 @@ export default function MyCOOPage() {
               initial={{ y: -20 }}
               animate={{ y: 0 }}
             >
-              <h1 className="text-xl font-bold text-gray-900">
-                My Chief Cognitive Officer (coming once we have 10 customers)
-              </h1>
+             
               <p className="mt-2 text-gray-600 leading-relaxed">
                 Connect and manage your external data sources here. Your Chief Cognitive Officer can analyze and chat with documents from Google Drive, Dropbox, and other connected services, helping you extract insights and information efficiently.
               </p>
             </motion.div>
 
-          <ConnectedDevices />
+          {/* Main content area with flex layout */}
+          <div className="flex gap-4">
+            {/* Knowledge Graph (Middle) */}
+            <div className="flex-1 bg-white rounded-xl p-6 shadow-sm border border-gray-50">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">Knowledge Graph</h2>
+                <div className="flex space-x-2">
+                  <button className="text-sm text-gray-600 flex items-center px-3 py-1.5 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <ArrowPathIcon className="w-4 h-4 mr-1" />
+                    Refresh
+                  </button>
+                  <button className="text-sm text-gray-600 flex items-center px-3 py-1.5 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <MagnifyingGlassIcon className="w-4 h-4 mr-1" />
+                    Zoom
+                  </button>
+                </div>
+              </div>
+              
+              <div className="h-[calc(100vh-350px)] bg-gray-50 rounded-lg p-2 border border-gray-100 overflow-hidden">
+                {/* Replace the old NodeMap with our new CCONodeMap */}
+                <CCONodeMap 
+                  connectedServices={connectedServices}
+                  onServiceClick={handleServiceClick}
+                  showOnlyLogos={true}
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-3 italic">
+                This visualization shows how your data sources are connected. Click on any node to explore its contents.
+              </p>
+            </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-50">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Knowledge Graph</h2>
-              <div className="flex space-x-2">
-                <button className="text-sm text-gray-600 flex items-center px-3 py-1.5 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                  <ArrowPathIcon className="w-4 h-4 mr-1" />
-                  Refresh
-                </button>
-                <button className="text-sm text-gray-600 flex items-center px-3 py-1.5 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                  <MagnifyingGlassIcon className="w-4 h-4 mr-1" />
-                  Zoom
-                </button>
+            {/* Connected Services Panel (Right) */}
+            <div className="w-80 shrink-0">
+              <div className="bg-white rounded-xl shadow-sm mb-4 overflow-hidden">
+                <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-semibold text-gray-900">Connected Services</h2>
+                    <button 
+                      onClick={() => setShowConnectModal(true)}
+                      className="flex items-center p-1 text-blue-500 hover:text-blue-600 transition-colors"
+                    >
+                      <PlusCircleIcon className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="p-4 space-y-3">
+                  {connectedServices.map((service) => (
+                    <div
+                      key={service.id}
+                      className="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-100 cursor-pointer hover:bg-gray-100 transition-colors"
+                      onClick={() => setSelectedService(service.id)}
+                    >
+                      <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-white rounded-md shadow-sm">
+                        <BrainCardLogo size="sm" />
+                      </div>
+                      <div className="ml-3 flex-1">
+                        <div className="font-medium text-gray-900">{service.name}</div>
+                        <div className="flex items-center text-xs text-gray-500">
+                          <div className="h-2 w-2 rounded-full bg-green-500 mr-1"></div>
+                          Connected
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="px-4 py-3 bg-gray-50 border-t border-gray-100">
+                  <button 
+                    onClick={() => setShowConnectModal(true)}
+                    className="w-full flex items-center justify-center px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                  >
+                    <PlusCircleIcon className="w-5 h-5 mr-1" />
+                    <span>Connect New Service</span>
+                  </button>
+                </div>
+              </div>
+              
+              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-50">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">Recent Activity</h3>
+                <div className="space-y-2 text-sm text-gray-600">
+                  <div className="p-2 bg-gray-50 rounded border border-gray-100">
+                    <p>Added <span className="font-medium">Google Drive</span></p>
+                    <p className="text-xs text-gray-500">2 hours ago</p>
+                  </div>
+                  <div className="p-2 bg-gray-50 rounded border border-gray-100">
+                    <p>Analyzed <span className="font-medium">Q4 Financial Report</span></p>
+                    <p className="text-xs text-gray-500">Yesterday</p>
+                  </div>
+                </div>
               </div>
             </div>
-            
-            <div className="h-[calc(100vh-350px)] bg-gray-50 rounded-lg p-2 border border-gray-100 overflow-hidden">
-              {/* Replace the old NodeMap with our new CCONodeMap */}
-              <CCONodeMap 
-                connectedServices={connectedServices}
-                onServiceClick={handleServiceClick}
-                showOnlyLogos={true}
-              />
-            </div>
-            <p className="text-xs text-gray-500 mt-3 italic">
-              This visualization shows how your data sources are connected. Click on any node to explore its contents.
-            </p>
           </div>
         </div>
         
@@ -679,6 +666,12 @@ export default function MyCOOPage() {
             onClose={() => setSelectedService(null)}
           />
         )}
+        
+        {/* Connect Service Modal */}
+        <ConnectServiceModal
+          isOpen={showConnectModal}
+          onClose={() => setShowConnectModal(false)}
+        />
       </DashboardLayout>
     </>
   );
