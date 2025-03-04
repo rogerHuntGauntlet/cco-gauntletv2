@@ -186,8 +186,8 @@ const ContactPage = () => {
                 </p>
                 <p>
                   <strong className="text-midnight-blue dark:text-cosmic-latte">Phone:</strong><br />
-                  <a href="tel:+14155551234" className="text-cosmic-blue hover:text-cosmic-indigo dark:text-cosmic-indigo-light dark:hover:text-cosmic-blue-light">
-                    +1 (415) 555-1234
+                  <a href="tel:+17813202501" className="text-cosmic-blue hover:text-cosmic-indigo dark:text-cosmic-indigo-light dark:hover:text-cosmic-blue-light">
+                    +1 (781) 320-2501
                   </a>
                 </p>
               </address>
@@ -219,8 +219,8 @@ const ContactPage = () => {
                 </a>
               </p>
               <p className="mt-2">
-                <a href="tel:+14155555678" className="text-cosmic-blue hover:text-cosmic-indigo dark:text-cosmic-indigo-light dark:hover:text-cosmic-blue-light">
-                  +1 (415) 555-5678
+                <a href="tel:+17813202501" className="text-cosmic-blue hover:text-cosmic-indigo dark:text-cosmic-indigo-light dark:hover:text-cosmic-blue-light">
+                  +1 (781) 320-2501
                 </a>
               </p>
             </div>

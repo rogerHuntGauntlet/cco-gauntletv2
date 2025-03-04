@@ -27,7 +27,7 @@ export const ContactHeader: React.FC<ContactHeaderProps> = ({ className = '' }) 
   };
 
   const handleCall = () => {
-    window.location.href = 'tel:+1234567890'; // Replace with actual phone number
+    window.location.href = 'tel:+17813202501'; // Updated phone number
   };
 
   return (

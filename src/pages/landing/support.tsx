@@ -340,7 +340,7 @@ const SupportPage = () => {
             <h3 className="text-lg font-medium text-midnight-blue dark:text-cosmic-latte mb-2">Phone Support</h3>
             <p className="text-cosmic-grey dark:text-nebula-white">
               Premium plans only<br />
-              <a href="tel:+18005551234" className="hover:text-electric-indigo">+1 (800) 555-1234</a>
+              <a href="tel:+17813202501" className="hover:text-electric-indigo">+1 (781) 320-2501</a>
             </p>
           </div>
         </div>
