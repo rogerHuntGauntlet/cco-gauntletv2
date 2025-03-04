@@ -18,7 +18,7 @@ import {
   ArrowPathIcon,
   MagnifyingGlassIcon
 } from '@heroicons/react/24/outline';
-import BrainCardLogo from '../../../components/BrainCardLogo';
+import BrainCardLogo from '../../../components/ui/BrainCardLogo';
 
 // Add mock data for files
 const mockFiles = {
@@ -598,7 +598,7 @@ import dynamic from 'next/dynamic';
 
 // Use dynamic import with ssr: false to avoid React Flow hydration issues
 const CCONodeMap = dynamic(
-  () => import('../../../components/CCONodeMap'),
+  () => import('../../../features/secondbrain/CCONodeMap'),
   { ssr: false }
 );
 

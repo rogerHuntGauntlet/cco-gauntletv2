@@ -1,5 +1,5 @@
 import React from 'react';
-import PageTemplate from './page-template';
+import PageTemplate from '../company/page-template';
 import Script from 'next/script';
 
 // Pricing page component

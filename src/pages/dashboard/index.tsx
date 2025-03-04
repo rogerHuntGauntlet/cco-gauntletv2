@@ -4,7 +4,7 @@ import DashboardLayout from '../../components/layout/DashboardLayout';
 import { Dashboard } from '../../components/dashboard/Dashboard';
 import { useAuth } from '../../contexts/AuthContext';
 import { getDashboardData } from '../../lib/firebase';
-import ProtectedRoute from '../../components/ProtectedRoute';
+import ProtectedRoute from '../../components/common/ProtectedRoute';
 import type { NextPage } from 'next';
 import { Dashboard as DashboardType } from '../../types';
 import { ExclamationCircleIcon } from '@heroicons/react/24/outline';

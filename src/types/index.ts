@@ -66,15 +66,6 @@ export interface Recommendation {
   implemented?: boolean;
 }
 
-export interface Dashboard {
-  recentMeetings: Meeting[];
-  upcomingMeetings: Meeting[];
-  activeProjects: Project[];
-  recentDocuments: Document[];
-  pendingActionItems: ActionItem[];
-  notifications: Notification[];
-}
-
 export interface MeetingInsight {
   meetingId: string;
   sentiment: 'positive' | 'neutral' | 'negative';
@@ -207,17 +198,17 @@ export interface NotificationsState {
 
 export interface SecondBrain {
   id: string;
+  avatar: string;
   name: string;
   ownerId: string;
   ownerName: string;
-  avatar?: string;
   description: string;
   expertise: string[];
-  rating?: number;
-  ratingCount?: number;
+  rating: number;
+  ratingCount: number;
   pricing: {
-    hourly?: number;
-    project?: number;
+    hourly: number;
+    project: number;
   };
   status: 'available' | 'busy' | 'unavailable';
   createdAt: string;
@@ -243,4 +234,13 @@ export interface SecondBrainInterview {
   endedAt?: string;
   status: 'active' | 'completed' | 'hired';
   messages: SecondBrainMessage[];
+}
+
+export interface Dashboard {
+  recentMeetings: any[];
+  upcomingMeetings: any[];
+  activeProjects: any[];
+  recentDocuments: any[];
+  pendingActionItems: any[];
+  notifications: any[];
 } 

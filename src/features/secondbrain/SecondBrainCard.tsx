@@ -124,7 +124,7 @@ export function SecondBrainCard({ secondBrain }: SecondBrainCardProps) {
                 ${secondBrain.pricing.hourly}/hr
               </span>
             )}
-            <Link href={`/dashboard/secondbrains/${secondBrain.id}`}>
+            <Link href={`/dashboard/marketplace/${secondBrain.id}`}>
               <Button variant="accent" size="sm" className="px-5 py-2">Interview</Button>
             </Link>
           </div>

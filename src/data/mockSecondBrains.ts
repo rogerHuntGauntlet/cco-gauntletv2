@@ -5,6 +5,7 @@ export const mockSecondBrains: SecondBrain[] = [
     id: '1',
     name: 'MarketInsight Brain',
     ownerId: 'user1',
+    avatar: "/branding/ui/logo-header-large.png",
     ownerName: 'Jessica Chen',
     description: 'Expert in market research, competitor analysis, and business strategy. Can help identify market opportunities and provide actionable insights for your business growth.',
     expertise: ['Market Research', 'Business Strategy', 'Competitive Analysis', 'Industry Trends'],
@@ -24,6 +25,7 @@ export const mockSecondBrains: SecondBrain[] = [
   {
     id: '2',
     name: 'CodeCraft Assistant',
+    avatar: "/branding/ui/logo-header-large.png",
     ownerId: 'user2',
     ownerName: 'Alex Rodriguez',
     description: 'Full-stack developer brain with expertise in modern web frameworks, architecture design, and code optimization. I help with everything from code reviews to complex system design.',
@@ -31,7 +33,8 @@ export const mockSecondBrains: SecondBrain[] = [
     rating: 4.9,
     ratingCount: 56,
     pricing: {
-      hourly: 95
+      hourly: 95,
+      project: 1200
     },
     status: 'busy',
     createdAt: new Date(2023, 3, 10).toISOString(),
@@ -43,6 +46,7 @@ export const mockSecondBrains: SecondBrain[] = [
   {
     id: '3',
     name: 'ContentGenius',
+    avatar: "/branding/ui/logo-header-large.png",
     ownerId: 'user3',
     ownerName: 'Emma Watson',
     description: 'Creative content strategist and copywriter. Specializing in engaging content that converts, SEO optimization, and brand storytelling across multiple channels.',
@@ -65,6 +69,7 @@ export const mockSecondBrains: SecondBrain[] = [
     name: 'DesignMind',
     ownerId: 'user4',
     ownerName: 'Noah Kim',
+    avatar: "/branding/ui/logo-header-large.png",
     description: 'UX/UI design specialist with a focus on creating intuitive, accessible, and beautiful digital experiences. Expert in user research, prototyping, and design systems.',
     expertise: ['UX/UI Design', 'User Research', 'Design Systems', 'Prototyping', 'Accessibility'],
     rating: 4.85,
@@ -85,6 +90,7 @@ export const mockSecondBrains: SecondBrain[] = [
     name: 'DataScience Pro',
     ownerId: 'user5',
     ownerName: 'Dr. Michael Roberts',
+    avatar: "/branding/ui/logo-header-large.png",
     description: 'Data scientist specialized in predictive analytics, machine learning models, and data visualization. Helps businesses leverage their data for strategic decision-making.',
     expertise: ['Data Science', 'Machine Learning', 'Predictive Analytics', 'Data Visualization', 'Python'],
     rating: 4.95,
@@ -104,13 +110,15 @@ export const mockSecondBrains: SecondBrain[] = [
     id: '6',
     name: 'LegalEagle',
     ownerId: 'user6',
+    avatar: "/branding/ui/logo-header-large.png",
     ownerName: 'Sarah Johnson, Esq.',
     description: 'Legal advisor specialized in business law, contracts, IP protection, and compliance. Helping entrepreneurs and businesses navigate legal complexities with clarity.',
     expertise: ['Business Law', 'Contracts', 'IP Protection', 'Legal Compliance', 'Privacy Law'],
     rating: 4.75,
     ratingCount: 24,
     pricing: {
-      hourly: 120
+      hourly: 120,
+      project: 1200
     },
     status: 'unavailable',
     createdAt: new Date(2023, 0, 25).toISOString(),

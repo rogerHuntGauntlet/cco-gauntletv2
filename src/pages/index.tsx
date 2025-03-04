@@ -102,7 +102,7 @@ const LandingPage: FC = () => {
         <p className="text-lg text-cosmic-grey dark:text-digital-lavender mb-10 max-w-md text-center">
           An assistant for software development and creative collaboration.
         </p>
-        <Link href="/secondbrains" className="px-8 py-4 bg-electric-indigo text-white rounded-lg font-medium text-lg shadow-lg hover:bg-opacity-90 transition-colors">
+        <Link href="/marketplace" className="px-8 py-4 bg-electric-indigo text-white rounded-lg font-medium text-lg shadow-lg hover:bg-opacity-90 transition-colors">
           Go to the CCO Marketplace
         </Link>
       </div>
