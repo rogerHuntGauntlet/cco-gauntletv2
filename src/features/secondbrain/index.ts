@@ -1,1 +1,2 @@
-export { SecondBrainInterview } from './SecondBrainInterview'; 
+export { SecondBrainInterview } from './SecondBrainInterview';
+export { SecondBrainList } from './SecondBrainList'; 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { SecondBrainList } from '../../features/secondbrain/SecondBrainList';
+import { SecondBrainList } from '../../features/secondbrain';
 import { SecondBrain } from '../../types';
 import { BookOpenIcon } from '@heroicons/react/24/outline';
 import { mockSecondBrains } from '../../data/mockSecondBrains';
