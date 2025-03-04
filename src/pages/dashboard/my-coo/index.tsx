@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import ReactFlow, {
   Node,
   Edge,
@@ -11,6 +11,7 @@ import ReactFlow, {
   applyEdgeChanges,
   addEdge,
   Panel,
+  ReactFlowInstance,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
@@ -37,6 +38,7 @@ export default function MyCooPage() {
   const [edges, setEdges] = useState<Edge[]>(initialEdges);
   const [nodeName, setNodeName] = useState<string>('New Node');
   const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
   
   // Handle node changes
   const onNodesChange = useCallback(
@@ -55,6 +57,11 @@ export default function MyCooPage() {
     (connection: Connection) => setEdges((eds) => addEdge({ ...connection, animated: true }, eds)),
     []
   );
+
+  // Store the ReactFlow instance
+  const onInit = useCallback((instance: ReactFlowInstance) => {
+    setReactFlowInstance(instance);
+  }, []);
 
   // Add a new node
   const addNode = () => {
@@ -86,17 +93,13 @@ export default function MyCooPage() {
   const focusNode = (nodeId: string) => {
     // Find the node
     const node = nodes.find((n) => n.id === nodeId);
-    if (node) {
-      // This is a simple implementation - in a real app, you might want to use the ReactFlow instance methods
-      // to properly center the view on the node
-      const reactFlowInstance = document.querySelector('.react-flow');
-      if (reactFlowInstance) {
-        reactFlowInstance.scrollTo({
-          left: node.position.x,
-          top: node.position.y,
-          behavior: 'smooth'
-        });
-      }
+    if (node && reactFlowInstance) {
+      // Use ReactFlow's viewport functions to center on the node
+      const x = node.position.x;
+      const y = node.position.y;
+      const zoom = 1.5; // Zoom level when focusing on a node
+      
+      reactFlowInstance.setCenter(x, y, { zoom, duration: 800 });
     }
   };
 
@@ -110,6 +113,7 @@ export default function MyCooPage() {
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           nodeTypes={{ custom: CustomNode }}
+          onInit={onInit}
           fitView
         >
           <Background color="#f0f0f0" gap={16} />
